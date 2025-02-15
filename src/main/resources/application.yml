@@ -1,0 +1,13 @@
+spring:
+    profiles:
+        active: ${CATCONNECT_SPRING_PROFILE_ACTIVE:local}  #?? ?? ?? ? local
+
+    jpa:
+        hibernate:
+            ddl-auto: update
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+security:
+    jwt:
+        secret: ${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
+        expiration: ${CATCONNECT_SPRING_SECURITY_EXPIRATION}
