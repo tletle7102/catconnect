@@ -1,11 +1,10 @@
 spring:
     profiles:
-        active: ${CATCONNECT_SPRING_PROFILE_ACTIVE:local}  #?? ?? ?? ? local
+        active: ${CATCONNECT_SPRING_PROFILE_ACTIVE:local}
 
     jpa:
         hibernate:
             ddl-auto: update
-        database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 security:
     jwt:
