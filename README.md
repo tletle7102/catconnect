@@ -1,10 +1,11 @@
-# 🚀 DDD 프로젝트 프로토타입
+# 🚀 고양이 입양 프로젝트
 ![Java](https://img.shields.io/badge/Java-21-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-green)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-latest-lightblue)
 
 ## 🎯 프로젝트 개요
 이 프로젝트는 DDD(Domain-Driven Design) 패턴을 적용하여 구성된 Spring Boot 기반 서버 어플리케이션
+고양이를 입양하길 원하는 사람들을 연결하는 플랫폼
 `JPA`, `Spring Security`, `Lombok` 등을 활용하고, `PostgreSQL`을 데이터베이스로 사용
 
 ## 📁 패키지 구조
