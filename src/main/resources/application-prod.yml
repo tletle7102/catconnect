@@ -1,5 +1,5 @@
 server:
-  port: ${CATCONNECT_TOMCAT_PORT}
+  port: ${CATCONNECT_TOMCAT_PORT:8080}
 spring:
   datasource:
     url: ${CATCONNECT_PROD_DB_URL}/${CATCONNECT_PROD_DB_NAME}

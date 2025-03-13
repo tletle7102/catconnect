@@ -9,4 +9,4 @@ spring:
 security:
     jwt:
         secret: ${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
-        expiration: ${CATCONNECT_SPRING_SECURITY_EXPIRATION}
+        expiration: ${CATCONNECT_SPRING_SECURITY_EXPIRATION:86400}
