@@ -1,6 +1,9 @@
 server:
   port: ${CATCONNECT_TOMCAT_PORT:8080}
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
   datasource:
     url: ${CATCONNECT_LOCAL_DB_URL}/${CATCONNECT_LOCAL_DB_NAME}
     username: ${CATCONNECT_LOCAL_DB_USERNAME}

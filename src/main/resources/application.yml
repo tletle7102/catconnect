@@ -2,10 +2,6 @@ spring:
     profiles:
         active: ${CATCONNECT_SPRING_PROFILE_ACTIVE:local}
 
-    jpa:
-        hibernate:
-            ddl-auto: update
-
 security:
     jwt:
         secret: ${CATCONNECT_SPRING_SECURITY_JWT_SECRET}

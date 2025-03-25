@@ -1,6 +1,9 @@
 server:
-  port: ${CATCONNECT_TOMCAT_PORT:8080}
+  port: ${CATCONNECT_TOMCAT_PORT:8081}
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
   datasource:
     url: ${CATCONNECT_PROD_DB_URL}/${CATCONNECT_PROD_DB_NAME}
     username: ${CATCONNECT_PROD_DB_USERNAME}
