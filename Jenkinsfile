@@ -27,7 +27,17 @@ pipeline {
         stage('Build Gradle') {
             steps {
                 sh 'chmod +x gradlew'
-                sh './gradlew clean build'
+                sh '''
+                export CATCONNECT_SPRING_PROFILE_ACTIVE=${CATCONNECT_SPRING_PROFILE_ACTIVE}
+                export CATCONNECT_TOMCAT_PORT=${CATCONNECT_TOMCAT_PORT}
+                export CATCONNECT_SPRING_SECURITY_JWT_SECRET=${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
+                export CATCONNECT_SPRING_SECURITY_EXPIRATION=${CATCONNECT_SPRING_SECURITY_EXPIRATION}
+                export CATCONNECT_DEV_DB_URL=${CATCONNECT_DEV_DB_URL}
+                export CATCONNECT_DEV_DB_USERNAME=${CATCONNECT_DEV_DB_USERNAME}
+                export CATCONNECT_DEV_DB_PASSWORD=${CATCONNECT_DEV_DB_PASSWORD}
+                export CATCONNECT_DEV_DB_NAME=${CATCONNECT_DEV_DB_NAME}
+                ./gradlew clean build
+                '''
             }
         }
         stage('Build Docker Image') {
