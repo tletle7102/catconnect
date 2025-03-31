@@ -1,5 +1,5 @@
 server:
-  port: ${CATCONNECT_TOMCAT_PORT:8081}
+  port: ${CATCONNECT_TOMCAT_PORT:8098}
 spring:
   jpa:
     hibernate:
