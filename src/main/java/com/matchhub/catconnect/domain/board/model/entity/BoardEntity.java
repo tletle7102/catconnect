@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.user.model.entity;
+package com.matchhub.catconnect.domain.board.model.entity;
 
 import com.matchhub.catconnect.common.model.entity.BaseEntity;
 import jakarta.persistence.*;
