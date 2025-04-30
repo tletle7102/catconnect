@@ -1,11 +1,26 @@
 server:
-  port: ${CATCONNECT_TOMCAT_PORT:8080}
+  port: ${LOCAL_TOMCAT_PORT:8080}
+
 spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
   jpa:
     hibernate:
-      ddl-auto: update
-  datasource:
-    url: ${CATCONNECT_LOCAL_DB_URL}/${CATCONNECT_LOCAL_DB_NAME}
-    username: ${CATCONNECT_LOCAL_DB_USERNAME}
-    password: ${CATCONNECT_LOCAL_DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+      ddl-auto: create
+    show-sql: true
+    open-in-view: false
+    defer-datasource-initialization: true

@@ -1,8 +1,3 @@
 spring:
     profiles:
-        active: ${CATCONNECT_SPRING_PROFILE_ACTIVE:local}
-
-security:
-    jwt:
-        secret: ${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
-        expiration: ${CATCONNECT_SPRING_SECURITY_EXPIRATION:86400}
+        active: ${SPRING_PROFILES_ACTIVE:local}
