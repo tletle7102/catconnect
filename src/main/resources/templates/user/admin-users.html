@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Catconnect</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; }
+    .top-nav { background-color: #333; color: white; padding: 10px; display: flex; justify-content: space-between; }
+    .top-nav a { color: white; text-decoration: none; }
+    .main-container { display: flex; min-height: 80vh; }
+    .side-nav { width: 200px; background-color: #f4f4f4; padding: 10px; }
+    .side-nav ul { list-style: none; padding: 0; }
+    .side-nav li { margin: 10px 0; }
+    .side-nav a { text-decoration: none; color: #333; }
+    .content { flex-grow: 1; padding: 20px; }
+    .footer { background-color: #333; color: white; text-align: center; padding: 10px; }
+  </style>
+</head>
+<body>
+<div th:insert="fragments/top-nav :: top-nav"></div>
+<div class="main-container">
+  <div th:insert="fragments/side-nav :: side-nav"></div>
+  <div class="content">
+    <h1>관리자 - 사용자 목록</h1>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>사용자 이름</th>
+        <th>이메일</th>
+        <th>역할</th>
+        <th>생성 시간</th>
+      </tr>
+      <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.email}"></td>
+        <td th:text="${user.role == 'USER' ? '일반 사용자' : '관리자'}"></td>
+        <td th:text="${user.createdDttm}"></td>
+      </tr>
+    </table>
+    <a href="/users">사용자 목록으로 돌아가기</a>
+  </div>
+</div>
+<div th:insert="fragments/footer :: footer"></div>
+</body>
+</html>
