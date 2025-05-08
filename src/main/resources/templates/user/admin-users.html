@@ -17,9 +17,9 @@
   </style>
 </head>
 <body>
-<div th:insert="fragments/top-nav :: top-nav"></div>
+<div th:insert="~{fragments/top-nav :: top-nav}"></div>
 <div class="main-container">
-  <div th:insert="fragments/side-nav :: side-nav"></div>
+  <div th:insert="~{fragments/side-nav :: side-nav}"></div>
   <div class="content">
     <h1>관리자 - 사용자 목록</h1>
     <table>
@@ -41,6 +41,6 @@
     <a href="/users">사용자 목록으로 돌아가기</a>
   </div>
 </div>
-<div th:insert="fragments/footer :: footer"></div>
+<div th:insert="~{fragments/footer :: footer}"></div>
 </body>
 </html>

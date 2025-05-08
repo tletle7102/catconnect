@@ -17,13 +17,13 @@
     </style>
 </head>
 <body>
-<div th:insert="fragments/top-nav :: top-nav"></div>
+<div th:insert="~{fragments/top-nav :: top-nav}"></div>
 <div class="main-container">
-    <div th:insert="fragments/side-nav :: side-nav"></div>
+    <div th:insert="~{fragments/side-nav :: side-nav}"></div>
     <div class="content">
         <h1>CatConnect에 오신 것을 환영합니다!</h1>
     </div>
 </div>
-<div th:insert="fragments/footer :: footer"></div>
+<div th:insert="~{fragments/footer :: footer}"></div>
 </body>
 </html>
