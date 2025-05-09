@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Catconnect</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; }
+        .top-nav { background-color: #333; color: white; padding: 10px; display: flex; justify-content: space-between; }
+        .top-nav a { color: white; text-decoration: none; }
+        .main-container { display: flex; min-height: 80vh; }
+        .side-nav { width: 200px; background-color: #f4f4f4; padding: 10px; }
+        .side-nav ul { list-style: none; padding: 0; }
+        .side-nav li { margin: 10px 0; }
+        .side-nav a { text-decoration: none; color: #333; }
+        .content { flex-grow: 1; padding: 20px; }
+        .footer { background-color: #333; color: white; text-align: center; padding: 10px; }
+    </style>
+</head>
+<body>
+<div th:insert="~{fragments/top-nav :: top-nav}"></div>
+<div class="main-container">
+    <div th:insert="~{fragments/side-nav :: side-nav}"></div>
+    <div class="content">
+        <h1>새 게시글 추가</h1>
+        <form method="post" action="/boards">
+            <label>제목: <input type="text" name="title"/></label><br/>
+            <label>내용: <textarea name="content"></textarea></label><br/>
+            <label>작성자: <input type="text" name="author"/></label><br/>
+            <button type="submit">저장</button>
+        </form>
+        <a href="/boards">목록으로 돌아가기</a>
+    </div>
+</div>
+<div th:insert="~{fragments/footer :: footer}"></div>
+</body>
+</html>
