@@ -1,6 +1,6 @@
 package com.matchhub.catconnect.common.controller;
 
-import com.matchhub.catconnect.domain.board.BoardRepository;
+import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

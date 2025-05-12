@@ -1,6 +1,6 @@
 package com.matchhub.catconnect.common.controller;
 
-import com.matchhub.catconnect.domain.user.UserRepository;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.domain.user.model.entity.User;
 import com.matchhub.catconnect.domain.user.model.enums.Role;
 import org.springframework.stereotype.Controller;
