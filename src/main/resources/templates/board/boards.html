@@ -33,7 +33,7 @@
             </tr>
             <tr th:each="board : ${boards}">
                 <td th:text="${board.id}"></td>
-                <td th:text="${board.title}"></td>
+                <td><a th:href="@{/boards/{id}(id=${board.id})}" th:text="${board.title}"></a></td>
                 <td th:text="${board.author}"></td>
                 <td th:text="${board.createdDttm}"></td>
             </tr>
