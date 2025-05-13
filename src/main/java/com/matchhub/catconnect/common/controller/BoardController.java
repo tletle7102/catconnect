@@ -58,6 +58,7 @@ public class BoardController {
     public String createComment(@PathVariable Long id, @RequestParam String content, @RequestParam String author){
         Board board = boardRepository.findById(id).orElseThrow();
         Comment comment = new Comment(content, author, board);
+        commentRepository.save(comment);
         return "redirect:/boards/" + id;
     }
 
