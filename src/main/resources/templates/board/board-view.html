@@ -25,6 +25,12 @@
         <p th:text="${board.content}"></p>
         <p>작성자: <span th:text="${board.author}"></span></p>
         <p>생성 시간: <span th:text="${board.createdDttm}"></span></p>
+        <h2>좋아요</h2>
+        <p th:text="${#lists.size(board.likes)} + ' 좋아요'"></p>
+        <form th:action="@{/boards/{id}/likes(id=${board.id})}" method="post">
+            <label>사용자 이름: <input type="text" name="username"/></label><br/>
+            <button type="submit">좋아요</button>
+        </form>
         <h2>댓글</h2>
         <table>
             <tr th:each="comment : ${board.comments}">
