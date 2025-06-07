@@ -4,6 +4,8 @@ import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
+import com.matchhub.catconnect.domain.like.model.entity.Like;
+import com.matchhub.catconnect.domain.like.repository.LikeRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +18,12 @@ public class BoardController {
 
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
 
-    public BoardController(BoardRepository boardRepository, CommentRepository commentRepository) {
+    public BoardController(BoardRepository boardRepository, CommentRepository commentRepository, LikeRepository likeRepository) {
         this.boardRepository = boardRepository;
         this.commentRepository = commentRepository;
+        this.likeRepository = likeRepository;
     }
 
     @GetMapping("/boards")
@@ -62,6 +66,14 @@ public class BoardController {
         return "redirect:/boards/" + id;
     }
 
+    @PostMapping("/boards/{id}/likes")
+    public String addLike(@PathVariable Long id, @RequestParam String username) {
+        Board board = boardRepository.findById(id).orElseThrow();
+        Like like = new Like(username, board);
+        likeRepository.save(like);
+        return "redirect:/boards/" + id;
+    }
+
     @GetMapping("/admin/boards")
     public String adminListBoards(Model model) {
         model.addAttribute("boards", boardRepository.findAll());
@@ -72,5 +84,13 @@ public class BoardController {
     public String adminListComments(Model model) {
         model.addAttribute("comments", commentRepository.findAll());
         return "comment/admin-comments";
+    }
+
+    @GetMapping("/admin/likes")
+    public String adminListLikes(Model model) {
+        model.addAttribute(
+                "likes", likeRepository.findAll()
+        );
+        return "like/admin-likes";
     }
 }
