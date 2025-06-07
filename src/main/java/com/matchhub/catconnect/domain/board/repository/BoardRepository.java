@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
-    @EntityGraph(attributePaths = {"comments"})
+    @EntityGraph(attributePaths = {"comments", "likes"})
     Optional<Board> findById(Long id);
 }
