@@ -1,35 +1,25 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
 <head>
-  <meta charset="UTF-8">
-  <title>Catconnect</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; }
-    .top-nav { background-color: #333; color: white; padding: 10px; display: flex; justify-content: space-between; }
-    .top-nav a { color: white; text-decoration: none; }
-    .main-container { display: flex; min-height: 80vh; }
-    .side-nav { width: 200px; background-color: #f4f4f4; padding: 10px; }
-    .side-nav ul { list-style: none; padding: 0; }
-    .side-nav li { margin: 10px 0; }
-    .side-nav a { text-decoration: none; color: #333; }
-    .content { flex-grow: 1; padding: 20px; }
-    .footer { background-color: #333; color: white; text-align: center; padding: 10px; }
-  </style>
+  <title layout:title>새 사용자 추가</title>
 </head>
-<body>
-<div th:insert="~{fragments/top-nav :: top-nav}"></div>
-<div class="main-container">
-  <div th:insert="~{fragments/side-nav :: side-nav}"></div>
-  <div class="content">
-    <h1>새 사용자 추가</h1>
-    <form method="post" action="/users">
-      <label>사용자 이름: <input type="text" name="username"/></label><br/>
-      <label>이메일: <input type="text" name="email"/></label><br/>
-      <button type="submit">저장</button>
-    </form>
-    <a href="/users">목록으로 돌아가기</a>
+<section layout:fragment="content">
+  <div class="card">
+    <div class="card-body">
+      <h1 class="card-title">새 사용자 추가</h1>
+      <form method="post" action="/users">
+        <div class="mb-3">
+          <label for="username" class="form-label">사용자 이름</label>
+          <input type="text" id="username" name="username" class="form-control w-50" required>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">이메일</label>
+          <input type="text" id="email" name="email" class="form-control w-50" required>
+        </div>
+        <button type="submit" class="btn btn-primary">저장</button>
+        <a href="/users" class="btn btn-secondary">목록으로 돌아가기</a>
+      </form>
+    </div>
   </div>
-</div>
-<div th:insert="~{fragments/footer :: footer}"></div>
-</body>
+</section>
 </html>

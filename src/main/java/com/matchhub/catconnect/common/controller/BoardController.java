@@ -29,11 +29,13 @@ public class BoardController {
     @GetMapping("/boards")
     public String listBoards(Model model) {
         model.addAttribute("boards", boardRepository.findAll());
+        model.addAttribute("currentPage", "boards");
         return "board/boards";
     }
 
     @GetMapping("/boards/new")
-    public String newBoardForm() {
+    public String newBoardForm(Model model) {
+        model.addAttribute("currentPage", "boards");
         return "board/board-form";
     }
 
@@ -48,6 +50,7 @@ public class BoardController {
     public String viewBoard(@PathVariable Long id, Model model) {
         Board board = boardRepository.findById(id).orElseThrow();
         model.addAttribute("board", board);
+        model.addAttribute("currentPage", "boards");
         return "board/board-view";
     }
 
@@ -55,6 +58,7 @@ public class BoardController {
     public String newCommentForm(@PathVariable Long id, Model model) {
         Board board = boardRepository.findById(id).orElseThrow();
         model.addAttribute("board", board);
+        model.addAttribute("currentPage", "boards");
         return "comment/comment-form";
     }
 
@@ -77,20 +81,21 @@ public class BoardController {
     @GetMapping("/admin/boards")
     public String adminListBoards(Model model) {
         model.addAttribute("boards", boardRepository.findAll());
+        model.addAttribute("currentPage", "admin-boards");
         return "board/admin-boards";
     }
 
     @GetMapping("/admin/comments")
     public String adminListComments(Model model) {
         model.addAttribute("comments", commentRepository.findAll());
+        model.addAttribute("currentPage", "admin-comments");
         return "comment/admin-comments";
     }
 
     @GetMapping("/admin/likes")
     public String adminListLikes(Model model) {
-        model.addAttribute(
-                "likes", likeRepository.findAll()
-        );
+        model.addAttribute("likes", likeRepository.findAll());
+        model.addAttribute("currentPage", "admin-likes");
         return "like/admin-likes";
     }
 }

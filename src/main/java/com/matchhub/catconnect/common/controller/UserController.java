@@ -21,11 +21,13 @@ public class UserController {
     @GetMapping("/users")
     public String listUsers(Model model) {
         model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("currentPage", "users");
         return "user/users";
     }
 
     @GetMapping("/users/new")
-    public String newUserForm() {
+    public String newUserForm(Model model) {
+        model.addAttribute("currentPage", "users");
         return "user/user-form";
     }
 
@@ -39,6 +41,7 @@ public class UserController {
     @GetMapping("/admin/users")
     public String adminListUsers(Model model) {
         model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("currentPage", "admin-users");
         return "user/admin-users";
     }
 
