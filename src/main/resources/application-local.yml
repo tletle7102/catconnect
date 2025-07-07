@@ -24,3 +24,9 @@ spring:
     show-sql: true
     open-in-view: false
     defer-datasource-initialization: true
+
+logging:
+  level:
+    com.matchhub.catconnect.global.util.auth: DEBUG
+    com.matchhub.catconnect.global.configuration: DEBUG
+    org.springframework.security: DEBUG
