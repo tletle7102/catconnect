@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title layout:title>로그인</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title">로그인</h1>
+            <div id="error-message" class="alert alert-danger" role="alert" style="display: none;"></div>
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="mb-3">
+                    <label for="username" class="form-label">사용자 이름</label>
+                    <input type="text" id="username" name="username" class="form-control w-50" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input type="password" id="password" name="password" class="form-control w-50" required>
+                </div>
+                <button type="submit" class="btn btn-primary">로그인</button>
+            </form>
+            <script>
+                console.log("login.html: 스크립트 로드 시작");
+                function handleLogin(event) {
+                    event.preventDefault();
+                    console.log("login.html: 로그인 폼 제출 시작");
+                    var username = document.getElementById('username').value;
+                    var password = document.getElementById('password').value;
+                    var errorMessage = document.getElementById('error-message');
+                    if (!username || !password) {
+                        console.error("login.html: 사용자 이름 또는 비밀번호 누락");
+                        errorMessage.textContent = "사용자 이름과 비밀번호를 입력하세요.";
+                        errorMessage.style.display = 'block';
+                        return;
+                    }
+                    console.log("login.html: 로그인 요청 데이터: username=" + username);
+                    fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username: username, password: password })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('로그인 실패: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("login.html: 로그인 성공: ", data);
+                        errorMessage.style.display = 'none';
+                        window.location.href = '/';
+                    })
+                    .catch(error => {
+                        console.error("login.html: 로그인 실패: ", error);
+                        errorMessage.textContent = error.message || "로그인 중 오류가 발생했습니다.";
+                        errorMessage.style.display = 'block';
+                    });
+                }
+            </script>
+        </div>
+    </div>
+</section>
+</body>
+</html>
