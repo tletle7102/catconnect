@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title layout:title>게시판 목록</title>
+    <meta charset="UTF-8">
+    <title>게시판 목록</title>
 </head>
 <section layout:fragment="content">
     <div class="card">
         <div class="card-body">
             <h1 class="card-title">게시판 목록</h1>
-            <a href="/boards/new" class="btn btn-primary mb-3">새 게시글 추가</a>
-            <a href="/admin/boards" class="btn btn-secondary mb-3">관리자 보기</a>
+            <a href="/boards/new" class="btn btn-primary mb-3" sec:authorize="isAuthenticated()">새 게시글 추가</a>
+            <a href="/admin/boards" class="btn btn-secondary mb-3" sec:authorize="hasRole('ADMIN')">관리자 보기</a>
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
