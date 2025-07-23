@@ -1,36 +1,62 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
 <head>
-  <title layout:title>관리자 - 사용자 목록</title>
+  <meta charset="UTF-8">
+  <title>관리자 - 사용자 목록</title>
 </head>
 <section layout:fragment="content">
   <div class="card">
     <div class="card-body">
       <h1 class="card-title">관리자 - 사용자 목록</h1>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-          <tr>
-            <th>ID</th>
-            <th>사용자 이름</th>
-            <th>이메일</th>
-            <th>역할</th>
-            <th>생성 시간</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="user : ${users}">
-            <td th:text="${user.id}"></td>
-            <td th:text="${user.username}"></td>
-            <td th:text="${user.email}"></td>
-            <td th:text="${user.role == 'USER' ? '일반 사용자' : '관리자'}"></td>
-            <td th:text="${#temporals.format(user.createdDttm, 'yyyy.MM.dd HH:mm:ss')}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      <a href="/users" class="btn btn-secondary">사용자 목록으로 돌아가기</a>
+      <form th:action="@{/admin/users/delete}" method="post">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+            <tr>
+              <th><input type="checkbox" id="selectAll"></th>
+              <th>ID</th>
+              <th>사용자 이름</th>
+              <th>이메일</th>
+              <th>역할</th>
+              <th>생성 시간</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+              <td style="vertical-align: middle;"><input type="checkbox" name="ids" th:value="${user.id}"></td>
+              <td style="vertical-align: middle;" th:text="${user.id}"></td>
+              <td style="vertical-align: middle;" th:text="${user.username}"></td>
+              <td style="vertical-align: middle;" th:text="${user.email}"></td>
+              <td style="vertical-align: middle;" th:text="${user.role == 'USER' ? '일반 사용자' : '관리자'}"></td>
+              <td style="vertical-align: middle;" th:text="${#temporals.format(user.createdDttm, 'yyyy.MM.dd HH:mm:ss')}"></td>
+              <td style="vertical-align: middle;">
+                <a th:href="@{/admin/users/{id}/delete(id=${user.id})}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;">X</a>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <a href="/users" class="btn btn-secondary mb-3">사용자 목록으로 돌아가기</a>
+        <button type="submit" class="btn btn-secondary mb-3">선택 삭제</button>
+      </form>
     </div>
   </div>
+  <script>
+    // 전체 선택 체크박스
+    document.getElementById('selectAll').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('input[name="ids"]');
+        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    });
+    // 메시지 및 에러 표시
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    const error = urlParams.get('error');
+    if (message) {
+        alert(decodeURIComponent(message));
+    } else if (error) {
+        alert(decodeURIComponent(error));
+    }
+  </script>
 </section>
 </html>
