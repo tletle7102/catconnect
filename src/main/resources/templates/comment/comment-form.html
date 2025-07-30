@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title layout:title>댓글 작성</title>
 </head>
 <section layout:fragment="content">
@@ -11,10 +15,6 @@
                 <div class="mb-3">
                     <label for="content" class="form-label">내용</label>
                     <input type="text" id="content" name="content" class="form-control w-50" required>
-                </div>
-                <div class="mb-3">
-                    <label for="author" class="form-label">작성자</label>
-                    <input type="text" id="author" name="author" class="form-control w-50" required>
                 </div>
                 <button type="submit" class="btn btn-primary">저장</button>
                 <a th:href="@{/boards/{id}(id=${board.id})}" class="btn btn-secondary">게시글로 돌아가기</a>
