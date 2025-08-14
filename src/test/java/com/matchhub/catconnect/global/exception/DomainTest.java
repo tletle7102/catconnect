@@ -9,10 +9,11 @@ class DomainTest {
     // Domain enum의 값과 각 설명(description)이 올바르게 설정되어 있는지 테스트
     @Test
     void testDomainValues() {
-        // Domain enum에 총 4개의 값이 있는지 확인
-        assertEquals(4, Domain.values().length);
+        // Domain enum에 총 5개의 값이 있는지 확인
+        assertEquals(5, Domain.values().length);
 
         // 각 enum 상수의 설명이 올바른지 확인
+        assertEquals("없음", Domain.NONE.getDescription());
         assertEquals("사용자", Domain.USER.getDescription());
         assertEquals("게시글", Domain.BOARD.getDescription());
         assertEquals("댓글", Domain.COMMENT.getDescription());
