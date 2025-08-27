@@ -10,6 +10,14 @@ public class ErrorResponse {
     private final String message;  // 에러 메시지 (예: "사용자를 찾을 수 없습니다.")
     private final int status;      // HTTP 상태 코드 (예: 404, 500 등)
 
+    // Jackson을 위한 기본 생성자
+    protected ErrorResponse() {
+        this.domain = null;
+        this.code = null;
+        this.message = null;
+        this.status = 0;
+    }
+
     // 생성자: 에러 도메인, 에러 코드, 사용자 정의 메시지를 받아 ErrorResponse 객체 생성
     public ErrorResponse(Domain domain, ErrorCode errorCode, String message) {
         this.domain = domain;
