@@ -27,6 +27,7 @@ spring:
 
 logging:
   level:
+    com.matchhub.catconnect: DEBUG
     com.matchhub.catconnect.global.util.auth: DEBUG
     com.matchhub.catconnect.global.configuration: DEBUG
     org.springframework.security: DEBUG
