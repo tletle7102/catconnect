@@ -3,8 +3,13 @@ package com.matchhub.catconnect.domain.board.service;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
 import com.matchhub.catconnect.domain.board.repository.BoardRepository;
+import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
 import com.matchhub.catconnect.domain.like.repository.LikeRepository;
+import com.matchhub.catconnect.global.exception.AppException;
+import com.matchhub.catconnect.global.exception.Domain;
+import com.matchhub.catconnect.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,6 +49,28 @@ public class BoardService {
                 .collect(Collectors.toList()); // 변환된 DTO 리스트 수집
     }
 
+    // 게시글 상세 조회 (댓글 포함)
+    @Transactional(readOnly = true)
+    public BoardResponseDTO getBoardById(Long id) {
+        log.debug("게시글 상세 조회 요청: id={}", id);
+
+        // 게시글이 존재하지 않으면 예외 발생
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+
+        // Board 엔티티를 DTO로 변환
+        BoardResponseDTO dto = toResponseDTO(board);
+
+        // 게시글에 달린 댓글들을 DTO로 변환
+        List<CommentResponseDTO> commentDtos = board.getComments().stream()
+                .map(this::toCommentResponseDTO) // Comment를 CommentResponseDTO로 변환
+                .collect(Collectors.toList());
+
+        dto.setComments(commentDtos); // 게시글 DTO에 댓글 리스트 설정
+        log.debug("게시글 조회 완료: id={}", id);
+        return dto;
+    }
+
     // Board → BoardResponseDTO 변환 도우미 메서드
     private BoardResponseDTO toResponseDTO(Board board) {
         BoardResponseDTO dto = new BoardResponseDTO();
@@ -54,6 +81,16 @@ public class BoardService {
         dto.setCreatedDttm(board.getCreatedDttm());
         dto.setUpdatedDttm(board.getUpdatedDttm());
         dto.setLikeCount(board.getLikes().size()); // 좋아요 개수 세기
+        return dto;
+    }
+
+    // Comment → CommentResponseDTO 변환 도우미 메서드
+    private CommentResponseDTO toCommentResponseDTO(Comment comment) {
+        CommentResponseDTO dto = new CommentResponseDTO();
+        dto.setId(comment.getId());
+        dto.setContent(comment.getContent());
+        dto.setAuthor(comment.getAuthor());
+        dto.setCreatedDttm(comment.getCreatedDttm());
         return dto;
     }
 }
