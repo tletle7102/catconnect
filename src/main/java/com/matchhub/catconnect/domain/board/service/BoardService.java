@@ -1,5 +1,6 @@
 package com.matchhub.catconnect.domain.board.service;
 
+import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
 import com.matchhub.catconnect.domain.board.repository.BoardRepository;
@@ -68,6 +69,21 @@ public class BoardService {
 
         dto.setComments(commentDtos); // 게시글 DTO에 댓글 리스트 설정
         log.debug("게시글 조회 완료: id={}", id);
+        return dto;
+    }
+
+    // 게시글 생성
+    public BoardResponseDTO createBoard(BoardRequestDTO requestDTO, String author) {
+        log.debug("게시글 생성 요청: title={}, author={}", requestDTO.getTitle(), author);
+
+        // 요청 DTO로부터 게시글 엔티티 생성
+        Board board = new Board(requestDTO.getTitle(), requestDTO.getContent(), author);
+
+        // 저장 후 반환
+        Board savedBoard = boardRepository.save(board);
+        BoardResponseDTO dto = toResponseDTO(savedBoard);
+
+        log.debug("게시글 생성 완료: id={}", savedBoard.getId());
         return dto;
     }
 
