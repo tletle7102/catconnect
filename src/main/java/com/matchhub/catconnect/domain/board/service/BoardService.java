@@ -87,6 +87,29 @@ public class BoardService {
         return dto;
     }
 
+    // 게시글 수정
+    public BoardResponseDTO updateBoard(Long id, BoardRequestDTO requestDTO, String author) {
+        log.debug("게시글 수정 요청: id={}, title={}, author={}", id, requestDTO.getTitle(), author);
+
+        // 해당 게시글이 존재하지 않으면 예외 발생
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+
+        // 작성자 본인만 수정 가능
+        if (!board.getAuthor().equals(author)) {
+            log.warn("게시글 수정 권한 없음: id={}, author={}", id, author);
+            throw new AppException(Domain.BOARD, ErrorCode.BOARD_UNAUTHORIZED);
+        }
+
+        // 제목, 내용 업데이트 후 저장
+        board.setTitle(requestDTO.getTitle());
+        board.setContent(requestDTO.getContent());
+        Board updatedBoard = boardRepository.save(board);
+
+        log.debug("게시글 수정 완료: id={}", id);
+        return toResponseDTO(updatedBoard);
+    }
+
     // Board → BoardResponseDTO 변환 도우미 메서드
     private BoardResponseDTO toResponseDTO(Board board) {
         BoardResponseDTO dto = new BoardResponseDTO();
