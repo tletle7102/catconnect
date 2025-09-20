@@ -110,6 +110,20 @@ public class BoardService {
         return toResponseDTO(updatedBoard);
     }
 
+    // 게시글 여러 개 삭제
+    public void deleteBoards(List<Long> ids) {
+        log.debug("게시글 다중 삭제 요청: ids={}", ids);
+
+        if (ids == null || ids.isEmpty()) {
+            log.warn("삭제할 게시글 ID 없음");
+            throw new AppException(Domain.BOARD, ErrorCode.INVALID_REQUEST, "삭제할 게시글을 선택하세요.");
+        }
+
+        // 한 번에 삭제 (성능 최적화)
+        boardRepository.deleteAllByIdInBatch(ids);
+        log.debug("게시글 다중 삭제 완료: count={}", ids.size());
+    }
+
     // Board → BoardResponseDTO 변환 도우미 메서드
     private BoardResponseDTO toResponseDTO(Board board) {
         BoardResponseDTO dto = new BoardResponseDTO();
