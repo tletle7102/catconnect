@@ -124,6 +124,19 @@ public class BoardService {
         log.debug("게시글 다중 삭제 완료: count={}", ids.size());
     }
 
+    // 게시글 1개 삭제
+    public void deleteBoard(Long id) {
+        log.debug("게시글 개별 삭제 요청: id={}", id);
+
+        if (!boardRepository.existsById(id)) {
+            log.warn("삭제 대상 게시글 없음: id={}", id);
+            throw new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND);
+        }
+
+        boardRepository.deleteById(id);
+        log.debug("게시글 개별 삭제 완료: id={}", id);
+    }
+
     // Board → BoardResponseDTO 변환 도우미 메서드
     private BoardResponseDTO toResponseDTO(Board board) {
         BoardResponseDTO dto = new BoardResponseDTO();
