@@ -7,12 +7,15 @@ import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
+import com.matchhub.catconnect.domain.like.model.entity.Like;
 import com.matchhub.catconnect.domain.like.repository.LikeRepository;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,6 +138,26 @@ public class BoardService {
 
         boardRepository.deleteById(id);
         log.debug("게시글 개별 삭제 완료: id={}", id);
+    }
+
+    // 좋아요 추가
+    public void addLike(Long boardId, String username) {
+        log.debug("좋아요 추가 요청: boardId={}, username={}", boardId, username);
+
+        // 중복 좋아요 방지
+        if (likeRepository.existsByBoardIdAndUsername(boardId, username)) {
+            log.warn("이미 좋아요 존재: boardId={}, username={}", boardId, username);
+            throw new AppException(Domain.LIKE, ErrorCode.LIKE_ALREADY_EXISTS);
+        }
+
+        // 게시글 존재 확인
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+
+        // 좋아요 저장
+        Like like = new Like(username, board);
+        likeRepository.save(like);
+        log.debug("좋아요 추가 완료: boardId={}, username={}", boardId, username);
     }
 
     // Board → BoardResponseDTO 변환 도우미 메서드
