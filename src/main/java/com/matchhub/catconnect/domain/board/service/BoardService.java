@@ -4,6 +4,7 @@ import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
 import com.matchhub.catconnect.domain.board.repository.BoardRepository;
+import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
@@ -158,6 +159,20 @@ public class BoardService {
         Like like = new Like(username, board);
         likeRepository.save(like);
         log.debug("좋아요 추가 완료: boardId={}, username={}", boardId, username);
+    }
+
+    // 댓글 추가
+    public void addComment(Long boardId, CommentRequestDTO requestDTO, String author) {
+        log.debug("댓글 추가 요청: boardId={}, author={}", boardId, author);
+
+        // 게시글 존재 확인
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+
+        // 댓글 엔티티 생성 및 저장
+        Comment comment = new Comment(requestDTO.getContent(), author, board);
+        commentRepository.save(comment);
+        log.debug("댓글 추가 완료: boardId={}, commentId={}", boardId, comment.getId());
     }
 
     // Board → BoardResponseDTO 변환 도우미 메서드
