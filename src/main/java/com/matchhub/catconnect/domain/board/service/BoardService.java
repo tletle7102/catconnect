@@ -197,4 +197,14 @@ public class BoardService {
         dto.setCreatedDttm(comment.getCreatedDttm());
         return dto;
     }
+
+    // 현재 로그인된 사용자의 username 반환
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication != null && authentication.isAuthenticated()
+                ? authentication.getName()
+                : "anonymous";
+        log.debug("현재 사용자: username={}", username);
+        return username;
+    }
 }
