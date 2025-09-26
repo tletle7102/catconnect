@@ -27,4 +27,12 @@ public class BoardRestController {
     public BoardRestController(BoardService boardService) {
         this.boardService = boardService;
     }
+
+    // 게시글 전체 조회
+    @GetMapping
+    public ResponseEntity<Response<List<BoardResponseDTO>>> getAllBoards() {
+        log.debug("GET /api/boards 요청");
+        List<BoardResponseDTO> boards = boardService.getAllBoards(); // 서비스 호출
+        return ResponseEntity.ok(Response.success(boards, "게시글 목록 조회 성공"));
+    }
 }
