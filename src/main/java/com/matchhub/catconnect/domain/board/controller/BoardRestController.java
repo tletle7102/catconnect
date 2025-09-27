@@ -35,4 +35,12 @@ public class BoardRestController {
         List<BoardResponseDTO> boards = boardService.getAllBoards(); // 서비스 호출
         return ResponseEntity.ok(Response.success(boards, "게시글 목록 조회 성공"));
     }
+
+    // 게시글 상세 조회 (댓글 포함)
+    @GetMapping("/{id}") // 경로에 ID 포함
+    public ResponseEntity<Response<BoardResponseDTO>> getBoardById(@PathVariable Long id) {
+        log.debug("GET /api/boards/{} 요청", id);
+        BoardResponseDTO board = boardService.getBoardById(id); // ID로 게시글 조회
+        return ResponseEntity.ok(Response.success(board, "게시글 상세 조회 성공"));
+    }
 }
