@@ -58,4 +58,18 @@ public class BoardRestController {
         BoardResponseDTO board = boardService.createBoard(requestDTO, author); // 서비스에 저장 요청
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.success(board, "게시글 생성 성공"));
     }
+
+    // 게시글 수정
+    @PutMapping("/{id}")
+    public ResponseEntity<Response<BoardResponseDTO>> updateBoard(
+            @PathVariable Long id,
+            @Valid @RequestBody BoardRequestDTO requestDTO,
+            Authentication authentication
+    ) {
+        log.debug("PUT /api/boards/{} 요청", id);
+
+        String author = authentication.getName(); // 로그인한 사용자
+        BoardResponseDTO board = boardService.updateBoard(id, requestDTO, author); // 수정 요청
+        return ResponseEntity.ok(Response.success(board, "게시글 수정 성공"));
+    }
 }
