@@ -43,4 +43,19 @@ public class BoardRestController {
         BoardResponseDTO board = boardService.getBoardById(id); // ID로 게시글 조회
         return ResponseEntity.ok(Response.success(board, "게시글 상세 조회 성공"));
     }
+
+    // 게시글 작성
+    @PostMapping
+    public ResponseEntity<Response<BoardResponseDTO>> createBoard(
+            @Valid @RequestBody BoardRequestDTO requestDTO,
+            Authentication authentication
+    ) {
+        log.debug("POST /api/boards 요청");
+
+        // 현재 로그인된 사용자 이름(author) 추출
+        String author = authentication.getName();
+
+        BoardResponseDTO board = boardService.createBoard(requestDTO, author); // 서비스에 저장 요청
+        return ResponseEntity.status(HttpStatus.CREATED).body(Response.success(board, "게시글 생성 성공"));
+    }
 }
