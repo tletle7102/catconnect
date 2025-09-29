@@ -72,4 +72,14 @@ public class BoardRestController {
         BoardResponseDTO board = boardService.updateBoard(id, requestDTO, author); // 수정 요청
         return ResponseEntity.ok(Response.success(board, "게시글 수정 성공"));
     }
+
+    // 게시글 여러 개 삭제
+    @DeleteMapping
+    public ResponseEntity<Response<Void>> deleteBoards(@RequestBody Map<String, List<Long>> request) {
+        log.debug("DELETE /api/boards 요청");
+
+        List<Long> ids = request.get("ids"); // 요청에서 ID 리스트 추출
+        boardService.deleteBoards(ids); // 삭제 수행
+        return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
+    }
 }
