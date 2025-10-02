@@ -82,4 +82,14 @@ public class BoardRestController {
         boardService.deleteBoards(ids); // 삭제 수행
         return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
     }
+
+    // 좋아요 추가
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Response<Void>> addLike(@PathVariable Long id, Authentication authentication) {
+        log.debug("POST /api/boards/{}/likes 요청", id);
+
+        String username = authentication.getName(); // 로그인한 사용자
+        boardService.addLike(id, username); // 좋아요 추가 요청
+        return ResponseEntity.ok(Response.success(null, "좋아요 추가 성공"));
+    }
 }
