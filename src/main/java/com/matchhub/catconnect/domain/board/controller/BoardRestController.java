@@ -92,4 +92,18 @@ public class BoardRestController {
         boardService.addLike(id, username); // 좋아요 추가 요청
         return ResponseEntity.ok(Response.success(null, "좋아요 추가 성공"));
     }
+
+    // 댓글 추가
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Response<Void>> addComment(
+            @PathVariable Long id,
+            @Valid @RequestBody CommentRequestDTO requestDTO,
+            Authentication authentication
+    ) {
+        log.debug("POST /api/boards/{}/comments 요청", id);
+
+        String author = authentication.getName(); // 현재 로그인된 사용자
+        boardService.addComment(id, requestDTO, author); // 댓글 추가 요청
+        return ResponseEntity.ok(Response.success(null, "댓글 추가 성공"));
+    }
 }
