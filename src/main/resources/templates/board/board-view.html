@@ -10,39 +10,98 @@
 <section layout:fragment="content">
     <div class="card">
         <div class="card-body">
-            <h1 class="card-title" th:text="${board.title}">제목</h1>
+            <h1 class="card-title" id="board-title"></h1>
             <div class="d-flex justify-content-between mb-3">
-                <p class="mb-0" style="margin-left: 1rem;">작성자: <span th:text="${board.author}">작성자</span></p>
-                <p class="mb-0" style="margin-right: 1rem;">생성 시간: <span th:text="${#temporals.format(board.createdDttm, 'yyyy.MM.dd HH:mm:ss')}">2025.04.26 14:35:15</span></p>
+                <p class="mb-0" style="margin-left: 1rem;">작성자: <span id="board-author"></span></p>
+                <p class="mb-0" style="margin-right: 1rem;">생성 시간: <span id="board-created"></span></p>
             </div>
-            <p class="card-text" th:text="${board.content}">내용</p>
-            <form th:action="@{/boards/{id}/likes(id=${board.id})}" method="post">
-                <input type="hidden" name="id" th:value="${board.id}">
-                <button type="submit" id="like-button" class="btn btn-outline-primary">
-                    좋아요 <span id="like-count" th:text="${#lists.size(board.likes)}">0</span>
-                </button>
-            </form>
+            <p class="card-text" id="board-content"></p>
+            <button id="like-button" class="btn btn-outline-primary" onclick="addLike()">좋아요 <span id="like-count">0</span></button>
             <a th:href="@{/boards}" class="btn btn-secondary">목록으로 돌아가기</a>
-            <a th:href="@{/boards/{id}/comments/new(id=${board.id})}" class="btn btn-primary">댓글 추가</a>
+            <a th:href="@{/boards/{id}/comments/new(id=${boardId})}" class="btn btn-primary">댓글 추가</a>
+            <a th:href="@{/boards/{id}/edit(id=${boardId})}" class="btn btn-primary" sec:authorize="isAuthenticated()">수정</a>
         </div>
     </div>
-    <div th:unless="${#lists.isEmpty(board.comments)}">
+    <div id="comment-section">
         <h2 class="mt-3">댓글</h2>
-        <ul class="list-group">
-            <li th:each="comment : ${board.comments}" class="list-group-item">
-                <p th:text="${comment.author + ': ' + comment.content + ' (' + #temporals.format(comment.createdDttm, 'yy.MM.dd HH:mm') + ')'}">작성자: 댓글 내용 (25.05.08 12:24)</p>
-            </li>
-        </ul>
+        <ul class="list-group" id="comment-list"></ul>
     </div>
-    <script>
-        // 메시지 및 에러 쿼리 파라미터 확인
-        const urlParams = new URLSearchParams(window.location.search);
-        const message = urlParams.get('message');
-        const error = urlParams.get('error');
-        if (message) {
-            alert(decodeURIComponent(message));
-        } else if (error) {
-            alert(decodeURIComponent(error));
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:inline="javascript">
+        console.log("board-view.html: 스크립트 로드 시작");
+        const boardId = [[${boardId}]]; // Thymeleaf 인라인 JavaScript
+        console.log("board-view.html: boardId=" + boardId); // 디버깅 로그
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("board-view.html: DOM 로드 완료, boardId=" + boardId);
+            if (!boardId || boardId === 0) {
+                console.error("board-view.html: 유효하지 않은 boardId", boardId);
+                alert("잘못된 게시글 ID입니다.");
+                return;
+            }
+            axios.get('/api/boards/' + boardId, { withCredentials: true })
+                .then(response => {
+                    console.log("board-view.html: 게시글 데이터 로드 성공", response.data);
+                    const board = response.data.data;
+                    console.log("board-view.html: board 데이터", board); // 추가 디버깅
+                    if (!board || !board.title) {
+                        console.error("board-view.html: 유효하지 않은 board 데이터", board);
+                        alert("게시글 데이터가 올바르지 않습니다.");
+                        return;
+                    }
+                    const titleElement = document.getElementById('board-title');
+                    const authorElement = document.getElementById('board-author');
+                    const createdElement = document.getElementById('board-created');
+                    const contentElement = document.getElementById('board-content');
+                    const likeCountElement = document.getElementById('like-count');
+                    if (!titleElement || !authorElement || !createdElement || !contentElement || !likeCountElement) {
+                        console.error("board-view.html: DOM 요소 누락", {
+                            titleElement, authorElement, createdElement, contentElement, likeCountElement
+                        });
+                        alert("페이지 렌더링 중 오류가 발생했습니다.");
+                        return;
+                    }
+                    titleElement.textContent = board.title;
+                    authorElement.textContent = board.author;
+                    createdElement.textContent = new Date(board.createdDttm).toLocaleString('ko-KR');
+                    contentElement.textContent = board.content;
+                    likeCountElement.textContent = board.likeCount;
+
+                    const commentList = document.getElementById('comment-list');
+                    if (!commentList) {
+                        console.error("board-view.html: comment-list 요소 누락");
+                        return;
+                    }
+                    if (board.comments && board.comments.length > 0) {
+                        board.comments.forEach(comment => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = `${comment.author}: ${comment.content} (${new Date(comment.createdDttm).toLocaleString('ko-KR')})`;
+                            commentList.appendChild(li);
+                        });
+                    } else {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        li.textContent = '댓글이 없습니다.';
+                        commentList.appendChild(li);
+                    }
+                })
+                .catch(error => {
+                    console.error("board-view.html: 게시글 데이터 로드 실패", error);
+                    alert(error.response?.data?.message || "게시글 로드 중 오류가 발생했습니다.");
+                });
+        });
+
+        function addLike() {
+            console.log("board-view.html: 좋아요 추가 요청, boardId=" + boardId);
+            axios.post('/api/boards/' + boardId + '/likes', {}, { withCredentials: true })
+                .then(response => {
+                    console.log("board-view.html: 좋아요 추가 성공", response.data);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error("board-view.html: 좋아요 추가 실패", error);
+                    alert(error.response?.data?.message || "좋아요 추가 중 오류가 발생했습니다.");
+                });
         }
     </script>
 </section>
