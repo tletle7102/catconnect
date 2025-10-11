@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,6 +30,8 @@ public class SecurityConfig {
 
     // 인증 없이 접근 허용할 URL 목록 (화이트리스트)
     private static final String[] WHITELIST = {
+            "/swagger-ui/**",  // springdoc swagger ui
+            "/api-docs/**",  // openapi 문서
             "/h2-console/**",  // H2 콘솔
             "/login",          // 로그인 페이지
             "/logout",         // 로그아웃 페이지
@@ -39,7 +40,7 @@ public class SecurityConfig {
             "/boards",         // 게시판 리스트 등
             "/css/**",         // CSS 정적 리소스
             "/js/**",          // JS 정적 리소스
-            "/auth/check"      // 인증 상태 체크 API
+            "/auth/**"      // 인증 상태 체크 API
     };
 
     // 생성자에서 의존성 주입
