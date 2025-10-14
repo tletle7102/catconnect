@@ -5,6 +5,13 @@ import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.service.BoardService;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.global.exception.Response;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "게시글 관련 API", description = "게시글 관련 REST API")  // 해당 RestController의 API 그룹 정의
 @RestController // REST API를 처리하는 컨트롤러임을 명시
 @RequestMapping("/api/boards") // 모든 요청 경로 앞에 "/api/boards"라는 prefix 붙음
 public class BoardRestController {
@@ -29,6 +37,7 @@ public class BoardRestController {
     }
 
     // 게시글 전체 조회
+    @Operation(summary = "전체 게시글 조회", description = "모든 게시글 목록을 조회합니다.")  // 각 엔드포인트의 요약과 설명
     @GetMapping
     public ResponseEntity<Response<List<BoardResponseDTO>>> getAllBoards() {
         log.debug("GET /api/boards 요청");
@@ -37,14 +46,16 @@ public class BoardRestController {
     }
 
     // 게시글 상세 조회 (댓글 포함)
+    @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
     @GetMapping("/{id}") // 경로에 ID 포함
-    public ResponseEntity<Response<BoardResponseDTO>> getBoardById(@PathVariable Long id) {
+    public ResponseEntity<Response<BoardResponseDTO>> getBoardById(@Parameter(description = "조회할 게시글 ID", required = true) @PathVariable Long id) {
         log.debug("GET /api/boards/{} 요청", id);
         BoardResponseDTO board = boardService.getBoardById(id); // ID로 게시글 조회
         return ResponseEntity.ok(Response.success(board, "게시글 상세 조회 성공"));
     }
 
     // 게시글 작성
+    @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
     @PostMapping
     public ResponseEntity<Response<BoardResponseDTO>> createBoard(
             @Valid @RequestBody BoardRequestDTO requestDTO,
@@ -60,9 +71,17 @@ public class BoardRestController {
     }
 
     // 게시글 수정
+    @Operation(summary = "게시글 수정", description = "기존 게시글을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 수정 성공",
+                    content = @Content(schema = @Schema(implementation = Response.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "403", description = "수정 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<Response<BoardResponseDTO>> updateBoard(
-            @PathVariable Long id,
+            @Parameter(description = "수정할 게시글 ID", required = true) @PathVariable Long id,
             @Valid @RequestBody BoardRequestDTO requestDTO,
             Authentication authentication
     ) {
@@ -74,6 +93,7 @@ public class BoardRestController {
     }
 
     // 게시글 여러 개 삭제
+    @Operation(summary = "게시글 여러 개 삭제", description = "여러 게시글을 삭제합니다.")
     @DeleteMapping
     public ResponseEntity<Response<Void>> deleteBoards(@RequestBody Map<String, List<Long>> request) {
         log.debug("DELETE /api/boards 요청");
@@ -84,8 +104,12 @@ public class BoardRestController {
     }
 
     // 좋아요 추가
+    @Operation(summary = "좋아요 추가", description = "게시글에 좋아요를 추가합니다.")
     @PostMapping("/{id}/likes")
-    public ResponseEntity<Response<Void>> addLike(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Response<Void>> addLike(
+            @Parameter(description = "좋아요를 추가할 게시글 ID", required = true) @PathVariable Long id,
+            Authentication authentication
+    ) {
         log.debug("POST /api/boards/{}/likes 요청", id);
 
         String username = authentication.getName(); // 로그인한 사용자
@@ -94,9 +118,10 @@ public class BoardRestController {
     }
 
     // 댓글 추가
+    @Operation(summary = "댓글 추가", description = "게시글에 댓글을 추가합니다.")
     @PostMapping("/{id}/comments")
     public ResponseEntity<Response<Void>> addComment(
-            @PathVariable Long id,
+            @Parameter(description = "댓글을 추가할 게시글 ID", required = true) @PathVariable Long id,
             @Valid @RequestBody CommentRequestDTO requestDTO,
             Authentication authentication
     ) {
