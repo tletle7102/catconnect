@@ -29,25 +29,31 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script th:inline="javascript">
         console.log("board-view.html: 스크립트 로드 시작");
+        // Thymeleaf로 전달된 게시글 ID
         const boardId = [[${boardId}]]; // Thymeleaf 인라인 JavaScript
         console.log("board-view.html: boardId=" + boardId); // 디버깅 로그
+
         document.addEventListener('DOMContentLoaded', function () {
             console.log("board-view.html: DOM 로드 완료, boardId=" + boardId);
+            // 게시글 ID 유효성 확인
             if (!boardId || boardId === 0) {
                 console.error("board-view.html: 유효하지 않은 boardId", boardId);
                 alert("잘못된 게시글 ID입니다.");
                 return;
             }
+            // 게시글 상세 조회 API 호출
             axios.get('/api/boards/' + boardId, { withCredentials: true })
                 .then(response => {
                     console.log("board-view.html: 게시글 데이터 로드 성공", response.data);
                     const board = response.data.data;
                     console.log("board-view.html: board 데이터", board); // 추가 디버깅
+                    // 게시글 데이터 유효성 확인
                     if (!board || !board.title) {
                         console.error("board-view.html: 유효하지 않은 board 데이터", board);
                         alert("게시글 데이터가 올바르지 않습니다.");
                         return;
                     }
+                    // DOM 요소 확인
                     const titleElement = document.getElementById('board-title');
                     const authorElement = document.getElementById('board-author');
                     const createdElement = document.getElementById('board-created');
@@ -60,12 +66,14 @@
                         alert("페이지 렌더링 중 오류가 발생했습니다.");
                         return;
                     }
+                    // 게시글 정보 렌더링
                     titleElement.textContent = board.title;
                     authorElement.textContent = board.author;
                     createdElement.textContent = new Date(board.createdDttm).toLocaleString('ko-KR');
                     contentElement.textContent = board.content;
                     likeCountElement.textContent = board.likeCount;
 
+                    // 댓글 목록 렌더링
                     const commentList = document.getElementById('comment-list');
                     if (!commentList) {
                         console.error("board-view.html: comment-list 요소 누락");
@@ -91,11 +99,14 @@
                 });
         });
 
+        // 좋아요 추가 처리
         function addLike() {
             console.log("board-view.html: 좋아요 추가 요청, boardId=" + boardId);
-            axios.post('/api/boards/' + boardId + '/likes', {}, { withCredentials: true })
+            // 좋아요 추가 API 호출
+            axios.post('/api/likes/' + boardId, {}, { withCredentials: true })
                 .then(response => {
                     console.log("board-view.html: 좋아요 추가 성공", response.data);
+                    // 성공 시 페이지 새로고침
                     window.location.reload();
                 })
                 .catch(error => {

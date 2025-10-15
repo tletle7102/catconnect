@@ -8,7 +8,8 @@
     <div class="card">
         <div class="card-body">
             <h1 class="card-title">관리자 - 좋아요 목록</h1>
-            <form th:action="@{/admin/likes/delete}" method="post">
+            <!-- 삭제 폼, REST API 호출로 좋아요 삭제 -->
+            <form id="delete-form" onsubmit="handleDelete(event)">
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -21,18 +22,7 @@
                             <th></th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr th:each="like : ${likes}">
-                            <td style="vertical-align: middle;"><input type="checkbox" name="ids" th:value="${like.id}"></td>
-                            <td style="vertical-align: middle;" th:text="${like.id}"></td>
-                            <td style="vertical-align: middle;" th:text="${like.username}"></td>
-                            <td style="vertical-align: middle;" th:text="${like.board.id}"></td>
-                            <td style="vertical-align: middle;" th:text="${#temporals.format(like.createdDttm, 'yyyy.MM.dd HH:mm:ss')}"></td>
-                            <td style="vertical-align: middle;">
-                                <a th:href="@{/admin/likes/{id}/delete(id=${like.id})}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;">X</a>
-                            </td>
-                        </tr>
-                        </tbody>
+                        <tbody id="like-list"></tbody>
                     </table>
                 </div>
                 <a href="/boards" class="btn btn-secondary mb-3">게시판 목록으로 돌아가기</a>
@@ -40,21 +30,95 @@
             </form>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // 전체 선택 체크박스
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.querySelectorAll('input[name="ids"]');
-            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        console.log("admin-likes.html: 스크립트 로드 시작");
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("admin-likes.html: DOM 로드 완료");
+            // 좋아요 목록 조회 API 호출
+            axios.get('/api/likes', { withCredentials: true })
+                .then(response => {
+                    console.log("admin-likes.html: 좋아요 목록 조회 성공", response.data);
+                    // API 응답에서 좋아요 데이터 추출
+                    const likes = response.data.data;
+                    const tbody = document.getElementById('like-list');
+                    // 좋아요 목록을 동적으로 테이블에 렌더링
+                    likes.forEach(like => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${like.id}"></td>
+                            <td style="vertical-align: middle;">${like.id}</td>
+                            <td style="vertical-align: middle;">${like.username}</td>
+                            <td style="vertical-align: middle;">${like.boardId}</td>
+                            <td style="vertical-align: middle;">${new Date(like.createdDttm).toLocaleString('ko-KR')}</td>
+                            <td style="vertical-align: middle;">
+                                <a href="/api/likes/${like.id}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteLike(${like.id}, event)">X</a>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // 전체 선택 체크박스 이벤트
+                    document.getElementById('selectAll').addEventListener('change', function() {
+                        const checkboxes = document.querySelectorAll('input[name="ids"]');
+                        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+                    });
+                })
+                .catch(error => {
+                    console.error("admin-likes.html: 좋아요 목록 조회 실패", error);
+                    alert(error.response?.data?.message || "좋아요 목록 조회 중 오류가 발생했습니다.");
+                });
+
+            // URL 파라미터로 메시지/에러 표시
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('message');
+            const error = urlParams.get('error');
+            if (message) {
+                alert(decodeURIComponent(message));
+            } else if (error) {
+                alert(decodeURIComponent(error));
+            }
         });
-        // 메시지 및 에러 표시
-        const urlParams = new URLSearchParams(window.location.search);
-        const message = urlParams.get('message');
-        const error = urlParams.get('error');
-        if (message) {
-            alert(decodeURIComponent(message));
-        } else if (error) {
-            alert(decodeURIComponent(error));
+
+        // 다중 좋아요 삭제 처리
+        function handleDelete(event) {
+            event.preventDefault();
+            console.log("admin-likes.html: 삭제 요청 시작");
+            // 선택된 체크박스 ID 수집
+            const checkboxes = document.querySelectorAll('input[name="ids"]:checked');
+            const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            if (ids.length === 0) {
+                console.warn("admin-likes.html: 삭제할 좋아요 선택 안됨");
+                alert("삭제할 좋아요를 선택하세요.");
+                return;
+            }
+            // 삭제 API 호출
+            axios.delete('/api/likes', { data: { ids }, withCredentials: true })
+                .then(response => {
+                    console.log("admin-likes.html: 삭제 성공", response.data);
+                    window.location.href = '/admin/likes?message=' + encodeURIComponent('선택한 좋아요가 삭제되었습니다.');
+                })
+                .catch(error => {
+                    console.error("admin-likes.html: 삭제 실패", error);
+                    alert(error.response?.data?.message || "좋아요 삭제 중 오류가 발생했습니다.");
+                });
+        }
+
+        // 개별 좋아요 삭제 처리
+        function deleteLike(id, event) {
+            event.preventDefault();
+            console.log("admin-likes.html: 개별 삭제 요청 시작, id=" + id);
+            // 개별 삭제 API 호출
+            axios.delete('/api/likes/' + id, { withCredentials: true })
+                .then(response => {
+                    console.log("admin-likes.html: 개별 삭제 성공", response.data);
+                    window.location.href = '/admin/likes?message=' + encodeURIComponent('좋아요가 삭제되었습니다.');
+                })
+                .catch(error => {
+                    console.error("admin-likes.html: 개별 삭제 실패", error);
+                    alert(error.response?.data?.message || "좋아요 삭제 중 오류가 발생했습니다.");
+                });
         }
     </script>
 </section>
-</html>v
+</html>
