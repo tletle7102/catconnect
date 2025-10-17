@@ -11,15 +11,60 @@
     <div class="card">
         <div class="card-body">
             <h1 class="card-title">댓글 작성</h1>
-            <form th:action="@{/boards/{id}/comments(id=${board.id})}" method="post">
+            <!-- 에러 메시지 표시 영역 -->
+            <div id="error-message" class="alert alert-danger" role="alert" style="display: none;"></div>
+            <!-- 댓글 작성 폼, REST API 호출로 댓글 추가 -->
+            <form id="comment-form" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="boardId" th:value="${boardId}">
                 <div class="mb-3">
                     <label for="content" class="form-label">내용</label>
                     <input type="text" id="content" name="content" class="form-control w-50" required>
                 </div>
                 <button type="submit" class="btn btn-primary">저장</button>
-                <a th:href="@{/boards/{id}(id=${board.id})}" class="btn btn-secondary">게시글로 돌아가기</a>
+                <a th:href="@{/boards/{id}(id=${boardId})}" class="btn btn-secondary">게시글로 돌아가기</a>
             </form>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        console.log("comment-form.html: 스크립트 로드 시작");
+        // Thymeleaf로 전달된 게시글 ID
+        const boardId = document.getElementById('boardId')?.value;
+        console.log("comment-form.html: boardId=" + boardId);
+
+        // 폼 제출 이벤트 처리
+        function handleSubmit(event) {
+            event.preventDefault();
+            console.log("comment-form.html: 폼 제출 시작");
+            // 입력된 댓글 내용
+            const content = document.getElementById('content').value;
+            const errorMessage = document.getElementById('error-message');
+
+            // 입력 유효성 확인
+            if (!content) {
+                console.error("comment-form.html: 내용 누락");
+                errorMessage.textContent = "댓글 내용을 입력하세요.";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // 요청 데이터 구성
+            const data = { content };
+            console.log("comment-form.html: API 요청: method=POST, url=/api/comments/" + boardId);
+            // 댓글 추가 API 호출
+            axios.post('/api/comments/' + boardId, data, { withCredentials: true })
+                .then(response => {
+                    console.log("comment-form.html: API 요청 성공", response.data);
+                    errorMessage.style.display = 'none';
+                    // 성공 시 게시글 상세 페이지로 이동
+                    window.location.href = '/boards/' + boardId;
+                })
+                .catch(error => {
+                    console.error("comment-form.html: API 요청 실패", error);
+                    errorMessage.textContent = error.response?.data?.message || "댓글 추가 중 오류가 발생했습니다.";
+                    errorMessage.style.display = 'block';
+                });
+        }
+    </script>
 </section>
 </html>

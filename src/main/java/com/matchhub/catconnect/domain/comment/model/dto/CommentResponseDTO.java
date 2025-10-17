@@ -12,4 +12,5 @@ public class CommentResponseDTO {
     private String content;
     private String author;
     private LocalDateTime createdDttm;
+    private Long boardId;
 }
