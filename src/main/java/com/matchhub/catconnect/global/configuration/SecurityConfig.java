@@ -40,7 +40,9 @@ public class SecurityConfig {
             "/boards",         // 게시판 리스트 등
             "/css/**",         // CSS 정적 리소스
             "/js/**",          // JS 정적 리소스
-            "/auth/**"      // 인증 상태 체크 API
+            "/auth/**",      // 인증 상태 체크 API
+            "/api/users/**",   // 사용자 API (조회, 생성)
+            "/favicon.ico"  // favicon
     };
 
     // 생성자에서 의존성 주입
@@ -73,9 +75,11 @@ public class SecurityConfig {
                 .requestMatchers(WHITELIST).permitAll()        // 화이트리스트는 인증없이 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN") // /admin/** 경로는 ADMIN 권한만 접근 가능
                 .requestMatchers("/boards/new", "/boards/**").authenticated() // 게시판 생성 및 상세는 인증 필요
+                .requestMatchers("/api/likes/**", "/api/comments/**").authenticated() // 좋아요 및 댓글은 인증 필요
+                .requestMatchers("/api/users").hasRole("ADMIN") // 사용자 삭제는 ADMIN 권한만 접근 가능
                 .anyRequest().permitAll()                      // 나머지 요청은 모두 허용
         );
-        log.debug("요청 권한 설정 완료: whitelist={}, admin=/admin/**, authenticated=/boards/new,/boards/**",
+        log.debug("요청 권한 설정 완료: whitelist={}, admin=/admin/**, authenticated=/boards/new,/boards/**,/api/likes/**,/api/comments/**, admin=/api/users",
                 String.join(",", WHITELIST));
 
         // 인증 실패, 인가 실패 시 처리 핸들러 설정
