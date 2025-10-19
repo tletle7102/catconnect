@@ -3,7 +3,6 @@ package com.matchhub.catconnect.domain.board.controller;
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -103,32 +102,13 @@ public class BoardRestController {
         return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
     }
 
-    // 좋아요 추가
-    @Operation(summary = "좋아요 추가", description = "게시글에 좋아요를 추가합니다.")
-    @PostMapping("/{id}/likes")
-    public ResponseEntity<Response<Void>> addLike(
-            @Parameter(description = "좋아요를 추가할 게시글 ID", required = true) @PathVariable Long id,
-            Authentication authentication
-    ) {
-        log.debug("POST /api/boards/{}/likes 요청", id);
-
-        String username = authentication.getName(); // 로그인한 사용자
-        boardService.addLike(id, username); // 좋아요 추가 요청
-        return ResponseEntity.ok(Response.success(null, "좋아요 추가 성공"));
-    }
-
-    // 댓글 추가
-    @Operation(summary = "댓글 추가", description = "게시글에 댓글을 추가합니다.")
-    @PostMapping("/{id}/comments")
-    public ResponseEntity<Response<Void>> addComment(
-            @Parameter(description = "댓글을 추가할 게시글 ID", required = true) @PathVariable Long id,
-            @Valid @RequestBody CommentRequestDTO requestDTO,
-            Authentication authentication
-    ) {
-        log.debug("POST /api/boards/{}/comments 요청", id);
-
-        String author = authentication.getName(); // 현재 로그인된 사용자
-        boardService.addComment(id, requestDTO, author); // 댓글 추가 요청
-        return ResponseEntity.ok(Response.success(null, "댓글 추가 성공"));
+    @Operation(summary = "게시글 단일 삭제", description = "특정 게시글을 삭제합니다.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response<Void>> deleteBoard(
+            @Parameter(description = "삭제할 게시글 ID", required = true) @PathVariable Long id) {
+        log.debug("DELETE /api/boards/{} 요청", id);
+        // 서비스 호출하여 게시글 삭제
+        boardService.deleteBoard(id);
+        return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
     }
 }
