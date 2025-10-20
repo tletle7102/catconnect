@@ -50,14 +50,6 @@ public class BoardController {
         return "board/board-form"; // 수정 시에도 동일한 폼 사용 (templates/board/board-form.html)
     }
 
-    // 관리자용 게시글 목록 페이지 요청 처리
-    @GetMapping("/admin/boards")
-    public String adminListBoards(Model model) {
-        log.debug("GET /admin/boards 요청, 관리자 게시글 목록 뷰 렌더링");
-        model.addAttribute("currentPage", "admin-boards"); // 관리자 페이지 표시를 위한 값
-        return "board/admin-boards"; // 관리자용 게시글 목록 뷰 (templates/board/admin-boards.html)
-    }
-
     // 댓글 생성 폼 페이지 요청 처리
     @GetMapping("/boards/{id}/comments/new")
     public String newCommentForm(@PathVariable Long id, Model model) {
