@@ -2,6 +2,9 @@ package com.matchhub.catconnect.global.exception;
 
 import lombok.Getter;
 
+/**
+ * 서비스 계층에서 발생한 도메인별 에러 코드가 필요한 구조화된 예외(AppException)를 처리하기 위한 응답
+ */
 @Getter
 public class ErrorResponse {
 
