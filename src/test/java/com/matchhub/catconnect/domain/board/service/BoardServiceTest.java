@@ -6,7 +6,9 @@ import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
+import com.matchhub.catconnect.domain.comment.service.CommentService;
 import com.matchhub.catconnect.domain.like.repository.LikeRepository;
+import com.matchhub.catconnect.domain.like.service.LikeService;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.ErrorCode;
 import org.junit.jupiter.api.*;
@@ -40,7 +42,14 @@ class BoardServiceTest {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private LikeService likeService;
+
     private BoardResponseDTO testBoard;
+    private BoardResponseDTO testBoard2;
 
     @BeforeEach
     void setUp() {
@@ -55,37 +64,34 @@ class BoardServiceTest {
         BoardRequestDTO requestDTO = new BoardRequestDTO();
         requestDTO.setTitle("Test Title");
         requestDTO.setContent("Test Content");
-
-        // 게시글 생성 후 저장
         testBoard = boardService.createBoard(requestDTO, "testUser");
+
+        // 다중 삭제 테스트용 두 번째 게시글 생성
+        requestDTO.setTitle("Test Title 2");
+        requestDTO.setContent("Test Content 2");
+        testBoard2 = boardService.createBoard(requestDTO, "testUser");
 
         // 인증 정보 설정 (현재 사용자: testUser)
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken("testUser", null, Collections.emptyList())
         );
 
-        log.debug("테스트 설정 완료: boardId={}", testBoard.getId());
+        log.debug("테스트 설정 완료: boardId1={}, boardId2={}", testBoard.getId(), testBoard2.getId());
     }
 
     @AfterEach
     void tearDown() {
         log.debug("테스트 정리 시작");
         try {
-            // 게시글이 남아 있으면 삭제
-            if (boardRepository.existsById(testBoard.getId())) {
-                boardService.deleteBoard(testBoard.getId());
-                log.debug("테스트 정리 완료: boardId={}", testBoard.getId());
-            }
-        } catch (AppException e) {
-            log.debug("테스트 정리: 이미 삭제된 게시글, boardId={}", testBoard.getId());
+            // 전체 데이터 정리
+            boardRepository.deleteAll();
+            likeRepository.deleteAll();
+            commentRepository.deleteAll();
+            SecurityContextHolder.clearContext();
+            log.debug("테스트 정리 완료");
+        } catch (Exception e) {
+            log.debug("테스트 정리 실패: {}", e.getMessage());
         }
-
-        // 전체 데이터 정리
-        boardRepository.deleteAll();
-        likeRepository.deleteAll();
-        commentRepository.deleteAll();
-        SecurityContextHolder.clearContext();
-        log.debug("테스트 정리 완료");
     }
 
     @Nested
@@ -100,9 +106,10 @@ class BoardServiceTest {
             // 전체 게시글 목록 조회
             List<BoardResponseDTO> boards = boardService.getAllBoards();
 
-            // 게시글이 비어있지 않고, 방금 만든 게시글이 포함되어야 함
+            // 게시글이 비어있지 않고, 생성한 게시글들 포함 확인
             assertFalse(boards.isEmpty());
             assertTrue(boards.stream().anyMatch(board -> board.getId().equals(testBoard.getId()) && board.getTitle().equals("Test Title")));
+            assertTrue(boards.stream().anyMatch(board -> board.getId().equals(testBoard2.getId()) && board.getTitle().equals("Test Title 2")));
 
             log.debug("전체 게시글 조회 테스트 완료");
         }
@@ -159,6 +166,10 @@ class BoardServiceTest {
             assertEquals("Updated Title", updatedBoard.getTitle());
             assertEquals("Updated Content", updatedBoard.getContent());
 
+            // DB에서 수정 확인
+            BoardResponseDTO dbBoard = boardService.getBoardById(testBoard.getId());
+            assertEquals("Updated Title", dbBoard.getTitle());
+
             log.debug("게시글 수정 테스트 완료");
         }
 
@@ -187,17 +198,72 @@ class BoardServiceTest {
         }
 
         @Test
-        @DisplayName("게시글 삭제 성공")
+        @DisplayName("게시글 단일 삭제 성공")
         void testDeleteBoard() {
-            log.debug("게시글 삭제 테스트 시작");
+            log.debug("게시글 단일 삭제 테스트 시작");
+
+            // 댓글 추가 (cascade 삭제 테스트)
+            CommentRequestDTO commentDTO = new CommentRequestDTO();
+            commentDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), commentDTO, "testUser");
 
             // 게시글 삭제
             boardService.deleteBoard(testBoard.getId());
 
-            // 게시글이 실제로 삭제되었는지 확인
+            // 게시글과 댓글이 삭제되었는지 확인
             assertFalse(boardRepository.existsById(testBoard.getId()));
+            assertTrue(commentRepository.findAllByBoardId(testBoard.getId()).isEmpty());
 
-            log.debug("게시글 삭제 테스트 완료");
+            log.debug("게시글 단일 삭제 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 다중 삭제 성공")
+        void testDeleteBoards() {
+            log.debug("게시글 다중 삭제 테스트 시작");
+
+            // 댓글 추가 (cascade 삭제 테스트)
+            CommentRequestDTO commentDTO = new CommentRequestDTO();
+            commentDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), commentDTO, "testUser");
+
+            // 다중 삭제
+            boardService.deleteBoards(List.of(testBoard.getId(), testBoard2.getId()));
+
+            // 게시글과 댓글이 삭제되었는지 확인
+            assertFalse(boardRepository.existsById(testBoard.getId()));
+            assertFalse(boardRepository.existsById(testBoard2.getId()));
+            assertTrue(commentRepository.findAllByBoardId(testBoard.getId()).isEmpty());
+
+            log.debug("게시글 다중 삭제 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 다중 삭제 - 빈 ID 목록 실패")
+        void testDeleteBoardsEmptyIds() {
+            log.debug("게시글 다중 삭제 빈 ID 테스트 시작");
+
+            // 빈 ID 목록으로 삭제 시도
+            AppException exception = assertThrows(AppException.class, () ->
+                    boardService.deleteBoards(Collections.emptyList())
+            );
+            assertEquals(ErrorCode.INVALID_REQUEST, exception.getErrorCode());
+
+            log.debug("게시글 다중 삭제 빈 ID 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 다중 삭제 - 게시글 없음 실패")
+        void testDeleteBoardsNotFound() {
+            log.debug("게시글 다중 삭제 게시글 없음 테스트 시작");
+
+            // 존재하지 않는 ID 포함
+            AppException exception = assertThrows(AppException.class, () ->
+                    boardService.deleteBoards(List.of(testBoard.getId(), 999L))
+            );
+            assertEquals(ErrorCode.BOARD_NOT_FOUND, exception.getErrorCode());
+
+            log.debug("게시글 다중 삭제 게시글 없음 테스트 완료");
         }
     }
 
@@ -211,7 +277,7 @@ class BoardServiceTest {
             log.debug("좋아요 추가 테스트 시작");
 
             // 좋아요 추가
-            boardService.addLike(testBoard.getId(), "testUser");
+            likeService.addLike(testBoard.getId(), "testUser");
 
             // 좋아요가 DB에 저장되었는지 확인
             assertTrue(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
@@ -225,11 +291,11 @@ class BoardServiceTest {
             log.debug("중복 좋아요 추가 테스트 시작");
 
             // 먼저 좋아요 추가
-            boardService.addLike(testBoard.getId(), "testUser");
+            likeService.addLike(testBoard.getId(), "testUser");
 
-            // 같은 유저가 다시 좋아요를 누르면 예외 발생해야 함
+            // 같은 유저가 다시 좋아요 시도
             AppException exception = assertThrows(AppException.class, () ->
-                    boardService.addLike(testBoard.getId(), "testUser")
+                    likeService.addLike(testBoard.getId(), "testUser")
             );
             assertEquals(ErrorCode.LIKE_ALREADY_EXISTS, exception.getErrorCode());
 
@@ -242,11 +308,11 @@ class BoardServiceTest {
             log.debug("댓글 추가 테스트 시작");
 
             // 댓글 요청 DTO 생성
-            CommentRequestDTO requestDTO = new CommentRequestDTO();
-            requestDTO.setContent("Test Comment");
+            CommentRequestDTO commentDTO = new CommentRequestDTO();
+            commentDTO.setContent("Test Comment");
 
             // 댓글 추가
-            boardService.addComment(testBoard.getId(), requestDTO, "testUser");
+            commentService.addComment(testBoard.getId(), commentDTO, "testUser");
 
             // 댓글이 DB에 저장되었는지 확인
             List<Comment> comments = commentRepository.findAll();

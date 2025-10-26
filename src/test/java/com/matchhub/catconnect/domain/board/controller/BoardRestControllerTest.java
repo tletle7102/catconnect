@@ -5,6 +5,7 @@ import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.service.BoardService;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
+import com.matchhub.catconnect.domain.comment.service.CommentService;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +40,11 @@ class BoardRestControllerTest {
     @Autowired
     private BoardService boardService; // 게시판 서비스
 
+    @Autowired
+    private CommentService commentService; // 댓글 서비스
+
     private BoardResponseDTO testBoard; // 테스트용 게시글
+    private BoardResponseDTO testBoard2; // 다중 삭제 테스트용 추가 게시글
 
     @BeforeEach
     void setUp() {
@@ -60,7 +66,12 @@ class BoardRestControllerTest {
         requestDTO.setContent("Test Content");
         testBoard = boardService.createBoard(requestDTO, "testUser");
 
-        log.debug("테스트 설정 완료: boardId={}", testBoard.getId());
+        // 다중 삭제 테스트용 두 번째 게시글 생성
+        requestDTO.setTitle("Test Title 2");
+        requestDTO.setContent("Test Content 2");
+        testBoard2 = boardService.createBoard(requestDTO, "testUser");
+
+        log.debug("테스트 설정 완료: boardId1={}, boardId2={}", testBoard.getId(), testBoard2.getId());
     }
 
     @AfterEach
@@ -68,18 +79,6 @@ class BoardRestControllerTest {
         log.debug("테스트 정리 시작");
 
         // 테스트용 게시글 삭제
-        if (testBoard != null) {
-            try {
-                if (boardService.getBoardById(testBoard.getId()) != null) {
-                    boardService.deleteBoard(testBoard.getId());
-                    log.debug("테스트 정리 완료: boardId={}", testBoard.getId());
-                }
-            } catch (Exception e) {
-                log.debug("테스트 정리: 이미 삭제된 게시글, boardId={}", testBoard.getId());
-            }
-        }
-
-        // 남아있는 모든 게시글 정리
         List<Long> ids = boardService.getAllBoards().stream().map(BoardResponseDTO::getId).toList();
         if (!ids.isEmpty()) {
             try {
@@ -93,7 +92,7 @@ class BoardRestControllerTest {
     }
 
     @Nested
-    @DisplayName("게시글 API 테스트") // 게시글 관련 API 테스트 그룹
+    @DisplayName("게시글 API 테스트")
     class BoardApiTests {
 
         @Test
@@ -102,9 +101,10 @@ class BoardRestControllerTest {
             log.debug("게시글 목록 조회 테스트 시작");
 
             mockMvc.perform(get("/api/boards").contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk()) // HTTP 200 확인
-                    .andExpect(jsonPath("$.result").value("SUCCESS")) // 성공 응답 확인
-                    .andExpect(jsonPath("$.data[?(@.id == %d)].title", testBoard.getId()).value("Test Title")) // 생성한 게시글이 포함되었는지 확인
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.data[?(@.id == %d)].title", testBoard.getId()).value("Test Title"))
+                    .andExpect(jsonPath("$.data[?(@.id == %d)].title", testBoard2.getId()).value("Test Title 2"))
                     .andDo(result -> log.debug("게시글 목록 조회 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("게시글 목록 조회 테스트 완료");
@@ -119,19 +119,18 @@ class BoardRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
                     .andExpect(jsonPath("$.data.title").value("Test Title"))
-                    .andExpect(jsonPath("$.data.comments").isArray()) // 댓글 리스트 존재 여부 확인
+                    .andExpect(jsonPath("$.data.comments").isArray())
                     .andDo(result -> log.debug("게시글 상세 조회 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("게시글 상세 조회 테스트 완료");
         }
 
         @Test
-        @WithMockUser(username = "testUser") // Spring Security 인증 유저로 실행
+        @WithMockUser(username = "testUser")
         @DisplayName("게시글 생성 성공")
         void testCreateBoard() throws Exception {
             log.debug("게시글 생성 테스트 시작");
 
-            // 새 게시글 생성 요청
             BoardRequestDTO requestDTO = new BoardRequestDTO();
             requestDTO.setTitle("New Title");
             requestDTO.setContent("New Content");
@@ -139,7 +138,7 @@ class BoardRestControllerTest {
             mockMvc.perform(post("/api/boards")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(requestDTO)))
-                    .andExpect(status().isCreated()) // HTTP 201
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
                     .andExpect(jsonPath("$.data.title").value("New Title"))
                     .andDo(result -> log.debug("게시글 생성 응답: {}", result.getResponse().getContentAsString()));
@@ -163,28 +162,86 @@ class BoardRestControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
                     .andExpect(jsonPath("$.data.title").value("Updated Title"))
+                    .andExpect(jsonPath("$.data.content").value("Updated Content"))
                     .andDo(result -> log.debug("게시글 수정 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("게시글 수정 테스트 완료");
         }
 
         @Test
-        @WithMockUser(roles = "ADMIN") // ADMIN 권한으로 삭제 테스트
-        @DisplayName("게시글 삭제 성공")
+        @WithMockUser(username = "otherUser")
+        @DisplayName("게시글 수정 권한 없음 실패")
+        void testUpdateBoardUnauthorized() throws Exception {
+            log.debug("게시글 수정 권한 없음 테스트 시작");
+
+            BoardRequestDTO requestDTO = new BoardRequestDTO();
+            requestDTO.setTitle("Unauthorized Title");
+            requestDTO.setContent("Unauthorized Content");
+
+            mockMvc.perform(put("/api/boards/" + testBoard.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(requestDTO)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.domain").value("BOARD"))
+                    .andExpect(jsonPath("$.code").value("BOARD_002"))
+                    .andExpect(jsonPath("$.message").value("게시글에 대한 권한이 없습니다."))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andDo(result -> log.debug("게시글 수정 권한 없음 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("게시글 수정 권한 없음 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("게시글 다중 삭제 성공")
         void testDeleteBoards() throws Exception {
-            log.debug("게시글 삭제 테스트 시작");
+            log.debug("게시글 다중 삭제 테스트 시작");
+
+            // 댓글 추가 (cascade 삭제 테스트)
+            CommentRequestDTO commentDTO = new CommentRequestDTO();
+            commentDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), commentDTO, "testUser");
 
             // 삭제 요청 페이로드 구성
-            Map<String, List<Long>> request = Map.of("ids", List.of(testBoard.getId()));
+            Map<String, List<Long>> request = Map.of("ids", List.of(testBoard.getId(), testBoard2.getId()));
 
             mockMvc.perform(delete("/api/boards")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
-                    .andDo(result -> log.debug("게시글 삭제 응답: {}", result.getResponse().getContentAsString()));
+                    .andExpect(jsonPath("$.message").value("게시글 삭제 성공"))
+                    .andDo(result -> log.debug("게시글 다중 삭제 응답: {}", result.getResponse().getContentAsString()));
 
-            log.debug("게시글 삭제 테스트 완료");
+            // 게시글과 관련 댓글이 삭제되었는지 확인
+            assertFalse(boardService.getAllBoards().stream().anyMatch(b -> b.getId().equals(testBoard.getId())));
+            assertFalse(boardService.getAllBoards().stream().anyMatch(b -> b.getId().equals(testBoard2.getId())));
+
+            log.debug("게시글 다중 삭제 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("게시글 단일 삭제 성공")
+        void testDeleteBoard() throws Exception {
+            log.debug("게시글 단일 삭제 테스트 시작");
+
+            // 댓글 추가 (cascade 삭제 테스트)
+            CommentRequestDTO commentDTO = new CommentRequestDTO();
+            commentDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), commentDTO, "testUser");
+
+            mockMvc.perform(delete("/api/boards/" + testBoard.getId())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("게시글 삭제 성공"))
+                    .andDo(result -> log.debug("게시글 단일 삭제 응답: {}", result.getResponse().getContentAsString()));
+
+            // 게시글과 관련 댓글이 삭제되었는지 확인
+            assertFalse(boardService.getAllBoards().stream().anyMatch(b -> b.getId().equals(testBoard.getId())));
+
+            log.debug("게시글 단일 삭제 테스트 완료");
         }
 
         @Test
@@ -193,10 +250,11 @@ class BoardRestControllerTest {
         void testAddLike() throws Exception {
             log.debug("좋아요 추가 테스트 시작");
 
-            mockMvc.perform(post("/api/boards/" + testBoard.getId() + "/likes")
+            mockMvc.perform(post("/api/likes/" + testBoard.getId())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("좋아요 추가 성공"))
                     .andDo(result -> log.debug("좋아요 추가 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("좋아요 추가 테스트 완료");
@@ -211,11 +269,12 @@ class BoardRestControllerTest {
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
 
-            mockMvc.perform(post("/api/boards/" + testBoard.getId() + "/comments")
+            mockMvc.perform(post("/api/comments/" + testBoard.getId())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(requestDTO)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("댓글 추가 성공"))
                     .andDo(result -> log.debug("댓글 추가 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("댓글 추가 테스트 완료");
