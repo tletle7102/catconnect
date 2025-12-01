@@ -4,6 +4,8 @@ spring:
   h2:
     console:
       enabled: true
+      settings:
+        webAllowOthers: true
       path: /h2-console
 
 springdoc:
