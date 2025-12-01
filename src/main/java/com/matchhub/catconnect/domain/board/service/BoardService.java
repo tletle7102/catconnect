@@ -88,18 +88,19 @@ public class BoardService {
     @Transactional
     public void deleteBoards(List<Long> ids) {
         log.debug("게시글 다중 삭제 요청: ids={}", ids);
-        // ID 목록 유효성 확인
+
+        // ID 목록 유효성 확인 - 빈 리스트면 예외 발생
         if (ids == null || ids.isEmpty()) {
-            log.debug("삭제할 게시글 없음, 처리 생략");
-            return;
+            log.warn("게시글 다중 삭제 요청에 빈 ID 목록");
+            throw new AppException(Domain.BOARD, ErrorCode.INVALID_REQUEST);
         }
+
         // 게시글 존재 확인 및 삭제
         for (Long id : ids) {
             if (!boardRepository.existsById(id)) {
                 log.warn("삭제 대상 게시글 없음: id={}", id);
                 throw new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND);
             }
-            // JPA를 통해 엔티티 삭제, cascade로 관련 댓글/좋아요 삭제
             boardRepository.deleteById(id);
         }
         log.debug("게시글 다중 삭제 완료: count={}", ids.size());
