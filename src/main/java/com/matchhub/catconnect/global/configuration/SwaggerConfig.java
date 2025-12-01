@@ -16,19 +16,19 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                                .title("Sample Prototype API")
+                                .title("CatConnect API")
                                 .version("1.0.0")
-                                .description("Sample Prototype Application을 위한 API 명세용 문서 \n\n![logo](https://picsum.photos/300/300)")
+                                .description("CatConnect Application을 위한 API 명세용 문서 \n\n![logo](https://picsum.photos/300/300)")
 
                                 .contact(new Contact()
-                                        .name("프로토타입")
-                                        .email("prototype@sample.com")
-                                        .url("https://prototype.sample.com"))
+                                        .name("CatConnect")
+                                        .email("catconnect@matchhub.com")
+                                        .url("https://catconnect.matchhub.com"))
 
                         // 아래는 필요시 사용
 
                         // 서비스 이용 약관 링크
-                        // .termsOfService("https://prototype.sample.com/terms")
+                        // .termsOfService("https://catconnect.matchhub.com/terms")
 
                         // 라이선스 정보
                         // .license(new License()
