@@ -73,6 +73,7 @@ public class SecurityConfig {
         // URL 권한 설정
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(WHITELIST).permitAll()        // 화이트리스트는 인증없이 접근 허용
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/h2-console/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN") // /admin/** 경로는 ADMIN 권한만 접근 가능
                 .requestMatchers("/boards/new", "/boards/**").authenticated() // 게시판 생성 및 상세는 인증 필요
                 .requestMatchers("/api/likes/**", "/api/comments/**").authenticated() // 좋아요 및 댓글은 인증 필요
