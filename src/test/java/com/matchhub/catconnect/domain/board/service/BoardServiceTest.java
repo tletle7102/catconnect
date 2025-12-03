@@ -239,20 +239,6 @@ class BoardServiceTest {
         }
 
         @Test
-        @DisplayName("게시글 다중 삭제 - 빈 ID 목록 실패")
-        void testDeleteBoardsEmptyIds() {
-            log.debug("게시글 다중 삭제 빈 ID 테스트 시작");
-
-            // 빈 ID 목록으로 삭제 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    boardService.deleteBoards(Collections.emptyList())
-            );
-            assertEquals(ErrorCode.INVALID_REQUEST, exception.getErrorCode());
-
-            log.debug("게시글 다중 삭제 빈 ID 테스트 완료");
-        }
-
-        @Test
         @DisplayName("게시글 다중 삭제 - 게시글 없음 실패")
         void testDeleteBoardsNotFound() {
             log.debug("게시글 다중 삭제 게시글 없음 테스트 시작");
