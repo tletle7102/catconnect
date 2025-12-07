@@ -1,13 +1,15 @@
 package com.matchhub.catconnect.domain.user.service;
 
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.domain.user.model.dto.UserRequestDTO;
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
 import com.matchhub.catconnect.domain.user.model.entity.User;
 import com.matchhub.catconnect.domain.user.model.enums.Role;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,11 +27,13 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Validator validator;
 
     // 생성자를 통한 의존성 주입
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, Validator validator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.validator = validator;
     }
 
     /**
@@ -81,6 +86,15 @@ public class UserService {
                 passwordEncoder.encode(requestDTO.getPassword()),
                 Role.USER
         );
+        // 생성된 엔티티 유효성 검증
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (!violations.isEmpty()) {
+            String errorMessage = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(", "));
+            log.warn("사용자 엔티티 유효성 검증 실패: errors={}", errorMessage);
+            throw new AppException(Domain.USER, ErrorCode.INVALID_REQUEST, errorMessage);
+        }
         User savedUser = userRepository.save(user);
         log.debug("사용자 생성 완료: id={}", savedUser.getId());
         return toResponseDTO(savedUser);
@@ -114,11 +128,21 @@ public class UserService {
             throw new AppException(Domain.USER, ErrorCode.USER_EMAIL_ALREADY_EXISTS);
         }
         // 사용자 정보 수정
+        // user.update()는 현재 메모리에 로드된 User 엔티티 객체의 상태(필드 값)를 변경
         user.update(
                 requestDTO.getUsername(),
                 requestDTO.getEmail(),
                 passwordEncoder.encode(requestDTO.getPassword())
         );
+        // 업데이트 된 엔티티 유효성 검증
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (!violations.isEmpty()) {
+            String errorMessage = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(", "));
+            log.warn("사용자 엔티티 유효성 검증 실패: errors={}", errorMessage);
+            throw new AppException(Domain.USER, ErrorCode.INVALID_REQUEST, errorMessage);
+        }
         User updatedUser = userRepository.save(user);
         log.debug("사용자 수정 완료: id={}", id);
         return toResponseDTO(updatedUser);
