@@ -9,12 +9,15 @@ import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,11 +27,13 @@ public class CommentService {
     private static final Logger log = LoggerFactory.getLogger(CommentService.class);
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
+    private final Validator validator;
 
     // 생성자를 통한 의존성 주입
-    public CommentService(CommentRepository commentRepository, BoardRepository boardRepository) {
+    public CommentService(CommentRepository commentRepository, BoardRepository boardRepository, Validator validator) {
         this.commentRepository = commentRepository;
         this.boardRepository = boardRepository;
+        this.validator = validator;
     }
 
     @Transactional(readOnly = true)
@@ -50,6 +55,15 @@ public class CommentService {
                 .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
         // 댓글 엔티티 생성 및 저장
         Comment comment = new Comment(requestDTO.getContent(), author, board);
+        // 엔티티 유효성 검증
+        Set<ConstraintViolation<Comment>> violations = validator.validate(comment);
+        if (!violations.isEmpty()) {
+            String errorMessage = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(", "));
+            log.warn("댓글 엔티티 유효성 검증 실패: errors={}", errorMessage);
+            throw new AppException(Domain.COMMENT, ErrorCode.INVALID_REQUEST, errorMessage);
+        }
         commentRepository.save(comment);
         log.debug("댓글 추가 완료: boardId={}, commentId={}", boardId, comment.getId());
     }
