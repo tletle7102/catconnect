@@ -186,4 +186,118 @@ class CommentServiceTest {
             log.debug("다중 댓글 삭제 빈 ID 테스트 완료");
         }
     }
+
+    @Nested
+    @DisplayName("댓글 권한 검증 테스트")
+    class CommentAuthorizationTests {
+
+        @Test
+        @DisplayName("본인 댓글 수정 성공")
+        void testUpdateCommentByAuthor() {
+            log.debug("본인 댓글 수정 테스트 시작");
+
+            // 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Original Comment");
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+            CommentResponseDTO comment = commentService.getAllComments().get(0);
+
+            // 본인이 댓글 수정
+            commentService.updateComment(comment.getId(), "Updated Comment", "testUser");
+
+            // 수정된 내용 확인
+            CommentResponseDTO updatedComment = commentService.getAllComments().get(0);
+            assertEquals("Updated Comment", updatedComment.getContent());
+
+            log.debug("본인 댓글 수정 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("타인 댓글 수정 실패 - COMMENT_UNAUTHORIZED")
+        void testUpdateCommentByOther() {
+            log.debug("타인 댓글 수정 테스트 시작");
+
+            // testUser가 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+            CommentResponseDTO comment = commentService.getAllComments().get(0);
+
+            // otherUser가 댓글 수정 시도
+            AppException exception = assertThrows(AppException.class, () ->
+                    commentService.updateComment(comment.getId(), "Hacked Comment", "otherUser")
+            );
+            assertEquals(ErrorCode.COMMENT_UNAUTHORIZED, exception.getErrorCode());
+
+            log.debug("타인 댓글 수정 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("본인 댓글 삭제 성공")
+        void testDeleteCommentByAuthor() {
+            log.debug("본인 댓글 삭제 테스트 시작");
+
+            // 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+            CommentResponseDTO comment = commentService.getAllComments().get(0);
+
+            // 본인이 댓글 삭제
+            commentService.deleteCommentByAuthor(comment.getId(), "testUser");
+
+            // 삭제 확인
+            assertFalse(commentRepository.existsById(comment.getId()));
+
+            log.debug("본인 댓글 삭제 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("타인 댓글 삭제 실패 - COMMENT_UNAUTHORIZED")
+        void testDeleteCommentByOther() {
+            log.debug("타인 댓글 삭제 테스트 시작");
+
+            // testUser가 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+            CommentResponseDTO comment = commentService.getAllComments().get(0);
+
+            // otherUser가 댓글 삭제 시도
+            AppException exception = assertThrows(AppException.class, () ->
+                    commentService.deleteCommentByAuthor(comment.getId(), "otherUser")
+            );
+            assertEquals(ErrorCode.COMMENT_UNAUTHORIZED, exception.getErrorCode());
+
+            log.debug("타인 댓글 삭제 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 댓글 수정 실패 - COMMENT_NOT_FOUND")
+        void testUpdateNonExistentComment() {
+            log.debug("존재하지 않는 댓글 수정 테스트 시작");
+
+            // 존재하지 않는 댓글 수정 시도
+            AppException exception = assertThrows(AppException.class, () ->
+                    commentService.updateComment(999L, "New Content", "testUser")
+            );
+            assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
+
+            log.debug("존재하지 않는 댓글 수정 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 댓글 삭제 실패 - COMMENT_NOT_FOUND")
+        void testDeleteNonExistentCommentByAuthor() {
+            log.debug("존재하지 않는 댓글 삭제 테스트 시작");
+
+            // 존재하지 않는 댓글 삭제 시도
+            AppException exception = assertThrows(AppException.class, () ->
+                    commentService.deleteCommentByAuthor(999L, "testUser")
+            );
+            assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
+
+            log.debug("존재하지 않는 댓글 삭제 테스트 완료");
+        }
+    }
 }
