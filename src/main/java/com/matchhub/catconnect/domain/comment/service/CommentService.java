@@ -94,6 +94,38 @@ public class CommentService {
         log.debug("댓글 개별 삭제 완료: id={}", id);
     }
 
+    @Transactional
+    public void updateComment(Long id, String content, String author) {
+        log.debug("댓글 수정 요청: id={}, author={}", id, author);
+        // 댓글 존재 확인
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new AppException(Domain.COMMENT, ErrorCode.COMMENT_NOT_FOUND));
+        // 작성자 검증
+        if (!comment.getAuthor().equals(author)) {
+            log.warn("댓글 수정 권한 없음: commentAuthor={}, requestAuthor={}", comment.getAuthor(), author);
+            throw new AppException(Domain.COMMENT, ErrorCode.COMMENT_UNAUTHORIZED);
+        }
+        // 댓글 내용 수정
+        comment.update(content);
+        log.debug("댓글 수정 완료: id={}", id);
+    }
+
+    @Transactional
+    public void deleteCommentByAuthor(Long id, String author) {
+        log.debug("작성자 댓글 삭제 요청: id={}, author={}", id, author);
+        // 댓글 존재 확인
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new AppException(Domain.COMMENT, ErrorCode.COMMENT_NOT_FOUND));
+        // 작성자 검증
+        if (!comment.getAuthor().equals(author)) {
+            log.warn("댓글 삭제 권한 없음: commentAuthor={}, requestAuthor={}", comment.getAuthor(), author);
+            throw new AppException(Domain.COMMENT, ErrorCode.COMMENT_UNAUTHORIZED);
+        }
+        // 댓글 삭제
+        commentRepository.deleteById(id);
+        log.debug("작성자 댓글 삭제 완료: id={}", id);
+    }
+
     // Comment 엔티티를 CommentResponseDTO로 변환
     private CommentResponseDTO toResponseDTO(Comment comment) {
         CommentResponseDTO dto = new CommentResponseDTO();
