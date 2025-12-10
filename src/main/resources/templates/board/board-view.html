@@ -32,9 +32,30 @@
         // Thymeleaf로 전달된 게시글 ID
         const boardId = [[${boardId}]]; // Thymeleaf 인라인 JavaScript
         console.log("board-view.html: boardId=" + boardId); // 디버깅 로그
+        let currentUsername = null; // 현재 로그인한 사용자
 
         document.addEventListener('DOMContentLoaded', function () {
             console.log("board-view.html: DOM 로드 완료, boardId=" + boardId);
+
+            // 현재 로그인한 사용자 정보 가져오기
+            axios.get('/auth/check', { withCredentials: true })
+                .then(response => {
+                    if (response.data.authenticated) {
+                        currentUsername = response.data.username;
+                        console.log("board-view.html: 로그인 사용자=" + currentUsername);
+                    }
+                    // 사용자 정보 로드 후 게시글 조회
+                    loadBoard();
+                })
+                .catch(error => {
+                    console.error("board-view.html: 인증 확인 실패", error);
+                    // 인증 실패해도 게시글은 조회
+                    loadBoard();
+                });
+        });
+
+        function loadBoard() {
+            console.log("board-view.html: 게시글 로드 시작, boardId=" + boardId);
             // 게시글 ID 유효성 확인
             if (!boardId || boardId === 0) {
                 console.error("board-view.html: 유효하지 않은 boardId", boardId);
@@ -79,12 +100,10 @@
                         console.error("board-view.html: comment-list 요소 누락");
                         return;
                     }
+                    commentList.innerHTML = ''; // 기존 댓글 초기화
                     if (board.comments && board.comments.length > 0) {
                         board.comments.forEach(comment => {
-                            const li = document.createElement('li');
-                            li.className = 'list-group-item';
-                            li.textContent = `${comment.author}: ${comment.content} (${new Date(comment.createdDttm).toLocaleString('ko-KR')})`;
-                            commentList.appendChild(li);
+                            renderComment(comment, commentList);
                         });
                     } else {
                         const li = document.createElement('li');
@@ -97,7 +116,87 @@
                     console.error("board-view.html: 게시글 데이터 로드 실패", error);
                     alert(error.response?.data?.message || "게시글 로드 중 오류가 발생했습니다.");
                 });
-        });
+        }
+
+        // 댓글 렌더링 함수
+        function renderComment(comment, commentList) {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.id = 'comment-' + comment.id;
+
+            const isAuthor = currentUsername && currentUsername === comment.author;
+
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'd-flex justify-content-between align-items-start';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.id = 'comment-content-' + comment.id;
+            contentDiv.innerHTML = `<strong>${comment.author}</strong>: ${comment.content} <small class="text-muted">(${new Date(comment.createdDttm).toLocaleString('ko-KR')})</small>`;
+
+            commentDiv.appendChild(contentDiv);
+
+            // 본인 댓글인 경우 수정/삭제 버튼 추가
+            if (isAuthor) {
+                const buttonGroup = document.createElement('div');
+                buttonGroup.className = 'btn-group btn-group-sm';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-outline-primary';
+                editBtn.textContent = '수정';
+                editBtn.onclick = () => editComment(comment.id, comment.content);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-outline-danger';
+                deleteBtn.textContent = '삭제';
+                deleteBtn.onclick = () => deleteMyComment(comment.id);
+
+                buttonGroup.appendChild(editBtn);
+                buttonGroup.appendChild(deleteBtn);
+                commentDiv.appendChild(buttonGroup);
+            }
+
+            li.appendChild(commentDiv);
+            commentList.appendChild(li);
+        }
+
+        // 댓글 수정
+        function editComment(commentId, currentContent) {
+            const newContent = prompt('댓글을 수정하세요:', currentContent);
+            if (newContent === null || newContent.trim() === '') {
+                return;
+            }
+
+            console.log("board-view.html: 댓글 수정 요청, commentId=" + commentId);
+            axios.put('/api/comments/' + commentId, { content: newContent }, { withCredentials: true })
+                .then(response => {
+                    console.log("board-view.html: 댓글 수정 성공", response.data);
+                    // 성공 시 페이지 새로고침
+                    loadBoard();
+                })
+                .catch(error => {
+                    console.error("board-view.html: 댓글 수정 실패", error);
+                    alert(error.response?.data?.message || "댓글 수정 중 오류가 발생했습니다.");
+                });
+        }
+
+        // 내 댓글 삭제
+        function deleteMyComment(commentId) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            console.log("board-view.html: 댓글 삭제 요청, commentId=" + commentId);
+            axios.delete('/api/comments/my/' + commentId, { withCredentials: true })
+                .then(response => {
+                    console.log("board-view.html: 댓글 삭제 성공", response.data);
+                    // 성공 시 페이지 새로고침
+                    loadBoard();
+                })
+                .catch(error => {
+                    console.error("board-view.html: 댓글 삭제 실패", error);
+                    alert(error.response?.data?.message || "댓글 삭제 중 오류가 발생했습니다.");
+                });
+        }
 
         // 좋아요 추가 처리
         function addLike() {
