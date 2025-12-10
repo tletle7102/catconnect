@@ -30,19 +30,19 @@ public class AuthController {
 
     @GetMapping("/check")
     public ResponseEntity<?> checkAuthentication(HttpServletRequest request) {
-
         logger.debug("인증 상태 확인 요청");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Map<String, Object> reponse = new HashMap<>();
-        if(authentication != null && authentication.isAuthenticated() && !"anoymousUser".equals(authentication.getPrincipal())) {
+        Map<String, Object> response = new HashMap<>();
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
             logger.debug("인증 상태: 인증됨, username={}", authentication.getName());
-            reponse.put("authenticated", true);
+            response.put("authenticated", true);
+            response.put("username", authentication.getName());
             // 쿠키에서 JWT 토큰 추출
             String jwtToken = null;
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
-                    if("jwtToken".equals(cookie.getName())) {
+                    if ("jwtToken".equals(cookie.getName())) {
                         jwtToken = cookie.getValue();
                         logger.debug("쿠키에서 JWT 토큰 추출: token={}", jwtToken != null ? jwtToken.substring(0, 20) + "..." : "null");
                         break;
@@ -50,17 +50,17 @@ public class AuthController {
                 }
             }
             if (jwtToken != null) {
-                reponse.put("token", jwtToken);
+                response.put("token", jwtToken);
             } else {
                 logger.warn("인증된 사용자지만 JWT 토큰 없음: username={}", authentication.getName());
-                reponse.put("token", null);
+                response.put("token", null);
             }
-            return ResponseEntity.ok(reponse);
+            return ResponseEntity.ok(response);
         } else {
             logger.debug("인증 상태: 비인증");
-            reponse.put("authenticated", false);
-            reponse.put("token", null);
-            return ResponseEntity.ok(reponse);
+            response.put("authenticated", false);
+            response.put("token", null);
+            return ResponseEntity.ok(response);
         }
     }
 }
