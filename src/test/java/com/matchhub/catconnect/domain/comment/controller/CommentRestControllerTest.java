@@ -192,4 +192,161 @@ class CommentRestControllerTest {
             log.debug("다중 댓글 삭제 테스트 완료");
         }
     }
+    @Nested
+    @DisplayName("댓글 수정/삭제 권한 검증 테스트")
+    class CommentAuthorizationApiTests {
+
+        @Test
+        @WithMockUser(username = "testUser")
+        @DisplayName("본인 댓글 수정 성공")
+        void testUpdateCommentByAuthor() throws Exception {
+            log.debug("본인 댓글 수정 테스트 시작");
+
+            // 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Original Comment");
+            mockMvc.perform(post("/api/comments/" + testBoard.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDTO)));
+
+            // 댓글 ID 조회
+            BoardResponseDTO board = boardService.getBoardById(testBoard.getId());
+            Long commentId = board.getComments().get(0).getId();
+
+            // 댓글 수정
+            CommentRequestDTO updateDTO = new CommentRequestDTO();
+            updateDTO.setContent("Updated Comment");
+            mockMvc.perform(put("/api/comments/" + commentId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateDTO)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("댓글 수정 성공"))
+                    .andDo(result -> log.debug("댓글 수정 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("본인 댓글 수정 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "otherUser")
+        @DisplayName("타인 댓글 수정 실패 - 403 FORBIDDEN")
+        void testUpdateCommentByOther() throws Exception {
+            log.debug("타인 댓글 수정 테스트 시작");
+
+            // testUser가 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
+            mockMvc.perform(post("/api/comments/" + testBoard.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDTO))
+                    .with(user("testUser").roles("USER")));
+
+            // 댓글 ID 조회
+            BoardResponseDTO board = boardService.getBoardById(testBoard.getId());
+            Long commentId = board.getComments().get(0).getId();
+
+            // otherUser가 댓글 수정 시도
+            CommentRequestDTO updateDTO = new CommentRequestDTO();
+            updateDTO.setContent("Hacked Comment");
+            mockMvc.perform(put("/api/comments/" + commentId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateDTO)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.code").value("COMMENT_002"))
+                    .andExpect(jsonPath("$.message").value("댓글에 대한 권한이 없습니다."))
+                    .andDo(result -> log.debug("타인 댓글 수정 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("타인 댓글 수정 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "testUser")
+        @DisplayName("본인 댓글 삭제 성공")
+        void testDeleteMyCommentByAuthor() throws Exception {
+            log.debug("본인 댓글 삭제 테스트 시작");
+
+            // 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
+            mockMvc.perform(post("/api/comments/" + testBoard.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDTO)));
+
+            // 댓글 ID 조회
+            BoardResponseDTO board = boardService.getBoardById(testBoard.getId());
+            Long commentId = board.getComments().get(0).getId();
+
+            // 본인이 댓글 삭제
+            mockMvc.perform(delete("/api/comments/my/" + commentId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("댓글 삭제 성공"))
+                    .andDo(result -> log.debug("본인 댓글 삭제 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("본인 댓글 삭제 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "otherUser")
+        @DisplayName("타인 댓글 삭제 실패 - 403 FORBIDDEN")
+        void testDeleteMyCommentByOther() throws Exception {
+            log.debug("타인 댓글 삭제 테스트 시작");
+
+            // testUser가 댓글 추가
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
+            mockMvc.perform(post("/api/comments/" + testBoard.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDTO))
+                    .with(user("testUser").roles("USER")));
+
+            // 댓글 ID 조회
+            BoardResponseDTO board = boardService.getBoardById(testBoard.getId());
+            Long commentId = board.getComments().get(0).getId();
+
+            // otherUser가 댓글 삭제 시도
+            mockMvc.perform(delete("/api/comments/my/" + commentId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.code").value("COMMENT_002"))
+                    .andDo(result -> log.debug("타인 댓글 삭제 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("타인 댓글 삭제 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "testUser")
+        @DisplayName("존재하지 않는 댓글 수정 실패 - 404 NOT FOUND")
+        void testUpdateNonExistentComment() throws Exception {
+            log.debug("존재하지 않는 댓글 수정 테스트 시작");
+
+            CommentRequestDTO updateDTO = new CommentRequestDTO();
+            updateDTO.setContent("New Content");
+
+            mockMvc.perform(put("/api/comments/999")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(updateDTO)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("COMMENT_001"))
+                    .andDo(result -> log.debug("존재하지 않는 댓글 수정 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("존재하지 않는 댓글 수정 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "testUser")
+        @DisplayName("존재하지 않는 댓글 삭제 실패 - 404 NOT FOUND")
+        void testDeleteNonExistentMyComment() throws Exception {
+            log.debug("존재하지 않는 댓글 삭제 테스트 시작");
+
+            mockMvc.perform(delete("/api/comments/my/999")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("COMMENT_001"))
+                    .andDo(result -> log.debug("존재하지 않는 댓글 삭제 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("존재하지 않는 댓글 삭제 테스트 완료");
+        }
+    }
 }
