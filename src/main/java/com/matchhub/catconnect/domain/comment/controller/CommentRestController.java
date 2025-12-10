@@ -93,4 +93,43 @@ public class CommentRestController {
         commentService.deleteComment(id);
         return ResponseEntity.ok(Response.success(null, "댓글 삭제 성공"));
     }
+
+    @Operation(summary = "댓글 수정", description = "자신이 작성한 댓글을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "댓글 수정 성공",
+                    content = @Content(schema = @Schema(implementation = Response.class))),
+            @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음"),
+            @ApiResponse(responseCode = "403", description = "댓글 수정 권한 없음")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<Response<Void>> updateComment(
+            @Parameter(description = "수정할 댓글 ID", required = true) @PathVariable Long id,
+            @Valid @RequestBody CommentRequestDTO requestDTO,
+            Authentication authentication) {
+        log.debug("PUT /api/comments/{} 요청", id);
+        // 현재 사용자 이름 추출
+        String author = authentication.getName();
+        // 댓글 수정 서비스 호출
+        commentService.updateComment(id, requestDTO.getContent(), author);
+        return ResponseEntity.ok(Response.success(null, "댓글 수정 성공"));
+    }
+
+    @Operation(summary = "작성자 댓글 삭제", description = "자신이 작성한 댓글을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "댓글 삭제 성공",
+                    content = @Content(schema = @Schema(implementation = Response.class))),
+            @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음"),
+            @ApiResponse(responseCode = "403", description = "댓글 삭제 권한 없음")
+    })
+    @DeleteMapping("/my/{id}")
+    public ResponseEntity<Response<Void>> deleteMyComment(
+            @Parameter(description = "삭제할 댓글 ID", required = true) @PathVariable Long id,
+            Authentication authentication) {
+        log.debug("DELETE /api/comments/my/{} 요청", id);
+        // 현재 사용자 이름 추출
+        String author = authentication.getName();
+        // 작성자 댓글 삭제 서비스 호출
+        commentService.deleteCommentByAuthor(id, author);
+        return ResponseEntity.ok(Response.success(null, "댓글 삭제 성공"));
+    }
 }
