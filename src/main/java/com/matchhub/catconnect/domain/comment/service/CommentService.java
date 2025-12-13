@@ -126,6 +126,18 @@ public class CommentService {
         log.debug("작성자 댓글 삭제 완료: id={}", id);
     }
 
+    // 댓글 검색
+    @Transactional(readOnly = true)
+    public List<CommentResponseDTO> searchComments(String keyword) {
+        log.debug("댓글 검색 요청: keyword={}", keyword);
+        // Repository에서 검색 실행
+        List<Comment> comments = commentRepository.searchByKeyword(keyword);
+        // Entity 리스트를 DTO 리스트로 변환
+        return comments.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     // Comment 엔티티를 CommentResponseDTO로 변환
     private CommentResponseDTO toResponseDTO(Comment comment) {
         CommentResponseDTO dto = new CommentResponseDTO();
