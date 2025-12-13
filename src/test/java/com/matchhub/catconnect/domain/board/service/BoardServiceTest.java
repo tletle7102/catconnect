@@ -308,4 +308,82 @@ class BoardServiceTest {
             log.debug("댓글 추가 테스트 완료");
         }
     }
+
+    @Nested
+    @DisplayName("게시글 검색 테스트")
+    class BoardSearchTests {
+
+        @Test
+        @DisplayName("게시글 제목으로 검색 성공")
+        void testSearchBoardsByTitle() {
+            log.debug("게시글 제목 검색 테스트 시작");
+
+            // 제목으로 검색
+            List<BoardResponseDTO> results = boardService.searchBoards("Test Title");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+            assertTrue(results.stream().anyMatch(board -> board.getTitle().contains("Test Title")));
+
+            log.debug("게시글 제목 검색 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 내용으로 검색 성공")
+        void testSearchBoardsByContent() {
+            log.debug("게시글 내용 검색 테스트 시작");
+
+            // 내용으로 검색
+            List<BoardResponseDTO> results = boardService.searchBoards("Test Content");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+            assertTrue(results.stream().anyMatch(board -> board.getContent().contains("Test Content")));
+
+            log.debug("게시글 내용 검색 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 작성자로 검색 성공")
+        void testSearchBoardsByAuthor() {
+            log.debug("게시글 작성자 검색 테스트 시작");
+
+            // 작성자로 검색
+            List<BoardResponseDTO> results = boardService.searchBoards("testUser");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+            assertTrue(results.stream().allMatch(board -> board.getAuthor().equals("testUser")));
+
+            log.debug("게시글 작성자 검색 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 검색 결과 없음")
+        void testSearchBoardsNoResults() {
+            log.debug("게시글 검색 결과 없음 테스트 시작");
+
+            // 존재하지 않는 키워드로 검색
+            List<BoardResponseDTO> results = boardService.searchBoards("존재하지않는키워드xyz");
+
+            // 검색 결과가 비어있는지 확인
+            assertTrue(results.isEmpty());
+
+            log.debug("게시글 검색 결과 없음 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 대소문자 구분 없이 검색")
+        void testSearchBoardsCaseInsensitive() {
+            log.debug("게시글 대소문자 구분 없이 검색 테스트 시작");
+
+            // 대소문자 다르게 검색
+            List<BoardResponseDTO> results = boardService.searchBoards("test title");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+
+            log.debug("게시글 대소문자 구분 없이 검색 테스트 완료");
+        }
+    }
 }
