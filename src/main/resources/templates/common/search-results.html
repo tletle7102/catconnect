@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>검색 결과</title>
+</head>
+<section layout:fragment="content">
+    <div class="card">
+        <div class="card-body">
+            <h1 class="card-title">검색 결과</h1>
+            <p class="text-muted">키워드: "<span id="keyword-display"></span>", 검색 타입: <span id="type-display"></span></p>
+
+            <!-- 통합 검색 결과 -->
+            <div id="search-results" style="margin-top: 2rem;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>타입</th>
+                            <th>ID</th>
+                            <th>제목/내용</th>
+                            <th>작성자</th>
+                            <th>생성 시간</th>
+                        </tr>
+                        </thead>
+                        <tbody id="result-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <a th:href="@{/boards}" class="btn btn-secondary mt-3">게시판으로 돌아가기</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:inline="javascript">
+        console.log("search-results.html: 스크립트 로드 시작");
+        // Thymeleaf로 전달된 검색 파라미터
+        const keyword = [[${keyword}]];
+        const type = [[${type}]];
+        console.log("search-results.html: keyword=" + keyword + ", type=" + type);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("search-results.html: DOM 로드 완료");
+
+            // 검색 파라미터 표시
+            document.getElementById('keyword-display').textContent = keyword || '';
+            document.getElementById('type-display').textContent = type || 'ALL';
+
+            // 검색 실행
+            if (keyword && keyword.trim() !== '') {
+                searchData(keyword, type);
+            } else {
+                console.warn("search-results.html: 검색 키워드 없음");
+                alert("검색 키워드를 입력하세요.");
+            }
+        });
+
+        function searchData(keyword, type) {
+            console.log("search-results.html: 검색 API 호출 시작, keyword=" + keyword + ", type=" + type);
+            axios.get('/api/search', {
+                params: { keyword: keyword, type: type },
+                withCredentials: true
+            })
+                .then(response => {
+                    console.log("search-results.html: 검색 API 호출 성공", response.data);
+                    const result = response.data.data;
+
+                    // 통합 검색 결과 렌더링
+                    renderResults(result.boards || [], result.comments || []);
+                })
+                .catch(error => {
+                    console.error("search-results.html: 검색 API 호출 실패", error);
+                    alert(error.response?.data?.message || "검색 중 오류가 발생했습니다.");
+                });
+        }
+
+        function renderResults(boards, comments) {
+            const tbody = document.getElementById('result-list');
+            tbody.innerHTML = '';
+
+            // 게시글과 댓글이 모두 없는 경우
+            if (boards.length === 0 && comments.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="5" class="text-center">검색 결과가 없습니다.</td>';
+                tbody.appendChild(tr);
+                return;
+            }
+
+            // 게시글 렌더링
+            boards.forEach(board => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge bg-primary">게시글</span></td>
+                    <td>${board.id}</td>
+                    <td><a href="/boards/${board.id}">${board.title}</a></td>
+                    <td>${board.author}</td>
+                    <td>${new Date(board.createdDttm).toLocaleString('ko-KR')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // 댓글 렌더링
+            comments.forEach(comment => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="badge bg-secondary">댓글</span></td>
+                    <td>${comment.id}</td>
+                    <td><a href="/boards/${comment.boardId}">${comment.content}</a></td>
+                    <td>${comment.author}</td>
+                    <td>${new Date(comment.createdDttm).toLocaleString('ko-KR')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</section>
+</html>
