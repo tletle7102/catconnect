@@ -62,6 +62,11 @@ class CommentServiceTest {
         requestDTO.setContent("Test Content");
         testBoard = boardService.createBoard(requestDTO, "testUser");
 
+        // 테스트용 댓글 생성 (검색 테스트를 위해)
+        CommentRequestDTO commentRequestDTO = new CommentRequestDTO();
+        commentRequestDTO.setContent("Test Comment");
+        commentService.addComment(testBoard.getId(), commentRequestDTO, "testUser");
+
         // 인증 정보 설정
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken("testUser", null, Collections.emptyList())
@@ -298,6 +303,69 @@ class CommentServiceTest {
             assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
 
             log.debug("존재하지 않는 댓글 삭제 테스트 완료");
+        }
+    }
+
+    @Nested
+    @DisplayName("댓글 검색 테스트")
+    class CommentSearchTests {
+
+        @Test
+        @DisplayName("댓글 내용으로 검색 성공")
+        void testSearchCommentsByContent() {
+            log.debug("댓글 내용 검색 테스트 시작");
+
+            // 내용으로 검색
+            List<CommentResponseDTO> results = commentService.searchComments("Test Comment");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+            assertTrue(results.stream().anyMatch(comment -> comment.getContent().contains("Test Comment")));
+
+            log.debug("댓글 내용 검색 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("댓글 작성자로 검색 성공")
+        void testSearchCommentsByAuthor() {
+            log.debug("댓글 작성자 검색 테스트 시작");
+
+            // 작성자로 검색
+            List<CommentResponseDTO> results = commentService.searchComments("testUser");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+            assertTrue(results.stream().allMatch(comment -> comment.getAuthor().equals("testUser")));
+
+            log.debug("댓글 작성자 검색 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("댓글 검색 결과 없음")
+        void testSearchCommentsNoResults() {
+            log.debug("댓글 검색 결과 없음 테스트 시작");
+
+            // 존재하지 않는 키워드로 검색
+            List<CommentResponseDTO> results = commentService.searchComments("존재하지않는키워드xyz");
+
+            // 검색 결과가 비어있는지 확인
+            assertTrue(results.isEmpty());
+
+            log.debug("댓글 검색 결과 없음 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("댓글 대소문자 구분 없이 검색")
+        void testSearchCommentsCaseInsensitive() {
+            log.debug("댓글 대소문자 구분 없이 검색 테스트 시작");
+
+            // 대소문자 다르게 검색
+            List<CommentResponseDTO> results = commentService.searchComments("test comment");
+
+            // 검색 결과 확인
+            assertFalse(results.isEmpty());
+
+            log.debug("댓글 대소문자 구분 없이 검색 테스트 완료");
         }
     }
 }
