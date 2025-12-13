@@ -141,6 +141,18 @@ public class BoardService {
         log.debug("게시글 개별 삭제 완료: id={}", id);
     }
 
+    // 게시글 검색
+    @Transactional(readOnly = true)
+    public List<BoardResponseDTO> searchBoards(String keyword) {
+        log.debug("게시글 검색 요청: keyword={}", keyword);
+        // Repository에서 검색 실행
+        List<Board> boards = boardRepository.searchByKeyword(keyword);
+        // Entity 리스트를 DTO 리스트로 변환
+        return boards.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
     // Board → BoardResponseDTO 변환 도우미 메서드
     private BoardResponseDTO toResponseDTO(Board board) {
         BoardResponseDTO dto = new BoardResponseDTO();
