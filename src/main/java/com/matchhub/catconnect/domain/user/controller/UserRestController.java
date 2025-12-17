@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,13 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @Operation(summary = "전체 사용자 조회", description = "모든 사용자 목록을 조회합니다.")
+    @Operation(summary = "전체 사용자 조회", description = "모든 사용자 목록을 페이지네이션하여 조회합니다.")
     @GetMapping
-    public ResponseEntity<Response<List<UserResponseDTO>>> getAllUsers() {
-        log.debug("GET /api/users 요청");
-        // 서비스 호출하여 사용자 목록 조회
-        List<UserResponseDTO> users = userService.getAllUsers();
+    public ResponseEntity<Response<Page<UserResponseDTO>>> getAllUsers(
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
+        log.debug("GET /api/users 요청: page={}, size={}", page, size);
+        Page<UserResponseDTO> users = userService.getAllUsers(page, size);
         return ResponseEntity.ok(Response.success(users, "사용자 목록 조회 성공"));
     }
 
