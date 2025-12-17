@@ -12,6 +12,10 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +51,20 @@ public class UserService {
         return users.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 전체 사용자 목록 조회 (페이지네이션)
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 페이지네이션된 사용자 DTO 목록
+     */
+    @Transactional(readOnly = true)
+    public Page<UserResponseDTO> getAllUsers(int page, int size) {
+        log.debug("페이지네이션 사용자 조회 요청: page={}, size={}", page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(this::toResponseDTO);
     }
 
     /**
