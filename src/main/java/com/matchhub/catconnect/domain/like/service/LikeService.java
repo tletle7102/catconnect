@@ -10,6 +10,10 @@ import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +43,15 @@ public class LikeService {
         return likes.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // 전체 좋아요 조회 (페이지네이션)
+    @Transactional(readOnly = true)
+    public Page<LikeResponseDTO> getAllLikes(int page, int size) {
+        log.debug("페이지네이션 좋아요 조회 요청: page={}, size={}", page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        Page<Like> likePage = likeRepository.findAll(pageable);
+        return likePage.map(this::toResponseDTO);
     }
 
     @Transactional
