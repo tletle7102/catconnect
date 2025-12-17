@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -28,12 +29,13 @@ public class LikeRestController {
         this.likeService = likeService;
     }
 
-    @Operation(summary = "전체 좋아요 조회", description = "모든 좋아요 목록을 조회합니다.")
+    @Operation(summary = "전체 좋아요 조회", description = "모든 좋아요 목록을 페이지네이션하여 조회합니다.")
     @GetMapping
-    public ResponseEntity<Response<List<LikeResponseDTO>>> getAllLikes() {
-        log.debug("GET /api/likes 요청");
-        // 서비스 호출하여 좋아요 목록 조회
-        List<LikeResponseDTO> likes = likeService.getAllLikes();
+    public ResponseEntity<Response<Page<LikeResponseDTO>>> getAllLikes(
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
+        log.debug("GET /api/likes 요청: page={}, size={}", page, size);
+        Page<LikeResponseDTO> likes = likeService.getAllLikes(page, size);
         return ResponseEntity.ok(Response.success(likes, "좋아요 목록 조회 성공"));
     }
 
