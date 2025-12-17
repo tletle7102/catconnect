@@ -13,6 +13,10 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +49,15 @@ public class CommentService {
         return comments.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // 전체 댓글 조회 (페이지네이션)
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDTO> getAllComments(int page, int size) {
+        log.debug("페이지네이션 댓글 조회 요청: page={}, size={}", page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        Page<Comment> commentPage = commentRepository.findAll(pageable);
+        return commentPage.map(this::toResponseDTO);
     }
 
     @Transactional
@@ -136,6 +149,15 @@ public class CommentService {
         return comments.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // 댓글 검색 (페이지네이션)
+    @Transactional(readOnly = true)
+    public Page<CommentResponseDTO> searchComments(String keyword, int page, int size) {
+        log.debug("페이지네이션 댓글 검색 요청: keyword={}, page={}, size={}", keyword, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        Page<Comment> commentPage = commentRepository.searchByKeyword(keyword, pageable);
+        return commentPage.map(this::toResponseDTO);
     }
 
     // Comment 엔티티를 CommentResponseDTO로 변환
