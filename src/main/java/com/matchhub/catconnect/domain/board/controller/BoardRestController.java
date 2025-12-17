@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -35,12 +36,14 @@ public class BoardRestController {
         this.boardService = boardService;
     }
 
-    // 게시글 전체 조회
-    @Operation(summary = "전체 게시글 조회", description = "모든 게시글 목록을 조회합니다.")  // 각 엔드포인트의 요약과 설명
+    // 게시글 전체 조회 (페이지네이션)
+    @Operation(summary = "전체 게시글 조회", description = "모든 게시글 목록을 페이지네이션하여 조회합니다.")
     @GetMapping
-    public ResponseEntity<Response<List<BoardResponseDTO>>> getAllBoards() {
-        log.debug("GET /api/boards 요청");
-        List<BoardResponseDTO> boards = boardService.getAllBoards(); // 서비스 호출
+    public ResponseEntity<Response<Page<BoardResponseDTO>>> getAllBoards(
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
+        log.debug("GET /api/boards 요청: page={}, size={}", page, size);
+        Page<BoardResponseDTO> boards = boardService.getAllBoards(page, size);
         return ResponseEntity.ok(Response.success(boards, "게시글 목록 조회 성공"));
     }
 
