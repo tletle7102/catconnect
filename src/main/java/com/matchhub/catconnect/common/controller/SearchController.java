@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,7 @@ public class SearchController {
         this.commentService = commentService;
     }
 
-    @Operation(summary = "통합 검색", description = "키워드와 검색 타입에 따라 게시글, 댓글을 검색함")
+    @Operation(summary = "통합 검색", description = "키워드와 검색 타입에 따라 게시글, 댓글을 페이지네이션하여 검색함")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "검색 성공",
                     content = @Content(schema = @Schema(implementation = Response.class))),
@@ -48,8 +49,10 @@ public class SearchController {
     @GetMapping
     public ResponseEntity<Response<SearchResponseDTO>> search(
             @Parameter(description = "검색 키워드", required = true) @RequestParam String keyword,
-            @Parameter(description = "검색 타입 (ALL, BOARD, COMMENT)", required = true) @RequestParam String type) {
-        log.debug("GET /api/search 요청: keyword={}, type={}", keyword, type);
+            @Parameter(description = "검색 타입 (ALL, BOARD, COMMENT)", required = true) @RequestParam String type,
+            @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
+        log.debug("GET /api/search 요청: keyword={}, type={}, page={}, size={}", keyword, type, page, size);
 
         // SearchType enum으로 변환
         SearchType searchType;
@@ -68,23 +71,23 @@ public class SearchController {
         switch (searchType) {
             case BOARD:
                 // 게시글만 검색
-                List<BoardResponseDTO> boards = boardService.searchBoards(keyword);
-                result.setBoards(boards);
-                result.setComments(Collections.emptyList());
+                Page<BoardResponseDTO> boardPage = boardService.searchBoards(keyword, page, size);
+                result.setBoardPage(boardPage);
+                result.setCommentPage(Page.empty());
                 result.setUsers(Collections.emptyList());
                 break;
             case COMMENT:
                 // 댓글만 검색
-                List<CommentResponseDTO> comments = commentService.searchComments(keyword);
-                result.setBoards(Collections.emptyList());
-                result.setComments(comments);
+                Page<CommentResponseDTO> commentPage = commentService.searchComments(keyword, page, size);
+                result.setBoardPage(Page.empty());
+                result.setCommentPage(commentPage);
                 result.setUsers(Collections.emptyList());
                 break;
             case ALL:
             default:
-                // 전체 검색
-                result.setBoards(boardService.searchBoards(keyword));
-                result.setComments(commentService.searchComments(keyword));
+                // 전체 검색 (게시글과 댓글 모두 페이지네이션)
+                result.setBoardPage(boardService.searchBoards(keyword, page, size));
+                result.setCommentPage(commentService.searchComments(keyword, page, size));
                 result.setUsers(Collections.emptyList());
                 break;
         }
