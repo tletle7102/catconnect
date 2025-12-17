@@ -13,6 +13,10 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +48,18 @@ public class BoardService {
         return boards.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // 전체 게시글 조회 (페이지네이션)
+    @Transactional(readOnly = true)
+    public Page<BoardResponseDTO> getAllBoards(int page, int size) {
+        log.debug("페이지네이션 게시글 조회 요청: page={}, size={}", page, size);
+        // 페이지네이션 설정 (최신 게시글부터 정렬)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        // DB에서 페이지네이션 적용하여 게시글 조회
+        Page<Board> boardPage = boardRepository.findAll(pageable);
+        // Entity Page를 DTO Page로 변환
+        return boardPage.map(this::toResponseDTO);
     }
 
     // 게시글 상세 조회 (댓글 포함)
@@ -151,6 +167,15 @@ public class BoardService {
         return boards.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // 게시글 검색 (페이지네이션)
+    @Transactional(readOnly = true)
+    public Page<BoardResponseDTO> searchBoards(String keyword, int page, int size) {
+        log.debug("페이지네이션 게시글 검색 요청: keyword={}, page={}, size={}", keyword, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        Page<Board> boardPage = boardRepository.searchByKeyword(keyword, pageable);
+        return boardPage.map(this::toResponseDTO);
     }
 
     // Board → BoardResponseDTO 변환 도우미 메서드
