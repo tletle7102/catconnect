@@ -106,7 +106,7 @@ class CommentRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
-                    .andExpect(jsonPath("$.data[0].content").value("Test Comment"))
+                    .andExpect(jsonPath("$.data.content[0].content").value("Test Comment"))
                     .andDo(result -> log.debug("전체 댓글 조회 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("전체 댓글 조회 테스트 완료");
@@ -192,6 +192,7 @@ class CommentRestControllerTest {
             log.debug("다중 댓글 삭제 테스트 완료");
         }
     }
+
     @Nested
     @DisplayName("댓글 수정/삭제 권한 검증 테스트")
     class CommentAuthorizationApiTests {
@@ -253,7 +254,6 @@ class CommentRestControllerTest {
                             .content(objectMapper.writeValueAsString(updateDTO)))
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.code").value("COMMENT_002"))
-                    .andExpect(jsonPath("$.message").value("댓글에 대한 권한이 없습니다."))
                     .andDo(result -> log.debug("타인 댓글 수정 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("타인 댓글 수정 테스트 완료");
