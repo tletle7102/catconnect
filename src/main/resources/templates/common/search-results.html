@@ -10,23 +10,25 @@
             <h1 class="card-title">검색 결과</h1>
             <p class="text-muted">키워드: "<span id="keyword-display"></span>", 검색 타입: <span id="type-display"></span></p>
 
-            <!-- 통합 검색 결과 -->
-            <div id="search-results" style="margin-top: 2rem;">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>타입</th>
-                            <th>ID</th>
-                            <th>제목/내용</th>
-                            <th>작성자</th>
-                            <th>생성 시간</th>
-                        </tr>
-                        </thead>
-                        <tbody id="result-list"></tbody>
-                    </table>
-                </div>
+            <!-- 통합 검색 결과 테이블 -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>타입</th>
+                        <th>ID</th>
+                        <th>내용</th>
+                        <th>작성자</th>
+                        <th>생성 시간</th>
+                    </tr>
+                    </thead>
+                    <tbody id="result-list"></tbody>
+                </table>
             </div>
+            <!-- 페이지네이션 -->
+            <nav aria-label="검색 결과 페이지 네비게이션">
+                <ul class="pagination justify-content-center" id="search-pagination"></ul>
+            </nav>
 
             <a th:href="@{/boards}" class="btn btn-secondary mt-3">게시판으로 돌아가기</a>
         </div>
@@ -38,6 +40,12 @@
         const keyword = [[${keyword}]];
         const type = [[${type}]];
         console.log("search-results.html: keyword=" + keyword + ", type=" + type);
+
+        // 전체 검색 결과를 저장할 배열
+        let allResults = [];
+        // 페이지네이션 상태
+        let currentPage = 0;
+        const pageSize = 10;
 
         document.addEventListener('DOMContentLoaded', function () {
             console.log("search-results.html: DOM 로드 완료");
@@ -57,16 +65,52 @@
 
         function searchData(keyword, type) {
             console.log("search-results.html: 검색 API 호출 시작, keyword=" + keyword + ", type=" + type);
+            // 서버에서 충분한 수의 결과를 가져오기 위해 큰 page size 사용
             axios.get('/api/search', {
-                params: { keyword: keyword, type: type },
+                params: { keyword: keyword, type: type, page: 0, size: 1000 },
                 withCredentials: true
             })
                 .then(response => {
                     console.log("search-results.html: 검색 API 호출 성공", response.data);
                     const result = response.data.data;
 
-                    // 통합 검색 결과 렌더링
-                    renderResults(result.boards || [], result.comments || []);
+                    // 게시글과 댓글 결과를 통합
+                    allResults = [];
+
+                    // 게시글 결과 추가
+                    if (result.boardPage && result.boardPage.content) {
+                        result.boardPage.content.forEach(board => {
+                            allResults.push({
+                                type: '게시글',
+                                id: board.id,
+                                content: board.title,
+                                author: board.author,
+                                createdDttm: board.createdDttm,
+                                link: `/boards/${board.id}`
+                            });
+                        });
+                    }
+
+                    // 댓글 결과 추가
+                    if (result.commentPage && result.commentPage.content) {
+                        result.commentPage.content.forEach(comment => {
+                            allResults.push({
+                                type: '댓글',
+                                id: comment.id,
+                                content: comment.content,
+                                author: comment.author,
+                                createdDttm: comment.createdDttm,
+                                link: `/boards/${comment.boardId}`
+                            });
+                        });
+                    }
+
+                    // 생성 시간 기준 내림차순 정렬
+                    allResults.sort((a, b) => new Date(b.createdDttm) - new Date(a.createdDttm));
+
+                    // 첫 페이지 렌더링
+                    currentPage = 0;
+                    renderResults();
                 })
                 .catch(error => {
                     console.error("search-results.html: 검색 API 호출 실패", error);
@@ -74,43 +118,76 @@
                 });
         }
 
-        function renderResults(boards, comments) {
+        function renderResults() {
             const tbody = document.getElementById('result-list');
             tbody.innerHTML = '';
 
-            // 게시글과 댓글이 모두 없는 경우
-            if (boards.length === 0 && comments.length === 0) {
+            // 현재 페이지에 해당하는 결과만 추출
+            const startIdx = currentPage * pageSize;
+            const endIdx = Math.min(startIdx + pageSize, allResults.length);
+            const pageResults = allResults.slice(startIdx, endIdx);
+
+            if (pageResults.length === 0) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = '<td colspan="5" class="text-center">검색 결과가 없습니다.</td>';
                 tbody.appendChild(tr);
-                return;
+            } else {
+                pageResults.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span class="badge ${item.type === '게시글' ? 'bg-primary' : 'bg-success'}">${item.type}</span></td>
+                        <td>${item.id}</td>
+                        <td><a href="${item.link}">${item.content}</a></td>
+                        <td>${item.author}</td>
+                        <td>${new Date(item.createdDttm).toLocaleString('ko-KR')}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
             }
 
-            // 게시글 렌더링
-            boards.forEach(board => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="badge bg-primary">게시글</span></td>
-                    <td>${board.id}</td>
-                    <td><a href="/boards/${board.id}">${board.title}</a></td>
-                    <td>${board.author}</td>
-                    <td>${new Date(board.createdDttm).toLocaleString('ko-KR')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            renderPagination();
+        }
 
-            // 댓글 렌더링
-            comments.forEach(comment => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="badge bg-secondary">댓글</span></td>
-                    <td>${comment.id}</td>
-                    <td><a href="/boards/${comment.boardId}">${comment.content}</a></td>
-                    <td>${comment.author}</td>
-                    <td>${new Date(comment.createdDttm).toLocaleString('ko-KR')}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+        function renderPagination() {
+            const pagination = document.getElementById('search-pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = Math.ceil(allResults.length / pageSize);
+
+            if (totalPages <= 1) return;
+
+            // 이전 버튼
+            const prevLi = document.createElement('li');
+            prevLi.className = 'page-item' + (currentPage === 0 ? ' disabled' : '');
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">이전</a>`;
+            pagination.appendChild(prevLi);
+
+            // 페이지 번호 (최대 5개 표시)
+            let startPage = Math.max(0, currentPage - 2);
+            let endPage = Math.min(totalPages - 1, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(0, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === currentPage ? ' active' : '');
+                li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i + 1}</a>`;
+                pagination.appendChild(li);
+            }
+
+            // 다음 버튼
+            const nextLi = document.createElement('li');
+            nextLi.className = 'page-item' + (currentPage >= totalPages - 1 ? ' disabled' : '');
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">다음</a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(allResults.length / pageSize);
+            if (page < 0 || page >= totalPages) return;
+            currentPage = page;
+            renderResults();
         }
     </script>
 </section>
