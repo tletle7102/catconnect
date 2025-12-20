@@ -25,6 +25,10 @@
                         <tbody id="like-list"></tbody>
                     </table>
                 </div>
+                <!-- 페이지네이션 UI -->
+                <nav aria-label="좋아요 페이지 네비게이션">
+                    <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
                 <a href="/boards" class="btn btn-secondary mb-3">게시판 목록으로 돌아가기</a>
                 <button type="submit" class="btn btn-secondary mb-3">선택 삭제</button>
             </form>
@@ -33,44 +37,19 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         console.log("admin-likes.html: 스크립트 로드 시작");
+
+        // 현재 페이지 상태
+        let currentPage = 0;
+        const pageSize = 10;
+
         document.addEventListener('DOMContentLoaded', function () {
             console.log("admin-likes.html: DOM 로드 완료");
-            // 좋아요 목록 조회 API 호출
-            axios.get('/api/likes', { withCredentials: true })
-                .then(response => {
-                    console.log("admin-likes.html: 좋아요 목록 조회 성공", response.data);
-                    // API 응답에서 좋아요 데이터 추출
-                    const likes = response.data.data;
-                    const tbody = document.getElementById('like-list');
-                    // 좋아요 목록을 동적으로 테이블에 렌더링
-                    likes.forEach(like => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${like.id}"></td>
-                            <td style="vertical-align: middle;">${like.id}</td>
-                            <td style="vertical-align: middle;">${like.username}</td>
-                            <td style="vertical-align: middle;">${like.boardId}</td>
-                            <td style="vertical-align: middle;">${new Date(like.createdDttm).toLocaleString('ko-KR')}</td>
-                            <td style="vertical-align: middle;">
-                                <a href="/api/likes/${like.id}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteLike(${like.id}, event)">X</a>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-
-                    // 전체 선택 체크박스 이벤트
-                    document.getElementById('selectAll').addEventListener('change', function() {
-                        const checkboxes = document.querySelectorAll('input[name="ids"]');
-                        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-                    });
-                })
-                .catch(error => {
-                    console.error("admin-likes.html: 좋아요 목록 조회 실패", error);
-                    alert(error.response?.data?.message || "좋아요 목록 조회 중 오류가 발생했습니다.");
-                });
+            // URL에서 page 파라미터 추출
+            const urlParams = new URLSearchParams(window.location.search);
+            currentPage = parseInt(urlParams.get('page')) || 0;
+            loadLikes(currentPage);
 
             // URL 파라미터로 메시지/에러 표시
-            const urlParams = new URLSearchParams(window.location.search);
             const message = urlParams.get('message');
             const error = urlParams.get('error');
             if (message) {
@@ -78,7 +57,98 @@
             } else if (error) {
                 alert(decodeURIComponent(error));
             }
+
+            // 전체 선택 체크박스 이벤트
+            document.getElementById('selectAll').addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('input[name="ids"]');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
         });
+
+        // 좋아요 목록 조회
+        function loadLikes(page) {
+            console.log("admin-likes.html: 좋아요 목록 조회, page=" + page);
+            axios.get('/api/likes', {
+                params: { page: page, size: pageSize },
+                withCredentials: true
+            })
+                .then(response => {
+                    console.log("admin-likes.html: 좋아요 목록 조회 성공", response.data);
+                    const pageData = response.data.data;
+                    renderLikes(pageData.content);
+                    renderPagination(pageData);
+                })
+                .catch(error => {
+                    console.error("admin-likes.html: 좋아요 목록 조회 실패", error);
+                    alert(error.response?.data?.message || "좋아요 목록 조회 중 오류가 발생했습니다.");
+                });
+        }
+
+        // 좋아요 목록 렌더링
+        function renderLikes(likes) {
+            const tbody = document.getElementById('like-list');
+            tbody.innerHTML = '';
+            likes.forEach(like => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${like.id}"></td>
+                    <td style="vertical-align: middle;">${like.id}</td>
+                    <td style="vertical-align: middle;">${like.username}</td>
+                    <td style="vertical-align: middle;">${like.boardId}</td>
+                    <td style="vertical-align: middle;">${new Date(like.createdDttm).toLocaleString('ko-KR')}</td>
+                    <td style="vertical-align: middle;">
+                        <a href="/api/likes/${like.id}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteLike(${like.id}, event)">X</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 페이지네이션 렌더링
+        function renderPagination(pageData) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            const totalPages = pageData.totalPages;
+            const currentPageNum = pageData.number;
+
+            // 이전 버튼
+            const prevLi = document.createElement('li');
+            prevLi.className = 'page-item' + (pageData.first ? ' disabled' : '');
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPageNum - 1}); return false;">이전</a>`;
+            pagination.appendChild(prevLi);
+
+            // 페이지 번호 (최대 5개 표시)
+            let startPage = Math.max(0, currentPageNum - 2);
+            let endPage = Math.min(totalPages - 1, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(0, endPage - 4);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === currentPageNum ? ' active' : '');
+                li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i + 1}</a>`;
+                pagination.appendChild(li);
+            }
+
+            // 다음 버튼
+            const nextLi = document.createElement('li');
+            nextLi.className = 'page-item' + (pageData.last ? ' disabled' : '');
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPageNum + 1}); return false;">다음</a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        // 페이지 이동
+        function goToPage(page) {
+            if (page < 0) return;
+            currentPage = page;
+            loadLikes(page);
+            // URL 업데이트 (히스토리에 추가)
+            const url = new URL(window.location);
+            url.searchParams.set('page', page);
+            window.history.pushState({}, '', url);
+        }
 
         // 다중 좋아요 삭제 처리
         function handleDelete(event) {
