@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -112,6 +113,61 @@ class BoardServiceTest {
             assertTrue(boards.stream().anyMatch(board -> board.getId().equals(testBoard2.getId()) && board.getTitle().equals("Test Title 2")));
 
             log.debug("전체 게시글 조회 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("페이지네이션 게시글 조회 성공")
+        void testGetAllBoardsWithPagination() {
+            log.debug("페이지네이션 게시글 조회 테스트 시작");
+
+            // 페이지네이션으로 게시글 조회 (첫 페이지, 10개씩)
+            Page<BoardResponseDTO> boardPage = boardService.getAllBoards(0, 10);
+
+            // 페이지 정보 확인
+            assertNotNull(boardPage);
+            assertFalse(boardPage.isEmpty());
+            assertEquals(0, boardPage.getNumber()); // 현재 페이지 번호
+            assertEquals(2, boardPage.getTotalElements()); // 전체 게시글 수
+            assertEquals(1, boardPage.getTotalPages()); // 전체 페이지 수
+
+            // 게시글 내용 확인
+            assertTrue(boardPage.getContent().stream().anyMatch(board -> board.getTitle().equals("Test Title")));
+            assertTrue(boardPage.getContent().stream().anyMatch(board -> board.getTitle().equals("Test Title 2")));
+
+            log.debug("페이지네이션 게시글 조회 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("페이지네이션 최신순 정렬 확인")
+        void testGetAllBoardsWithPaginationSorting() {
+            log.debug("페이지네이션 정렬 테스트 시작");
+
+            // 페이지네이션으로 게시글 조회
+            Page<BoardResponseDTO> boardPage = boardService.getAllBoards(0, 10);
+
+            // 최신순 정렬 확인 (Test Title 2가 먼저 나와야 함)
+            List<BoardResponseDTO> content = boardPage.getContent();
+            assertEquals("Test Title 2", content.get(0).getTitle());
+            assertEquals("Test Title", content.get(1).getTitle());
+
+            log.debug("페이지네이션 정렬 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("페이지네이션 페이지 크기 확인")
+        void testGetAllBoardsWithPaginationSize() {
+            log.debug("페이지네이션 크기 테스트 시작");
+
+            // 페이지 크기를 1로 설정하여 조회
+            Page<BoardResponseDTO> boardPage = boardService.getAllBoards(0, 1);
+
+            // 페이지 정보 확인
+            assertEquals(1, boardPage.getSize()); // 페이지 크기
+            assertEquals(1, boardPage.getNumberOfElements()); // 현재 페이지 요소 수
+            assertEquals(2, boardPage.getTotalElements()); // 전체 요소 수
+            assertEquals(2, boardPage.getTotalPages()); // 전체 페이지 수
+
+            log.debug("페이지네이션 크기 테스트 완료");
         }
 
         @Test
