@@ -96,18 +96,60 @@ class BoardRestControllerTest {
     class BoardApiTests {
 
         @Test
-        @DisplayName("게시글 목록 조회 성공")
+        @DisplayName("게시글 목록 조회 성공 (페이지네이션)")
         void testGetAllBoards() throws Exception {
             log.debug("게시글 목록 조회 테스트 시작");
 
-            mockMvc.perform(get("/api/boards").contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/api/boards")
+                            .param("page", "0")
+                            .param("size", "10")
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
-                    .andExpect(jsonPath("$.data[?(@.id == %d)].title", testBoard.getId()).value("Test Title"))
-                    .andExpect(jsonPath("$.data[?(@.id == %d)].title", testBoard2.getId()).value("Test Title 2"))
+                    .andExpect(jsonPath("$.data.content").isArray())
+                    .andExpect(jsonPath("$.data.totalElements").value(2))
+                    .andExpect(jsonPath("$.data.totalPages").value(1))
+                    .andExpect(jsonPath("$.data.number").value(0))
                     .andDo(result -> log.debug("게시글 목록 조회 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("게시글 목록 조회 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 목록 조회 - 페이지 크기 지정")
+        void testGetAllBoardsWithPageSize() throws Exception {
+            log.debug("게시글 목록 조회 (페이지 크기) 테스트 시작");
+
+            mockMvc.perform(get("/api/boards")
+                            .param("page", "0")
+                            .param("size", "1")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.data.content").isArray())
+                    .andExpect(jsonPath("$.data.content.length()").value(1))
+                    .andExpect(jsonPath("$.data.totalElements").value(2))
+                    .andExpect(jsonPath("$.data.totalPages").value(2))
+                    .andDo(result -> log.debug("게시글 목록 조회 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("게시글 목록 조회 (페이지 크기) 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("게시글 목록 조회 - 기본값 적용")
+        void testGetAllBoardsDefaultParams() throws Exception {
+            log.debug("게시글 목록 조회 (기본값) 테스트 시작");
+
+            mockMvc.perform(get("/api/boards")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.data.content").isArray())
+                    .andExpect(jsonPath("$.data.size").value(10)) // 기본 페이지 크기
+                    .andExpect(jsonPath("$.data.number").value(0)) // 기본 페이지 번호
+                    .andDo(result -> log.debug("게시글 목록 조회 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("게시글 목록 조회 (기본값) 테스트 완료");
         }
 
         @Test
