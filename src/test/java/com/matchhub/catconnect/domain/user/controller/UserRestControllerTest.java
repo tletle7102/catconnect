@@ -91,7 +91,7 @@ class UserRestControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
-                    .andExpect(jsonPath("$.data[0].username").value("testUser"))
+                    .andExpect(jsonPath("$.data.content[0].username").value("testUser"))
                     .andDo(result -> log.debug("전체 사용자 조회 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("전체 사용자 조회 테스트 완료");
