@@ -7,6 +7,9 @@ import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.domain.comment.service.CommentService;
 import com.matchhub.catconnect.domain.user.model.dto.UserRequestDTO;
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.catconnect.domain.user.model.entity.User;
+import com.matchhub.catconnect.domain.user.model.enums.Role;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.domain.user.service.UserService;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -120,8 +124,8 @@ class SearchControllerTest {
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
                     .andExpect(jsonPath("$.data.keyword").value("검색"))
                     .andExpect(jsonPath("$.data.searchType").value("ALL"))
-                    .andExpect(jsonPath("$.data.boards").isArray())
-                    .andExpect(jsonPath("$.data.comments").isArray())
+                    .andExpect(jsonPath("$.data.boardPage.content").isArray())
+                    .andExpect(jsonPath("$.data.commentPage.content").isArray())
                     .andExpect(jsonPath("$.data.users").isEmpty())
                     .andDo(result -> log.debug("전체 검색 응답: {}", result.getResponse().getContentAsString()));
 
@@ -141,9 +145,9 @@ class SearchControllerTest {
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
                     .andExpect(jsonPath("$.data.keyword").value("제목"))
                     .andExpect(jsonPath("$.data.searchType").value("BOARD"))
-                    .andExpect(jsonPath("$.data.boards").isArray())
-                    .andExpect(jsonPath("$.data.boards[0].title").value("검색 테스트 제목"))
-                    .andExpect(jsonPath("$.data.comments").isEmpty())
+                    .andExpect(jsonPath("$.data.boardPage.content").isArray())
+                    .andExpect(jsonPath("$.data.boardPage.content[0].title").value("검색 테스트 제목"))
+                    .andExpect(jsonPath("$.data.commentPage.content").isEmpty())
                     .andExpect(jsonPath("$.data.users").isEmpty())
                     .andDo(result -> log.debug("게시글 검색 응답: {}", result.getResponse().getContentAsString()));
 
@@ -163,9 +167,9 @@ class SearchControllerTest {
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
                     .andExpect(jsonPath("$.data.keyword").value("댓글"))
                     .andExpect(jsonPath("$.data.searchType").value("COMMENT"))
-                    .andExpect(jsonPath("$.data.boards").isEmpty())
-                    .andExpect(jsonPath("$.data.comments").isArray())
-                    .andExpect(jsonPath("$.data.comments[0].content").value("검색 테스트 댓글"))
+                    .andExpect(jsonPath("$.data.boardPage.content").isEmpty())
+                    .andExpect(jsonPath("$.data.commentPage.content").isArray())
+                    .andExpect(jsonPath("$.data.commentPage.content[0].content").value("검색 테스트 댓글"))
                     .andExpect(jsonPath("$.data.users").isEmpty())
                     .andDo(result -> log.debug("댓글 검색 응답: {}", result.getResponse().getContentAsString()));
 
@@ -183,8 +187,8 @@ class SearchControllerTest {
                             .param("type", "ALL"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
-                    .andExpect(jsonPath("$.data.boards").isEmpty())
-                    .andExpect(jsonPath("$.data.comments").isEmpty())
+                    .andExpect(jsonPath("$.data.boardPage.content").isEmpty())
+                    .andExpect(jsonPath("$.data.commentPage.content").isEmpty())
                     .andExpect(jsonPath("$.data.users").isEmpty())
                     .andDo(result -> log.debug("검색 결과 없음 응답: {}", result.getResponse().getContentAsString()));
 
