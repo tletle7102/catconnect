@@ -314,34 +314,38 @@ class BoardServiceTest {
     class LikeAndCommentTests {
 
         @Test
-        @DisplayName("좋아요 추가 성공")
-        void testAddLike() {
-            log.debug("좋아요 추가 테스트 시작");
+        @DisplayName("좋아요 토글 - 추가 성공")
+        void testToggleLikeAdd() {
+            log.debug("좋아요 토글(추가) 테스트 시작");
 
-            // 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            // 좋아요 토글 (추가)
+            boolean result = likeService.toggleLike(testBoard.getId(), "testUser");
 
+            // 반환값 확인 (true = 추가됨)
+            assertTrue(result);
             // 좋아요가 DB에 저장되었는지 확인
             assertTrue(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
 
-            log.debug("좋아요 추가 테스트 완료");
+            log.debug("좋아요 토글(추가) 테스트 완료");
         }
 
         @Test
-        @DisplayName("중복 좋아요 추가 실패")
-        void testAddDuplicateLike() {
-            log.debug("중복 좋아요 추가 테스트 시작");
+        @DisplayName("좋아요 토글 - 취소 성공")
+        void testToggleLikeCancel() {
+            log.debug("좋아요 토글(취소) 테스트 시작");
 
             // 먼저 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            likeService.toggleLike(testBoard.getId(), "testUser");
+            assertTrue(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
 
-            // 같은 유저가 다시 좋아요 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    likeService.addLike(testBoard.getId(), "testUser")
-            );
-            assertEquals(ErrorCode.LIKE_ALREADY_EXISTS, exception.getErrorCode());
+            // 같은 유저가 다시 토글 (취소)
+            boolean result = likeService.toggleLike(testBoard.getId(), "testUser");
 
-            log.debug("중복 좋아요 추가 테스트 완료");
+            // 반환값 확인 (false = 취소됨)
+            assertFalse(result);
+            assertFalse(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
+
+            log.debug("좋아요 토글(취소) 테스트 완료");
         }
 
         @Test
