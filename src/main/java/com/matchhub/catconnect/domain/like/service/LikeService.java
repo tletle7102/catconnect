@@ -54,13 +54,20 @@ public class LikeService {
         return likePage.map(this::toResponseDTO);
     }
 
+    /**
+     * 좋아요 토글 (추가/삭제)
+     * @return true: 좋아요 추가됨, false: 좋아요 삭제됨
+     */
     @Transactional
-    public void addLike(Long boardId, String username) {
-        log.debug("좋아요 추가 요청: boardId={}, username={}", boardId, username);
-        // 중복 좋아요 확인
-        if (likeRepository.existsByBoardIdAndUsername(boardId, username)) {
-            log.warn("이미 좋아요 존재: boardId={}, username={}", boardId, username);
-            throw new AppException(Domain.LIKE, ErrorCode.LIKE_ALREADY_EXISTS);
+    public boolean toggleLike(Long boardId, String username) {
+        log.debug("좋아요 토글 요청: boardId={}, username={}", boardId, username);
+        // 기존 좋아요 확인
+        Like existingLike = likeRepository.findByBoardIdAndUsername(boardId, username).orElse(null);
+        if (existingLike != null) {
+            // 이미 좋아요가 있으면 삭제
+            likeRepository.delete(existingLike);
+            log.debug("좋아요 삭제 완료: boardId={}, username={}", boardId, username);
+            return false;
         }
         // 게시글 존재 확인
         Board board = boardRepository.findById(boardId)
@@ -69,6 +76,7 @@ public class LikeService {
         Like like = new Like(username, board);
         likeRepository.save(like);
         log.debug("좋아요 추가 완료: boardId={}, username={}", boardId, username);
+        return true;
     }
 
     @Transactional

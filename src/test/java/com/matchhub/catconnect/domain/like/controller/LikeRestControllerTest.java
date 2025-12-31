@@ -114,41 +114,43 @@ class LikeRestControllerTest {
 
         @Test
         @WithMockUser(username = "testUser")
-        @DisplayName("좋아요 추가 성공")
-        void testAddLike() throws Exception {
-            log.debug("좋아요 추가 테스트 시작");
+        @DisplayName("좋아요 토글 - 추가 성공")
+        void testToggleLikeAdd() throws Exception {
+            log.debug("좋아요 토글(추가) 테스트 시작");
 
             mockMvc.perform(post("/api/likes/" + testBoard.getId())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.data").value(true))
                     .andExpect(jsonPath("$.message").value("좋아요 추가 성공"))
-                    .andDo(result -> log.debug("좋아요 추가 응답: {}", result.getResponse().getContentAsString()));
+                    .andDo(result -> log.debug("좋아요 토글(추가) 응답: {}", result.getResponse().getContentAsString()));
 
-            log.debug("좋아요 추가 테스트 완료");
+            log.debug("좋아요 토글(추가) 테스트 완료");
         }
 
         @Test
         @WithMockUser(username = "testUser")
-        @DisplayName("중복 좋아요 추가 실패")
-        void testAddDuplicateLike() throws Exception {
-            log.debug("중복 좋아요 추가 테스트 시작");
+        @DisplayName("좋아요 토글 - 취소 성공")
+        void testToggleLikeCancel() throws Exception {
+            log.debug("좋아요 토글(취소) 테스트 시작");
 
             // 첫 번째 좋아요 추가
             mockMvc.perform(post("/api/likes/" + testBoard.getId())
                             .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data").value(true));
 
-            // 두 번째 좋아요 시도
+            // 두 번째 클릭으로 좋아요 취소
             mockMvc.perform(post("/api/likes/" + testBoard.getId())
                             .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isConflict())
-                    .andExpect(jsonPath("$.domain").value("LIKE"))
-                    .andExpect(jsonPath("$.code").value("LIKE_001"))
-                    .andExpect(jsonPath("$.message").value("이미 좋아요를 눌렀습니다."))
-                    .andDo(result -> log.debug("중복 좋아요 추가 응답: {}", result.getResponse().getContentAsString()));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.data").value(false))
+                    .andExpect(jsonPath("$.message").value("좋아요 취소 성공"))
+                    .andDo(result -> log.debug("좋아요 토글(취소) 응답: {}", result.getResponse().getContentAsString()));
 
-            log.debug("중복 좋아요 추가 테스트 완료");
+            log.debug("좋아요 토글(취소) 테스트 완료");
         }
 
         @Test

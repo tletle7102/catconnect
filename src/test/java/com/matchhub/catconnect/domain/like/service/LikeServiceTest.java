@@ -98,8 +98,8 @@ class LikeServiceTest {
         void testGetAllLikes() {
             log.debug("전체 좋아요 조회 테스트 시작");
 
-            // 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            // 좋아요 추가 (토글)
+            likeService.toggleLike(testBoard.getId(), "testUser");
 
             // 전체 좋아요 조회
             List<LikeResponseDTO> likes = likeService.getAllLikes();
@@ -112,34 +112,37 @@ class LikeServiceTest {
         }
 
         @Test
-        @DisplayName("좋아요 추가 성공")
-        void testAddLike() {
-            log.debug("좋아요 추가 테스트 시작");
+        @DisplayName("좋아요 토글 - 추가 성공")
+        void testToggleLikeAdd() {
+            log.debug("좋아요 토글(추가) 테스트 시작");
 
-            // 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            // 좋아요 토글 (추가)
+            boolean result = likeService.toggleLike(testBoard.getId(), "testUser");
 
+            // 반환값 확인 (true = 추가됨)
+            assertTrue(result);
             // DB에서 좋아요 확인
             assertTrue(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
 
-            log.debug("좋아요 추가 테스트 완료");
+            log.debug("좋아요 토글(추가) 테스트 완료");
         }
 
         @Test
-        @DisplayName("중복 좋아요 추가 실패")
-        void testAddDuplicateLike() {
-            log.debug("중복 좋아요 추가 테스트 시작");
+        @DisplayName("좋아요 토글 - 취소 성공")
+        void testToggleLikeCancel() {
+            log.debug("좋아요 토글(취소) 테스트 시작");
 
-            // 첫 번째 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            // 첫 번째 토글 (추가)
+            boolean addResult = likeService.toggleLike(testBoard.getId(), "testUser");
+            assertTrue(addResult);
+            assertTrue(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
 
-            // 중복 좋아요 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    likeService.addLike(testBoard.getId(), "testUser")
-            );
-            assertEquals(ErrorCode.LIKE_ALREADY_EXISTS, exception.getErrorCode());
+            // 두 번째 토글 (취소)
+            boolean cancelResult = likeService.toggleLike(testBoard.getId(), "testUser");
+            assertFalse(cancelResult);
+            assertFalse(likeRepository.existsByBoardIdAndUsername(testBoard.getId(), "testUser"));
 
-            log.debug("중복 좋아요 추가 테스트 완료");
+            log.debug("좋아요 토글(취소) 테스트 완료");
         }
 
         @Test
@@ -147,8 +150,8 @@ class LikeServiceTest {
         void testDeleteLike() {
             log.debug("좋아요 삭제 테스트 시작");
 
-            // 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            // 좋아요 추가 (토글)
+            likeService.toggleLike(testBoard.getId(), "testUser");
             LikeResponseDTO like = likeService.getAllLikes().get(0);
 
             // 좋아요 삭제
@@ -165,8 +168,8 @@ class LikeServiceTest {
         void testDeleteLikes() {
             log.debug("다중 좋아요 삭제 테스트 시작");
 
-            // 좋아요 추가
-            likeService.addLike(testBoard.getId(), "testUser");
+            // 좋아요 추가 (토글)
+            likeService.toggleLike(testBoard.getId(), "testUser");
             LikeResponseDTO like = likeService.getAllLikes().get(0);
 
             // 다중 삭제

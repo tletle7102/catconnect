@@ -16,7 +16,7 @@
                 <p class="mb-0" style="margin-right: 1rem;">생성 시간: <span id="board-created"></span></p>
             </div>
             <p class="card-text" id="board-content"></p>
-            <button id="like-button" class="btn btn-outline-primary" onclick="addLike()">좋아요 <span id="like-count">0</span></button>
+            <button id="like-button" class="btn btn-outline-primary" onclick="toggleLike()"><span id="like-icon">🤍</span> <span id="like-count">0</span></button>
             <a th:href="@{/boards}" class="btn btn-secondary">목록으로 돌아가기</a>
             <a th:href="@{/boards/{id}/comments/new(id=${boardId})}" class="btn btn-primary">댓글 추가</a>
             <a th:href="@{/boards/{id}/edit(id=${boardId})}" class="btn btn-primary" sec:authorize="isAuthenticated()">수정</a>
@@ -33,6 +33,7 @@
         const boardId = [[${boardId}]]; // Thymeleaf 인라인 JavaScript
         console.log("board-view.html: boardId=" + boardId); // 디버깅 로그
         let currentUsername = null; // 현재 로그인한 사용자
+        let isLiked = false; // 현재 사용자의 좋아요 상태
 
         document.addEventListener('DOMContentLoaded', function () {
             console.log("board-view.html: DOM 로드 완료, boardId=" + boardId);
@@ -93,6 +94,12 @@
                     createdElement.textContent = new Date(board.createdDttm).toLocaleString('ko-KR');
                     contentElement.textContent = board.content;
                     likeCountElement.textContent = board.likeCount;
+
+                    // 현재 사용자의 좋아요 상태 확인
+                    if (currentUsername && board.likes) {
+                        isLiked = board.likes.some(like => like.username === currentUsername);
+                    }
+                    updateLikeIcon();
 
                     // 댓글 목록 렌더링
                     const commentList = document.getElementById('comment-list');
@@ -198,19 +205,32 @@
                 });
         }
 
-        // 좋아요 추가 처리
-        function addLike() {
-            console.log("board-view.html: 좋아요 추가 요청, boardId=" + boardId);
-            // 좋아요 추가 API 호출
+        // 좋아요 아이콘 업데이트
+        function updateLikeIcon() {
+            const likeIcon = document.getElementById('like-icon');
+            if (likeIcon) {
+                likeIcon.textContent = isLiked ? '❤️' : '🤍';
+            }
+        }
+
+        // 좋아요 토글 처리
+        function toggleLike() {
+            console.log("board-view.html: 좋아요 토글 요청, boardId=" + boardId);
+            // 좋아요 토글 API 호출
             axios.post('/api/likes/' + boardId, {}, { withCredentials: true })
                 .then(response => {
-                    console.log("board-view.html: 좋아요 추가 성공", response.data);
-                    // 성공 시 페이지 새로고침
-                    window.location.reload();
+                    console.log("board-view.html: 좋아요 토글 성공", response.data);
+                    // 응답에서 좋아요 상태 확인 (true: 추가됨, false: 삭제됨)
+                    isLiked = response.data.data;
+                    updateLikeIcon();
+                    // 좋아요 수 업데이트
+                    const likeCountElement = document.getElementById('like-count');
+                    let currentCount = parseInt(likeCountElement.textContent) || 0;
+                    likeCountElement.textContent = isLiked ? currentCount + 1 : currentCount - 1;
                 })
                 .catch(error => {
-                    console.error("board-view.html: 좋아요 추가 실패", error);
-                    alert(error.response?.data?.message || "좋아요 추가 중 오류가 발생했습니다.");
+                    console.error("board-view.html: 좋아요 토글 실패", error);
+                    alert(error.response?.data?.message || "좋아요 처리 중 오류가 발생했습니다.");
                 });
         }
     </script>
