@@ -39,17 +39,18 @@ public class LikeRestController {
         return ResponseEntity.ok(Response.success(likes, "좋아요 목록 조회 성공"));
     }
 
-    @Operation(summary = "좋아요 추가", description = "게시글에 좋아요를 추가합니다.")
+    @Operation(summary = "좋아요 토글", description = "게시글에 좋아요를 추가하거나, 이미 좋아요한 경우 취소합니다.")
     @PostMapping("/{boardId}")
-    public ResponseEntity<Response<Void>> addLike(
-            @Parameter(description = "좋아요를 추가할 게시글 ID", required = true) @PathVariable Long boardId,
+    public ResponseEntity<Response<Boolean>> toggleLike(
+            @Parameter(description = "좋아요를 토글할 게시글 ID", required = true) @PathVariable Long boardId,
             Authentication authentication) {
         log.debug("POST /api/likes/{} 요청", boardId);
         // 현재 사용자 이름 추출
         String username = authentication.getName();
-        // 좋아요 추가 서비스 호출
-        likeService.addLike(boardId, username);
-        return ResponseEntity.ok(Response.success(null, "좋아요 추가 성공"));
+        // 좋아요 토글 서비스 호출
+        boolean liked = likeService.toggleLike(boardId, username);
+        String message = liked ? "좋아요 추가 성공" : "좋아요 취소 성공";
+        return ResponseEntity.ok(Response.success(liked, message));
     }
 
     @Operation(summary = "좋아요 여러 개 삭제", description = "여러 좋아요를 삭제합니다.")
