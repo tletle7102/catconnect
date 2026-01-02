@@ -31,7 +31,7 @@ public class SecurityConfig {
     // 인증 없이 접근 허용할 URL 목록 (화이트리스트)
     private static final String[] WHITELIST = {
             "/swagger-ui/**",  // springdoc swagger ui
-            "/api-docs/**",  // openapi 문서
+            "/api-docs/**",    // openapi 문서
             "/h2-console/**",  // H2 콘솔
             "/login",          // 로그인 페이지
             "/logout",         // 로그아웃 페이지
@@ -40,9 +40,9 @@ public class SecurityConfig {
             "/boards",         // 게시판 리스트 등
             "/css/**",         // CSS 정적 리소스
             "/js/**",          // JS 정적 리소스
-            "/auth/**",      // 인증 상태 체크 API
+            "/api/auth/**",    // 인증 REST API (로그인/로그아웃/인증상태확인)
             "/api/users/**",   // 사용자 API (조회, 생성)
-            "/favicon.ico"  // favicon
+            "/favicon.ico"     // favicon
     };
 
     // 생성자에서 의존성 주입
