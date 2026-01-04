@@ -37,7 +37,7 @@ class SecurityConfigTest {
         void testWhitelistAccess() throws Exception {
             log.debug("화이트리스트 테스트 시작");
             // 인증 없이 접근 허용된 경로들
-            String[] whitelist = {"/login", "/users", "/boards", "/auth/check"};
+            String[] whitelist = {"/login", "/users", "/boards", "/api/auth/check"};
             for (String path : whitelist) {
                 // 각 경로에 대해 GET 요청을 보내고 200 OK 상태 확인
                 mockMvc.perform(get(path))
@@ -78,7 +78,7 @@ class SecurityConfigTest {
                     .andExpect(jsonPath("$.code").value("AUTH_002"))
                     .andExpect(jsonPath("$.message").value("접근 권한이 없습니다: Access Denied"))
                     .andExpect(jsonPath("$.status").value(403))
-                    .andDo(result -> log.debug("인가 실패 응답: {}",result.getResponse().getContentAsString()));
+                    .andDo(result -> log.debug("인가 실패 응답: {}", result.getResponse().getContentAsString()));
             log.debug("인가 필요 경로 테스트 완료");
         }
 

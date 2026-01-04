@@ -1,8 +1,11 @@
 package com.matchhub.catconnect.global.configuration;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,30 +14,42 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
+    // JWT 인증 스키마 이름
+    private static final String JWT_SCHEME_NAME = "JWT";
+
     // Swagger 문서에 대한 기본 정보(제목, 설명, 연락처 등)를 설정하는 용도의 Bean
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                                .title("CatConnect API")
+                                .title("Sample Prototype API")
                                 .version("1.0.0")
-                                .description("CatConnect Application을 위한 API 명세용 문서 \n\n![logo](https://picsum.photos/300/300)")
+                                .description("Sample Prototype Application을 위한 API 명세용 문서 \n\n![logo](https://picsum.photos/300/300)")
 
                                 .contact(new Contact()
-                                        .name("CatConnect")
-                                        .email("catconnect@matchhub.com")
-                                        .url("https://catconnect.matchhub.com"))
+                                        .name("프로토타입")
+                                        .email("prototype@sample.com")
+                                        .url("https://prototype.sample.com"))
 
                         // 아래는 필요시 사용
 
                         // 서비스 이용 약관 링크
-                        // .termsOfService("https://catconnect.matchhub.com/terms")
+                        // .termsOfService("https://prototype.sample.com/terms")
 
                         // 라이선스 정보
                         // .license(new License()
                         //        .name("Apache 2.0")
                         //        .url("http://www.apache.org/licenses/LICENSE-2.0.html"))
-                );
+                )
+                // JWT 인증 설정 추가
+                .addSecurityItem(new SecurityRequirement().addList(JWT_SCHEME_NAME))
+                .components(new Components()
+                        .addSecuritySchemes(JWT_SCHEME_NAME, new SecurityScheme()
+                                .name(JWT_SCHEME_NAME)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .description("JWT 토큰을 입력하세요. 로그인 API를 통해 토큰을 발급받을 수 있습니다.")));
     }
 
     // 게시글 관련 API만 별도의 Swagger 문서 그룹으로 구분
@@ -70,6 +85,15 @@ public class SwaggerConfig {
         return GroupedOpenApi.builder()
                 .group("좋아요 관련 API")
                 .pathsToMatch("/api/likes/**")
+                .build();
+    }
+
+    // 인증 관련 API 그룹
+    @Bean
+    public GroupedOpenApi authApi() {
+        return GroupedOpenApi.builder()
+                .group("인증 관련 API")
+                .pathsToMatch("/api/auth/**")
                 .build();
     }
 }
