@@ -49,14 +49,7 @@
             currentPage = parseInt(urlParams.get('page')) || 0;
             loadBoards(currentPage);
 
-            // 메시지 및 에러 표시
-            const message = urlParams.get('message');
-            const error = urlParams.get('error');
-            if (message) {
-                alert(decodeURIComponent(message));
-            } else if (error) {
-                alert(decodeURIComponent(error));
-            }
+            // 메시지 및 에러 표시는 ui-feedback.js의 checkUrlMessages()에서 자동 처리됨
 
             // 전체 선택 체크박스 이벤트
             document.getElementById('selectAll').addEventListener('change', function() {
@@ -80,7 +73,7 @@
                 })
                 .catch(error => {
                     console.error("admin-boards.html: 게시글 목록 조회 실패", error);
-                    alert(error.response?.data?.message || "게시글 목록 조회 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "게시글 목록 조회 중 오류가 발생했습니다.");
                 });
         }
 
@@ -151,7 +144,7 @@
         }
 
         // 다중 게시글 삭제 처리
-        function handleDelete(event) {
+        async function handleDelete(event) {
             event.preventDefault();
             console.log("admin-boards.html: 다중 삭제 요청 시작");
             // 선택된 체크박스 ID 수집
@@ -159,34 +152,49 @@
             const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
             if (ids.length === 0) {
                 console.warn("admin-boards.html: 삭제할 게시글 선택 안됨");
-                alert("삭제할 게시글을 선택하세요.");
+                UI.warning("삭제할 게시글을 선택하세요.");
+                return;
+            }
+            // 삭제 확인
+            const confirmed = await UI.confirmDelete(`선택한 ${ids.length}개의 게시글을 삭제하시겠습니까?`);
+            if (!confirmed) {
                 return;
             }
             // 삭제 API 호출
+            const loading = UI.loading('게시글 삭제 중...');
             axios.delete('/api/boards', { data: { ids }, withCredentials: true })
                 .then(response => {
                     console.log("admin-boards.html: 다중 삭제 성공", response.data);
-                    window.location.href = '/admin/boards?message=' + encodeURIComponent('선택한 게시글이 삭제되었습니다.');
+                    loading.hide();
+                    UI.success('선택한 게시글이 삭제되었습니다.');
+                    loadBoards(currentPage);
                 })
                 .catch(error => {
                     console.error("admin-boards.html: 다중 삭제 실패", error);
-                    alert(error.response?.data?.message || "게시글 삭제 중 오류가 발생했습니다.");
+                    loading.hide();
+                    UI.handleApiError(error, "게시글 삭제 중 오류가 발생했습니다.");
                 });
         }
 
         // 단일 게시글 삭제 처리
-        function deleteBoard(id, event) {
+        async function deleteBoard(id, event) {
             event.preventDefault();
             console.log("admin-boards.html: 단일 삭제 요청 시작, id=" + id);
+            // 삭제 확인
+            const confirmed = await UI.confirmDelete('이 게시글을 삭제하시겠습니까?');
+            if (!confirmed) {
+                return;
+            }
             // 단일 삭제 API 호출
             axios.delete('/api/boards/' + id, { withCredentials: true })
                 .then(response => {
                     console.log("admin-boards.html: 단일 삭제 성공", response.data);
-                    window.location.href = '/admin/boards?message=' + encodeURIComponent('게시글이 삭제되었습니다.');
+                    UI.success('게시글이 삭제되었습니다.');
+                    loadBoards(currentPage);
                 })
                 .catch(error => {
                     console.error("admin-boards.html: 단일 삭제 실패", error);
-                    alert(error.response?.data?.message || "게시글 삭제 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "게시글 삭제 중 오류가 발생했습니다.");
                 });
         }
     </script>
