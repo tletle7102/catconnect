@@ -47,24 +47,24 @@
 
             // 페이지 로드 시 인증 상태 확인
             if (jwtToken) {
-                fetch('/auth/check', {
+                fetch('/api/auth/check', {
                     method: 'GET',
                     credentials: 'include'
                 })
-                .then(response => {
-                    console.log('layout.html: /auth/check 응답, status=' + response.status);
-                    if (!response.ok) {
-                        throw new Error('인증 확인 실패: ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('layout.html: 인증 상태 확인 성공: authenticated=' + data.authenticated);
-                    // 인증 상태는 header.html에서 sec:authorize로 처리
-                })
-                .catch(error => {
-                    console.log('layout.html: 인증 상태 확인 실패: error=' + error);
-                });
+                    .then(response => {
+                        console.log('layout.html: /api/auth/check 응답, status=' + response.status);
+                        if (!response.ok) {
+                            throw new Error('인증 확인 실패: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('layout.html: 인증 상태 확인 성공: authenticated=' + data.authenticated);
+                        // 인증 상태는 header.html에서 sec:authorize로 처리
+                    })
+                    .catch(error => {
+                        console.log('layout.html: 인증 상태 확인 실패: error=' + error);
+                    });
             } else {
                 console.log('layout.html: JWT 토큰 없음');
             }
