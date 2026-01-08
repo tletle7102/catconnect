@@ -50,14 +50,7 @@
             currentPage = parseInt(urlParams.get('page')) || 0;
             loadComments(currentPage);
 
-            // 메시지 및 에러 표시
-            const message = urlParams.get('message');
-            const error = urlParams.get('error');
-            if (message) {
-                alert(decodeURIComponent(message));
-            } else if (error) {
-                alert(decodeURIComponent(error));
-            }
+            // 메시지 및 에러 표시는 ui-feedback.js의 checkUrlMessages()에서 자동 처리됨
 
             // 전체 선택 체크박스
             document.getElementById('selectAll').addEventListener('change', function() {
@@ -81,7 +74,7 @@
                 })
                 .catch(error => {
                     console.error("admin-comments.html: 댓글 목록 조회 실패", error);
-                    alert(error.response?.data?.message || "댓글 목록 조회 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "댓글 목록 조회 중 오류가 발생했습니다.");
                 });
         }
 
@@ -153,7 +146,7 @@
         }
 
         // 다중 댓글 삭제 처리
-        function handleDelete(event) {
+        async function handleDelete(event) {
             event.preventDefault();
             console.log("admin-comments.html: 삭제 요청 시작");
             // 선택된 체크박스 ID 수집
@@ -161,34 +154,49 @@
             const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
             if (ids.length === 0) {
                 console.warn("admin-comments.html: 삭제할 댓글 선택 안됨");
-                alert("삭제할 댓글을 선택하세요.");
+                UI.warning("삭제할 댓글을 선택하세요.");
+                return;
+            }
+            // 삭제 확인
+            const confirmed = await UI.confirmDelete(`선택한 ${ids.length}개의 댓글을 삭제하시겠습니까?`);
+            if (!confirmed) {
                 return;
             }
             // 삭제 API 호출
+            const loading = UI.loading('댓글 삭제 중...');
             axios.delete('/api/comments', { data: { ids }, withCredentials: true })
                 .then(response => {
                     console.log("admin-comments.html: 삭제 성공", response.data);
-                    window.location.href = '/admin/comments?message=' + encodeURIComponent('선택한 댓글이 삭제되었습니다.');
+                    loading.hide();
+                    UI.success('선택한 댓글이 삭제되었습니다.');
+                    loadComments(currentPage);
                 })
                 .catch(error => {
                     console.error("admin-comments.html: 삭제 실패", error);
-                    alert(error.response?.data?.message || "댓글 삭제 중 오류가 발생했습니다.");
+                    loading.hide();
+                    UI.handleApiError(error, "댓글 삭제 중 오류가 발생했습니다.");
                 });
         }
 
         // 개별 댓글 삭제 처리
-        function deleteComment(id, event) {
+        async function deleteComment(id, event) {
             event.preventDefault();
             console.log("admin-comments.html: 개별 삭제 요청 시작, id=" + id);
+            // 삭제 확인
+            const confirmed = await UI.confirmDelete('이 댓글을 삭제하시겠습니까?');
+            if (!confirmed) {
+                return;
+            }
             // 개별 삭제 API 호출
             axios.delete('/api/comments/' + id, { withCredentials: true })
                 .then(response => {
                     console.log("admin-comments.html: 개별 삭제 성공", response.data);
-                    window.location.href = '/admin/comments?message=' + encodeURIComponent('댓글이 삭제되었습니다.');
+                    UI.success('댓글이 삭제되었습니다.');
+                    loadComments(currentPage);
                 })
                 .catch(error => {
                     console.error("admin-comments.html: 개별 삭제 실패", error);
-                    alert(error.response?.data?.message || "댓글 삭제 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "댓글 삭제 중 오류가 발생했습니다.");
                 });
         }
     </script>
