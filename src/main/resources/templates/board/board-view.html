@@ -60,7 +60,7 @@
             // 게시글 ID 유효성 확인
             if (!boardId || boardId === 0) {
                 console.error("board-view.html: 유효하지 않은 boardId", boardId);
-                alert("잘못된 게시글 ID입니다.");
+                UI.error("잘못된 게시글 ID입니다.");
                 return;
             }
             // 게시글 상세 조회 API 호출
@@ -72,7 +72,7 @@
                     // 게시글 데이터 유효성 확인
                     if (!board || !board.title) {
                         console.error("board-view.html: 유효하지 않은 board 데이터", board);
-                        alert("게시글 데이터가 올바르지 않습니다.");
+                        UI.error("게시글 데이터가 올바르지 않습니다.");
                         return;
                     }
                     // DOM 요소 확인
@@ -85,7 +85,7 @@
                         console.error("board-view.html: DOM 요소 누락", {
                             titleElement, authorElement, createdElement, contentElement, likeCountElement
                         });
-                        alert("페이지 렌더링 중 오류가 발생했습니다.");
+                        UI.error("페이지 렌더링 중 오류가 발생했습니다.");
                         return;
                     }
                     // 게시글 정보 렌더링
@@ -121,7 +121,7 @@
                 })
                 .catch(error => {
                     console.error("board-view.html: 게시글 데이터 로드 실패", error);
-                    alert(error.response?.data?.message || "게시글 로드 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "게시글 로드 중 오류가 발생했습니다.");
                 });
         }
 
@@ -167,9 +167,13 @@
         }
 
         // 댓글 수정
-        function editComment(commentId, currentContent) {
-            const newContent = prompt('댓글을 수정하세요:', currentContent);
-            if (newContent === null || newContent.trim() === '') {
+        async function editComment(commentId, currentContent) {
+            const newContent = await UI.prompt('댓글을 수정하세요:', '댓글 수정', {
+                defaultValue: currentContent,
+                inputType: 'textarea',
+                required: true
+            });
+            if (newContent === null) {
                 return;
             }
 
@@ -177,18 +181,19 @@
             axios.put('/api/comments/' + commentId, { content: newContent }, { withCredentials: true })
                 .then(response => {
                     console.log("board-view.html: 댓글 수정 성공", response.data);
-                    // 성공 시 페이지 새로고침
+                    UI.success("댓글이 수정되었습니다.");
                     loadBoard();
                 })
                 .catch(error => {
                     console.error("board-view.html: 댓글 수정 실패", error);
-                    alert(error.response?.data?.message || "댓글 수정 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "댓글 수정 중 오류가 발생했습니다.");
                 });
         }
 
         // 내 댓글 삭제
-        function deleteMyComment(commentId) {
-            if (!confirm('댓글을 삭제하시겠습니까?')) {
+        async function deleteMyComment(commentId) {
+            const confirmed = await UI.confirmDelete('댓글을 삭제하시겠습니까?');
+            if (!confirmed) {
                 return;
             }
 
@@ -196,12 +201,12 @@
             axios.delete('/api/comments/my/' + commentId, { withCredentials: true })
                 .then(response => {
                     console.log("board-view.html: 댓글 삭제 성공", response.data);
-                    // 성공 시 페이지 새로고침
+                    UI.success("댓글이 삭제되었습니다.");
                     loadBoard();
                 })
                 .catch(error => {
                     console.error("board-view.html: 댓글 삭제 실패", error);
-                    alert(error.response?.data?.message || "댓글 삭제 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "댓글 삭제 중 오류가 발생했습니다.");
                 });
         }
 
@@ -230,7 +235,7 @@
                 })
                 .catch(error => {
                     console.error("board-view.html: 좋아요 토글 실패", error);
-                    alert(error.response?.data?.message || "좋아요 처리 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "좋아요 처리 중 오류가 발생했습니다.");
                 });
         }
     </script>
