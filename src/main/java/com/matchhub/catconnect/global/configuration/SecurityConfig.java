@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,12 +36,10 @@ public class SecurityConfig {
             "/login",          // 로그인 페이지
             "/logout",         // 로그아웃 페이지
             "/users/new",      // 회원 가입
-            "/users",          // 회원 정보 관련
             "/boards",         // 게시판 리스트 등
             "/css/**",         // CSS 정적 리소스
             "/js/**",          // JS 정적 리소스
             "/api/auth/**",    // 인증 REST API (로그인/로그아웃/인증상태확인)
-            "/api/users/**",   // 사용자 API (조회, 생성)
             "/favicon.ico"     // favicon
     };
 
@@ -75,15 +72,18 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(WHITELIST).permitAll()        // 화이트리스트는 인증없이 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN") // /admin/** 경로는 ADMIN 권한만 접근 가능
+                .requestMatchers("/users").hasRole("ADMIN")    // 사용자 목록은 ADMIN 권한만 접근 가능
                 .requestMatchers("/boards/new", "/boards/**").authenticated() // 게시판 생성 및 상세는 인증 필요
                 .requestMatchers("/api/likes/**", "/api/comments/**").authenticated() // 좋아요 및 댓글은 인증 필요
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/files/upload").authenticated() // 파일 업로드는 인증 필요
                 .requestMatchers("/api/files/admin/**").hasRole("ADMIN") // 파일 관리자 삭제는 ADMIN 권한 필요 (DELETE 전에 선언)
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/files/**").authenticated() // 일반 파일 삭제는 인증 필요
-                .requestMatchers("/api/users").hasRole("ADMIN") // 사용자 삭제는 ADMIN 권한만 접근 가능
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").hasRole("ADMIN") // 사용자 조회는 ADMIN 권한만 접근 가능
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN") // 사용자 삭제는 ADMIN 권한만 접근 가능
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() // 회원가입은 모두 허용
                 .anyRequest().permitAll()                      // 나머지 요청은 모두 허용
         );
-        log.debug("요청 권한 설정 완료: whitelist={}, admin=/admin/**,/api/files/admin/**, authenticated=/boards/new,/boards/**,/api/likes/**,/api/comments/**,POST /api/files/upload,DELETE /api/files/**, admin=/api/users",
+        log.debug("요청 권한 설정 완료: whitelist={}, admin=/admin/**,/users,/api/files/admin/**,GET/DELETE /api/users/**, authenticated=/boards/new,/boards/**,/api/likes/**,/api/comments/**,POST /api/files/upload,DELETE /api/files/**",
                 String.join(",", WHITELIST));
 
         // 인증 실패, 인가 실패 시 처리 핸들러 설정
