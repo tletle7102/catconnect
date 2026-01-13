@@ -19,7 +19,11 @@
             <button id="like-button" class="btn btn-outline-primary" onclick="toggleLike()"><span id="like-icon">🤍</span> <span id="like-count">0</span></button>
             <a th:href="@{/boards}" class="btn btn-secondary">목록으로 돌아가기</a>
             <a th:href="@{/boards/{id}/comments/new(id=${boardId})}" class="btn btn-primary">댓글 추가</a>
-            <a th:href="@{/boards/{id}/edit(id=${boardId})}" class="btn btn-primary" sec:authorize="isAuthenticated()">수정</a>
+            <!-- 수정/삭제 버튼은 JavaScript에서 작성자 본인일 때만 표시 -->
+            <span id="author-buttons" style="display: none;">
+                <a th:href="@{/boards/{id}/edit(id=${boardId})}" class="btn btn-primary">수정</a>
+                <button type="button" class="btn btn-danger" onclick="deleteBoard()">삭제</button>
+            </span>
         </div>
     </div>
     <div id="comment-section">
@@ -100,6 +104,14 @@
                         isLiked = board.likes.some(like => like.username === currentUsername);
                     }
                     updateLikeIcon();
+
+                    // 작성자 본인인 경우 수정/삭제 버튼 표시
+                    if (currentUsername && currentUsername === board.author) {
+                        const authorButtons = document.getElementById('author-buttons');
+                        if (authorButtons) {
+                            authorButtons.style.display = 'inline';
+                        }
+                    }
 
                     // 댓글 목록 렌더링
                     const commentList = document.getElementById('comment-list');
@@ -236,6 +248,28 @@
                 .catch(error => {
                     console.error("board-view.html: 좋아요 토글 실패", error);
                     UI.handleApiError(error, "좋아요 처리 중 오류가 발생했습니다.");
+                });
+        }
+
+        // 게시글 삭제
+        async function deleteBoard() {
+            const confirmed = await UI.confirmDelete('게시글을 삭제하시겠습니까?\n댓글과 좋아요도 함께 삭제됩니다.');
+            if (!confirmed) {
+                return;
+            }
+
+            console.log("board-view.html: 게시글 삭제 요청, boardId=" + boardId);
+            axios.delete('/api/boards/' + boardId, { withCredentials: true })
+                .then(response => {
+                    console.log("board-view.html: 게시글 삭제 성공", response.data);
+                    UI.success("게시글이 삭제되었습니다.");
+                    setTimeout(() => {
+                        window.location.href = '/boards';
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error("board-view.html: 게시글 삭제 실패", error);
+                    UI.handleApiError(error, "게시글 삭제 중 오류가 발생했습니다.");
                 });
         }
     </script>
