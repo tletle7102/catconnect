@@ -15,10 +15,10 @@
                         <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
-                            <th>ID</th>
+                            <th>번호</th>
                             <th>내용</th>
                             <th>작성자</th>
-                            <th>게시글 ID</th>
+                            <th>게시글</th>
                             <th>생성 시간</th>
                             <th></th>
                         </tr>
@@ -82,17 +82,19 @@
         function renderComments(comments) {
             const tbody = document.getElementById('comment-list');
             tbody.innerHTML = '';
-            comments.forEach(comment => {
+            comments.forEach((comment, index) => {
+                // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
+                const rowNumber = (currentPage * pageSize) + index + 1;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${comment.id}"></td>
-                    <td style="vertical-align: middle;">${comment.id}</td>
+                    <td style="vertical-align: middle;">${rowNumber}</td>
                     <td style="vertical-align: middle;">${comment.content}</td>
                     <td style="vertical-align: middle;">${comment.author}</td>
-                    <td style="vertical-align: middle;">${comment.boardId}</td>
+                    <td style="vertical-align: middle;"><a href="/boards/${comment.boardId}">게시글 보기</a></td>
                     <td style="vertical-align: middle;">${new Date(comment.createdDttm).toLocaleString('ko-KR')}</td>
                     <td style="vertical-align: middle;">
-                        <a href="/api/comments/${comment.id}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteComment(${comment.id}, event)">X</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteComment(${comment.id}, event)">X</a>
                     </td>
                 `;
                 tbody.appendChild(tr);
