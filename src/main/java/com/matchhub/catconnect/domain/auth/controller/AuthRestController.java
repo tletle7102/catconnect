@@ -1,10 +1,9 @@
 package com.matchhub.catconnect.domain.auth.controller;
 
-
 import com.matchhub.catconnect.domain.auth.model.dto.LoginRequestDTO;
 import com.matchhub.catconnect.domain.auth.model.dto.LoginResponseDTO;
+import com.matchhub.catconnect.domain.auth.service.AuthService;
 import com.matchhub.catconnect.global.exception.Response;
-import com.matchhub.catconnect.global.util.auth.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,11 +31,11 @@ public class AuthRestController {
 
     private static final Logger log = LoggerFactory.getLogger(AuthRestController.class);
     private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
+    private final AuthService authService;
 
-    public AuthRestController(AuthenticationManager authenticationManager, JwtProvider jwtProvider) {
+    public AuthRestController(AuthenticationManager authenticationManager, AuthService authService) {
         this.authenticationManager = authenticationManager;
-        this.jwtProvider = jwtProvider;
+        this.authService = authService;
     }
 
     @Operation(summary = "로그인", description = "사용자 인증 후 JWT 토큰을 발급합니다")
@@ -57,24 +56,11 @@ public class AuthRestController {
             log.debug("인증 성공: username={}", loginRequest.getUsername());
 
             String role = authentication.getAuthorities().iterator().next().getAuthority().replace("ROLE_", "");
-            String token = jwtProvider.generateToken(loginRequest.getUsername(), role);
-            log.debug("JWT 토큰 생성: username={}, role={}", loginRequest.getUsername(), role);
 
-            // JWT 쿠키 설정
-            Cookie jwtCookie = new Cookie("jwtToken", token);
-            jwtCookie.setHttpOnly(false);
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(60 * 60); // 1시간
-            jwtCookie.setSecure(false);
-            jwtCookie.setAttribute("SameSite", "Lax");
-            response.addCookie(jwtCookie);
-
-            LoginResponseDTO responseDTO = new LoginResponseDTO(
-                    loginRequest.getUsername(),
-                    role,
-                    token,
-                    true
-            );
+            // AuthService를 통해 토큰 발급 및 쿠키 설정
+            // OAuth 등 다른 인증 방식에서도 동일한 메서드 사용 가능
+            LoginResponseDTO responseDTO = authService.issueTokenAndSetCookie(
+                    loginRequest.getUsername(), role, response);
 
             return ResponseEntity.ok(Response.success(responseDTO, "로그인 성공"));
         } catch (AuthenticationException e) {
@@ -89,15 +75,10 @@ public class AuthRestController {
     public ResponseEntity<Response<Void>> logout(HttpServletResponse response) {
         log.debug("POST /api/auth/logout 요청");
 
-        // JWT 쿠키 삭제
-        Cookie jwtCookie = new Cookie("jwtToken", null);
-        jwtCookie.setHttpOnly(false);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(0); // 즉시 만료
-        jwtCookie.setSecure(false);
-        response.addCookie(jwtCookie);
+        // AuthService를 통해 JWT 쿠키 삭제
+        authService.clearJwtCookie(response);
 
-        log.debug("로그아웃 완료: JWT 쿠키 삭제됨");
+        log.debug("로그아웃 완료");
         return ResponseEntity.ok(Response.success(null, "로그아웃 성공"));
     }
 

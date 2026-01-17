@@ -15,9 +15,9 @@
                         <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
-                            <th>ID</th>
+                            <th>번호</th>
                             <th>사용자 이름</th>
-                            <th>게시글 ID</th>
+                            <th>게시글</th>
                             <th>생성 시간</th>
                             <th></th>
                         </tr>
@@ -81,16 +81,18 @@
         function renderLikes(likes) {
             const tbody = document.getElementById('like-list');
             tbody.innerHTML = '';
-            likes.forEach(like => {
+            likes.forEach((like, index) => {
+                // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
+                const rowNumber = (currentPage * pageSize) + index + 1;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${like.id}"></td>
-                    <td style="vertical-align: middle;">${like.id}</td>
+                    <td style="vertical-align: middle;">${rowNumber}</td>
                     <td style="vertical-align: middle;">${like.username}</td>
-                    <td style="vertical-align: middle;">${like.boardId}</td>
+                    <td style="vertical-align: middle;"><a href="/boards/${like.boardId}">게시글 보기</a></td>
                     <td style="vertical-align: middle;">${new Date(like.createdDttm).toLocaleString('ko-KR')}</td>
                     <td style="vertical-align: middle;">
-                        <a href="/api/likes/${like.id}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteLike(${like.id}, event)">X</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteLike(${like.id}, event)">X</a>
                     </td>
                 `;
                 tbody.appendChild(tr);

@@ -7,7 +7,7 @@
 <section layout:fragment="content">
     <div class="card">
         <div class="card-body">
-            <h1 class="card-title">관리자 - 사용자 목록</h1>
+            <h1 class="card-title">사용자 목록</h1>
             <!-- 삭제 폼, REST API 호출로 사용자 삭제 -->
             <form id="delete-form" onsubmit="handleDelete(event)">
                 <div class="table-responsive">
@@ -15,7 +15,7 @@
                         <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
-                            <th>ID</th>
+                            <th>번호</th>
                             <th>사용자 이름</th>
                             <th>이메일</th>
                             <th>역할</th>
@@ -30,7 +30,6 @@
                 <nav aria-label="사용자 페이지 네비게이션">
                     <ul class="pagination justify-content-center" id="pagination"></ul>
                 </nav>
-                <a href="/users" class="btn btn-secondary mb-3">사용자 목록으로 돌아가기</a>
                 <button type="submit" class="btn btn-secondary mb-3">선택 삭제</button>
             </form>
         </div>
@@ -82,17 +81,19 @@
         function renderUsers(users) {
             const tbody = document.getElementById('user-list');
             tbody.innerHTML = '';
-            users.forEach(user => {
+            users.forEach((user, index) => {
+                // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
+                const rowNumber = (currentPage * pageSize) + index + 1;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${user.id}"></td>
-                    <td style="vertical-align: middle;">${user.id}</td>
+                    <td style="vertical-align: middle;">${rowNumber}</td>
                     <td style="vertical-align: middle;">${user.username}</td>
                     <td style="vertical-align: middle;">${user.email}</td>
                     <td style="vertical-align: middle;">${user.role === 'USER' ? '일반 사용자' : '관리자'}</td>
                     <td style="vertical-align: middle;">${new Date(user.createdDttm).toLocaleString('ko-KR')}</td>
                     <td style="vertical-align: middle;">
-                        <a href="/api/users/${user.id}" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteUser(${user.id}, event)">X</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm" style="padding: 2px 8px; line-height: 1;" onclick="deleteUser(${user.id}, event)">X</a>
                     </td>
                 `;
                 tbody.appendChild(tr);

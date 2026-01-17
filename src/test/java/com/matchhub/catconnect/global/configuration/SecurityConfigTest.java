@@ -36,8 +36,8 @@ class SecurityConfigTest {
         @DisplayName("화이트리스트 경로 인증 없이 접근 가능")
         void testWhitelistAccess() throws Exception {
             log.debug("화이트리스트 테스트 시작");
-            // 인증 없이 접근 허용된 경로들
-            String[] whitelist = {"/login", "/users", "/boards", "/api/auth/check"};
+            // 인증 없이 접근 허용된 경로들 (/users는 ADMIN 전용으로 변경됨)
+            String[] whitelist = {"/login", "/boards", "/api/auth/check"};
             for (String path : whitelist) {
                 // 각 경로에 대해 GET 요청을 보내고 200 OK 상태 확인
                 mockMvc.perform(get(path))
@@ -45,6 +45,41 @@ class SecurityConfigTest {
                         .andDo(result -> log.debug("화이트리스트 경로 {} 접근 성공", path));
             }
             log.debug("화이트리스트 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("사용자 목록 경로 비인증 접근 시 401 반환")
+        void testUsersPathWithoutAuth() throws Exception {
+            log.debug("사용자 목록 경로 테스트 시작");
+            // /users 경로는 ADMIN 권한 필요, 비인증 시 401 반환
+            mockMvc.perform(get("/users"))
+                    .andExpect(status().isUnauthorized())
+                    .andDo(result -> log.debug("사용자 목록 비인증 접근 거부됨"));
+            log.debug("사용자 목록 경로 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "USER")
+        @DisplayName("사용자 목록 경로 일반 사용자 접근 시 403 반환")
+        void testUsersPathWithUserRole() throws Exception {
+            log.debug("사용자 목록 일반 사용자 테스트 시작");
+            // /users 경로는 ADMIN 권한 필요, USER 역할로 접근 시 403 반환
+            mockMvc.perform(get("/users"))
+                    .andExpect(status().isForbidden())
+                    .andDo(result -> log.debug("사용자 목록 일반 사용자 접근 거부됨"));
+            log.debug("사용자 목록 일반 사용자 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("사용자 목록 경로 관리자 접근 성공")
+        void testUsersPathWithAdminRole() throws Exception {
+            log.debug("사용자 목록 관리자 테스트 시작");
+            // /users 경로는 ADMIN 권한으로 접근 가능
+            mockMvc.perform(get("/users"))
+                    .andExpect(status().isOk())
+                    .andDo(result -> log.debug("사용자 목록 관리자 접근 성공"));
+            log.debug("사용자 목록 관리자 테스트 완료");
         }
 
         @Test

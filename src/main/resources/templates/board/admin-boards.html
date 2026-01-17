@@ -15,7 +15,7 @@
                         <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll"></th>
-                            <th>ID</th>
+                            <th>번호</th>
                             <th>제목</th>
                             <th>작성자</th>
                             <th>생성 시간</th>
@@ -81,11 +81,13 @@
         function renderBoards(boards) {
             const tbody = document.getElementById('board-list');
             tbody.innerHTML = '';
-            boards.forEach(board => {
+            boards.forEach((board, index) => {
+                // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
+                const rowNumber = (currentPage * pageSize) + index + 1;
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="vertical-align: middle;"><input type="checkbox" name="ids" value="${board.id}"></td>
-                    <td style="vertical-align: middle;">${board.id}</td>
+                    <td style="vertical-align: middle;">${rowNumber}</td>
                     <td style="vertical-align: middle;">${board.title}</td>
                     <td style="vertical-align: middle;">${board.author}</td>
                     <td style="vertical-align: middle;">${new Date(board.createdDttm).toLocaleString('ko-KR')}</td>
@@ -176,7 +178,7 @@
                 });
         }
 
-        // 단일 게시글 삭제 처리
+        // 단일 게시글 삭제 처리 (관리자용 - 다중 삭제 API를 단건으로 호출)
         async function deleteBoard(id, event) {
             event.preventDefault();
             console.log("admin-boards.html: 단일 삭제 요청 시작, id=" + id);
@@ -185,8 +187,8 @@
             if (!confirmed) {
                 return;
             }
-            // 단일 삭제 API 호출
-            axios.delete('/api/boards/' + id, { withCredentials: true })
+            // 다중 삭제 API를 단건으로 호출 (관리자 권한으로 작성자 무관 삭제)
+            axios.delete('/api/boards', { data: { ids: [id] }, withCredentials: true })
                 .then(response => {
                     console.log("admin-boards.html: 단일 삭제 성공", response.data);
                     UI.success('게시글이 삭제되었습니다.');

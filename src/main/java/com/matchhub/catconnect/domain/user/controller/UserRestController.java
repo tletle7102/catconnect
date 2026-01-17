@@ -1,5 +1,6 @@
 package com.matchhub.catconnect.domain.user.controller;
 
+import com.matchhub.catconnect.domain.auth.service.AuthService;
 import com.matchhub.catconnect.domain.user.model.dto.UserRequestDTO;
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
 import com.matchhub.catconnect.domain.user.service.UserService;
@@ -7,6 +8,7 @@ import com.matchhub.catconnect.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +27,12 @@ public class UserRestController {
 
     private static final Logger log = LoggerFactory.getLogger(UserRestController.class);
     private final UserService userService;
+    private final AuthService authService;
 
     // 생성자를 통한 의존성 주입
-    public UserRestController(UserService userService) {
+    public UserRestController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     @Operation(summary = "전체 사용자 조회", description = "모든 사용자 목록을 페이지네이션하여 조회합니다.")
@@ -49,13 +53,21 @@ public class UserRestController {
         return ResponseEntity.ok(Response.success(user, "사용자 조회 성공"));
     }
 
-    @Operation(summary = "사용자 생성", description = "새로운 사용자를 생성합니다.")
+    @Operation(summary = "사용자 생성 (회원가입)", description = "새로운 사용자를 생성하고 자동으로 로그인 처리합니다.")
     @PostMapping
-    public ResponseEntity<Response<UserResponseDTO>> createUser(@Valid @RequestBody UserRequestDTO requestDTO) {
+    public ResponseEntity<Response<UserResponseDTO>> createUser(
+            @Valid @RequestBody UserRequestDTO requestDTO,
+            HttpServletResponse response) {
         log.debug("POST /api/users 요청");
         // 서비스 호출하여 사용자 생성
         UserResponseDTO user = userService.createUser(requestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.success(user, "사용자 생성 성공"));
+
+        // 회원가입 후 자동 로그인: AuthService를 통해 토큰 발급 및 쿠키 설정
+        // OAuth 등 다른 인증 방식에서도 동일한 메서드 사용 가능
+        authService.issueTokenAndSetCookie(user.getUsername(), user.getRole(), response);
+        log.debug("회원가입 후 자동 로그인 완료: username={}", user.getUsername());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(Response.success(user, "회원가입 성공"));
     }
 
     @Operation(summary = "사용자 여러 개 삭제", description = "여러 사용자를 삭제합니다.")
