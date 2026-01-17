@@ -46,8 +46,6 @@
                     <a class="nav-link" th:href="@{/users/new}">회원가입</a>
                 </li>
             </ul>
-            <!-- 디버깅용 인증 상태 표시 -->
-            <div th:text="'인증 상태: ' + ${#authorization.expression('isAuthenticated()')}" style="color: white;"></div>
         </div>
     </div>
 </nav>
