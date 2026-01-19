@@ -23,7 +23,28 @@ spring:
       ddl-auto: create
     show-sql: true
     open-in-view: false
-    defer-datasource-initialization: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:test@example.com}
+    password: ${MAIL_PASSWORD:test-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+app:
+  mail:
+    from-name: 관리자
+    verification-expiry-minutes: 10
+    password-reset-expiry-minutes: 5
 
 file:
   upload-dir: ${user.home}/catconnect-uploads
