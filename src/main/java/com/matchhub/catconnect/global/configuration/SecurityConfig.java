@@ -35,11 +35,15 @@ public class SecurityConfig {
             "/h2-console/**",  // H2 콘솔
             "/login",          // 로그인 페이지
             "/logout",         // 로그아웃 페이지
-            "/users/new",      // 회원 가입
+            "/signup",         // 회원가입 페이지
+            "/verify-email",   // 이메일 인증 결과 페이지
+            "/find-username",  // 아이디 찾기 페이지
+            "/find-password",  // 비밀번호 찾기 페이지
+            "/users/new",      // 회원 가입 (기존)
             "/boards",         // 게시판 리스트 등
             "/css/**",         // CSS 정적 리소스
             "/js/**",          // JS 정적 리소스
-            "/api/auth/**",    // 인증 REST API (로그인/로그아웃/인증상태확인)
+            "/api/auth/**",    // 인증 REST API ((로그인/로그아웃/인증상태확인/이메일인증)
             "/favicon.ico"     // favicon
     };
 
