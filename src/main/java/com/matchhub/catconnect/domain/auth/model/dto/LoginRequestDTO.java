@@ -14,12 +14,23 @@ public class LoginRequestDTO {
     @Schema(description = "비밀번호", example = "password123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 
+    @Schema(description = "로그인 상태 유지", example = "false")
+    private boolean stayLoggedIn;
+
     public LoginRequestDTO() {
     }
 
     public LoginRequestDTO(String username, String password) {
         this.username = username;
         this.password = password;
+        this.stayLoggedIn = false;
+
+    }
+
+    public LoginRequestDTO(String username, String password, boolean stayLoggedIn) {
+        this.username = username;
+        this.password = password;
+        this.stayLoggedIn = stayLoggedIn;
     }
 
     public String getUsername() {
@@ -36,5 +47,13 @@ public class LoginRequestDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isStayLoggedIn() {
+        return stayLoggedIn;
+    }
+
+    public void setStayLoggedIn(boolean stayLoggedIn) {
+        this.stayLoggedIn = stayLoggedIn;
     }
 }
