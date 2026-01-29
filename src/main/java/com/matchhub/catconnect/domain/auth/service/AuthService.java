@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
-    private static final int JWT_EXPIRATION_SECONDS = 60 * 60; // 1시간
 
     private final JwtProvider jwtProvider;
 
@@ -34,13 +33,26 @@ public class AuthService {
      * @return 로그인 응답 DTO
      */
     public LoginResponseDTO issueTokenAndSetCookie(String username, String role, HttpServletResponse response) {
-        log.debug("토큰 발급 시작: username={}, role={}", username, role);
+        return issueTokenAndSetCookie(username, role, response, false);
+    }
+
+    /**
+     * 사용자에게 JWT 토큰을 발급하고 쿠키에 설정 (로그인 상태 유지 옵션)
+     *
+     * @param username     사용자 이름
+     * @param role         사용자 역할 (USER, ADMIN)
+     * @param response     HTTP 응답 객체
+     * @param stayLoggedIn 로그인 상태 유지 여부
+     * @return 로그인 응답 DTO
+     */
+    public LoginResponseDTO issueTokenAndSetCookie(String username, String role, HttpServletResponse response, boolean stayLoggedIn) {
+        log.debug("토큰 발급 시작: username={}, role={}, stayLoggedIn={}", username, role, stayLoggedIn);
 
         // JWT 토큰 생성
-        String token = jwtProvider.generateToken(username, role);
+        String token = jwtProvider.generateToken(username, role, stayLoggedIn);
 
         // 쿠키 설정
-        Cookie jwtCookie = createJwtCookie(token);
+        Cookie jwtCookie = createJwtCookie(token, stayLoggedIn);
         response.addCookie(jwtCookie);
 
         log.debug("토큰 발급 완료: username={}", username);
@@ -52,14 +64,15 @@ public class AuthService {
      * JWT 쿠키 생성
      * 보안 설정을 일관되게 관리
      *
-     * @param token JWT 토큰
+     * @param token        JWT 토큰
+     * @param stayLoggedIn 로그인 상태 유지 여부
      * @return 설정된 쿠키
      */
-    private Cookie createJwtCookie(String token) {
+    private Cookie createJwtCookie(String token, boolean stayLoggedIn) {
         Cookie jwtCookie = new Cookie("jwtToken", token);
         jwtCookie.setHttpOnly(false); // JavaScript에서 접근 필요
         jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(JWT_EXPIRATION_SECONDS);
+        jwtCookie.setMaxAge((int) jwtProvider.getExpirationSeconds(stayLoggedIn));
         jwtCookie.setSecure(false); // HTTPS 환경에서는 true로 변경 필요
         jwtCookie.setAttribute("SameSite", "Lax");
         return jwtCookie;
