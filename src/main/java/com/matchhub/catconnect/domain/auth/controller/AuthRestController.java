@@ -60,7 +60,7 @@ public class AuthRestController {
             // AuthService를 통해 토큰 발급 및 쿠키 설정
             // OAuth 등 다른 인증 방식에서도 동일한 메서드 사용 가능
             LoginResponseDTO responseDTO = authService.issueTokenAndSetCookie(
-                    loginRequest.getUsername(), role, response);
+                    loginRequest.getUsername(), role, response, loginRequest.isStayLoggedIn());
 
             return ResponseEntity.ok(Response.success(responseDTO, "로그인 성공"));
         } catch (AuthenticationException e) {
