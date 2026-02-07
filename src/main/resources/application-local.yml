@@ -45,6 +45,13 @@ app:
     from-name: 관리자
     verification-expiry-minutes: 10
     password-reset-expiry-minutes: 5
+  sms:
+    verification-expiry-minutes: 3
+  solapi:
+    api-key: ${SOLAPI_API_KEY:test-api-key}
+    api-secret: ${SOLAPI_API_SECRET:test-api-secret}
+    sender-phone: ${SOLAPI_SENDER_PHONE:01012345678}
+    api-url: https://api.solapi.com/messages/v4/send-many/detail
 
 file:
   upload-dir: ${user.home}/catconnect-uploads
