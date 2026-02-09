@@ -37,6 +37,13 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "AUTH_004", "유효하지 않은 토큰입니다."),
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_005", "토큰이 만료되었습니다."),
 
+    // SMS 관련 에러 (SMS)
+    SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_001", "SMS 발송에 실패했습니다."),
+    SMS_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "SMS_002", "인증번호를 먼저 요청해주세요."),
+    SMS_TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "SMS_003", "인증번호가 만료되었습니다."),
+    SMS_CODE_INVALID(HttpStatus.BAD_REQUEST, "SMS_004", "인증번호가 일치하지 않습니다."),
+    SMS_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "SMS_005", "휴대폰 인증이 완료되지 않았습니다."),
+
     // 일반 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL_001", "서버 내부 오류가 발생했습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "GLOBAL_002", "잘못된 요청입니다.");
