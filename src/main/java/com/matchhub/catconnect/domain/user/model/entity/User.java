@@ -21,7 +21,7 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "사용자 이름은 필수 입니다.")
+    @NotBlank(message = "사용자 이름은 필수입니다.")
     @ValidUsername
     @Column(nullable = false, unique = true)
     private String username;
@@ -37,6 +37,9 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(unique = true)
+    private String phoneNumber;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -44,6 +47,14 @@ public class User extends BaseEntity {
     public User(String username, String email, String password, Role role) {
         this.username = username;
         this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    public User(String username, String email, String phoneNumber, String password, Role role) {
+        this.username = username;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
         this.password = password;
         this.role = role;
     }
