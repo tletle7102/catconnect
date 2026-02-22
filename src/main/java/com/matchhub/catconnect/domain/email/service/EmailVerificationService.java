@@ -3,6 +3,8 @@ package com.matchhub.catconnect.domain.email.service;
 import com.matchhub.catconnect.domain.email.model.entity.EmailVerificationToken;
 import com.matchhub.catconnect.domain.email.model.enums.TokenType;
 import com.matchhub.catconnect.domain.email.repository.EmailVerificationTokenRepository;
+import com.matchhub.catconnect.domain.sms.model.enums.SmsTokenType;
+import com.matchhub.catconnect.domain.sms.service.SmsVerificationService;
 import com.matchhub.catconnect.domain.user.model.entity.User;
 import com.matchhub.catconnect.domain.user.model.enums.Role;
 import com.matchhub.catconnect.domain.user.repository.UserRepository;
@@ -32,6 +34,7 @@ public class EmailVerificationService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final SmsVerificationService smsVerificationService;
 
     @Value("${app.mail.verification-expiry-minutes}")
     private int verificationExpiryMinutes;
@@ -43,11 +46,13 @@ public class EmailVerificationService {
             EmailVerificationTokenRepository tokenRepository,
             UserRepository userRepository,
             EmailService emailService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            SmsVerificationService smsVerificationService) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.smsVerificationService = smsVerificationService;
     }
 
     /**
@@ -124,6 +129,39 @@ public class EmailVerificationService {
         String encodedPassword = passwordEncoder.encode(password);
         User user = new User(username, email, encodedPassword, Role.USER);
         userRepository.save(user);
+
+        log.debug("회원가입 완료: username={}", user.getUsername());
+        return user;
+    }
+
+    /**
+     * 회원가입 완료 (이메일 및 휴대폰 인증 완료 후)
+     */
+    public User createUserAfterVerification(String username, String email, String phoneNumber, String password) {
+        log.debug("회원가입 완료 처리: username={}, email={}, phoneNumber={}", username, email, phoneNumber);
+
+        // 이미 가입된 이메일인지 다시 확인
+        if (userRepository.existsByEmail(email)) {
+            throw new AppException(Domain.USER, ErrorCode.USER_DUPLICATE_EMAIL, "이미 사용 중인 이메일입니다.");
+        }
+
+        // 이미 가입된 사용자명인지 확인
+        if (userRepository.existsByUsername(username)) {
+            throw new AppException(Domain.USER, ErrorCode.USER_DUPLICATE_USERNAME, "이미 사용 중인 사용자 이름입니다.");
+        }
+
+        // 휴대폰 인증 완료 여부 확인
+        if (!smsVerificationService.isPhoneVerified(phoneNumber, SmsTokenType.SIGNUP)) {
+            throw new AppException(Domain.SMS, ErrorCode.SMS_NOT_VERIFIED, "휴대폰 인증이 완료되지 않았습니다.");
+        }
+
+        // 사용자 생성
+        String encodedPassword = passwordEncoder.encode(password);
+        User user = new User(username, email, phoneNumber, encodedPassword, Role.USER);
+        userRepository.save(user);
+
+        // 휴대폰 인증 토큰 사용 처리
+        smsVerificationService.markTokenAsUsed(phoneNumber, SmsTokenType.SIGNUP);
 
         log.debug("회원가입 완료: username={}", user.getUsername());
         return user;
