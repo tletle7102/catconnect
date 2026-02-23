@@ -2,7 +2,6 @@ package com.matchhub.catconnect.domain.email.controller;
 
 import com.matchhub.catconnect.domain.email.model.dto.*;
 import com.matchhub.catconnect.domain.email.service.EmailVerificationService;
-import com.matchhub.catconnect.global.validation.ValidEmailDomain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -57,14 +56,15 @@ public class EmailVerificationRestController {
     /**
      * 회원가입 완료 (이메일 인증 후)
      */
-    @Operation(summary = "회원가입 완료", description = "이메일 인증 완료 후 회원가입을 진행합니다.")
+    @Operation(summary = "회원가입 완료", description = "이메일 및 휴대폰 인증 완료 후 회원가입을 진행합니다.")
     @PostMapping("/signup/complete")
     public ResponseEntity<Map<String, String>> completeSignup(
             @Valid @RequestBody SignupVerificationRequestDTO request) {
 
-        emailVerificationService.createUserAfterEmailVerification(
+        emailVerificationService.createUserAfterVerification(
                 request.getUsername(),
                 request.getEmail(),
+                request.getPhoneNumber(),
                 request.getPassword()
         );
 
