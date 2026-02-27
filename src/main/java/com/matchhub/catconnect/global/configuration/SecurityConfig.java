@@ -44,6 +44,7 @@ public class SecurityConfig {
             "/css/**",         // CSS 정적 리소스
             "/js/**",          // JS 정적 리소스
             "/api/auth/**",    // 인증 REST API ((로그인/로그아웃/인증상태확인/이메일인증)
+            "/api/sms/**",     // SMS 인증 REST API
             "/favicon.ico"     // favicon
     };
 

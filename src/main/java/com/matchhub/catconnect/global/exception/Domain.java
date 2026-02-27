@@ -6,7 +6,8 @@ public enum Domain {
     BOARD("게시글"),
     COMMENT("댓글"),
     LIKE("좋아요"),
-    AUTH("인증");
+    AUTH("인증"),
+    SMS("SMS");
 
     private final String description;
 
