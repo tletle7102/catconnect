@@ -235,7 +235,7 @@ class BoardRestControllerTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        @DisplayName("게시글 다중 삭제 성공")
+        @DisplayName("관리자 게시글 다중 삭제 성공")
         void testDeleteBoards() throws Exception {
             log.debug("게시글 다중 삭제 테스트 시작");
 
@@ -264,7 +264,30 @@ class BoardRestControllerTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        @DisplayName("게시글 단일 삭제 성공")
+        @DisplayName("관리자 게시글 단건 삭제 성공 - 다중 삭제 API 단건 호출")
+        void testDeleteBoardByAdmin() throws Exception {
+            log.debug("관리자 단건 삭제 테스트 시작");
+
+            // 삭제 요청 페이로드 구성 (단건)
+            Map<String, List<Long>> request = Map.of("ids", List.of(testBoard.getId()));
+
+            mockMvc.perform(delete("/api/boards")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("게시글 삭제 성공"))
+                    .andDo(result -> log.debug("관리자 단건 삭제 응답: {}", result.getResponse().getContentAsString()));
+
+            // 게시글이 삭제되었는지 확인
+            assertFalse(boardService.getAllBoards().stream().anyMatch(b -> b.getId().equals(testBoard.getId())));
+
+            log.debug("관리자 단건 삭제 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "testUser")
+        @DisplayName("게시글 단일 삭제 성공 - 작성자 본인")
         void testDeleteBoard() throws Exception {
             log.debug("게시글 단일 삭제 테스트 시작");
 
@@ -284,6 +307,24 @@ class BoardRestControllerTest {
             assertFalse(boardService.getAllBoards().stream().anyMatch(b -> b.getId().equals(testBoard.getId())));
 
             log.debug("게시글 단일 삭제 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(username = "otherUser")
+        @DisplayName("게시글 단일 삭제 실패 - 타인 게시글")
+        void testDeleteBoardUnauthorized() throws Exception {
+            log.debug("게시글 단일 삭제 권한 없음 테스트 시작");
+
+            mockMvc.perform(delete("/api/boards/" + testBoard.getId())
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.domain").value("BOARD"))
+                    .andExpect(jsonPath("$.code").value("BOARD_002"))
+                    .andExpect(jsonPath("$.message").value("게시글에 대한 권한이 없습니다."))
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andDo(result -> log.debug("게시글 삭제 권한 없음 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("게시글 단일 삭제 권한 없음 테스트 완료");
         }
 
         @Test
