@@ -1,11 +1,13 @@
 package com.matchhub.catconnect.domain.user.controller;
 
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.catconnect.domain.user.model.dto.UserUpdateRequestDTO;
 import com.matchhub.catconnect.domain.user.service.UserService;
 import com.matchhub.catconnect.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -44,6 +46,16 @@ public class UserRestController {
         log.debug("GET /api/users/{} 요청", id);
         UserResponseDTO user = userService.getUserById(id);
         return ResponseEntity.ok(Response.success(user, "사용자 조회 성공"));
+    }
+
+    @Operation(summary = "사용자 정보 수정", description = "특정 사용자의 정보를 수정합니다.")
+    @PutMapping("/{id}")
+    public ResponseEntity<Response<UserResponseDTO>> updateUser(
+            @Parameter(description = "수정할 사용자 ID", required = true) @PathVariable Long id,
+            @Valid @RequestBody UserUpdateRequestDTO request) {
+        log.debug("PUT /api/users/{} 요청", id);
+        UserResponseDTO user = userService.updateUser(id, request);
+        return ResponseEntity.ok(Response.success(user, "사용자 수정 성공"));
     }
 
     @Operation(summary = "사용자 여러 개 삭제", description = "여러 사용자를 삭제합니다.")
