@@ -321,7 +321,7 @@ public class EmailVerificationService {
                 .orElseThrow(() -> new AppException(Domain.USER, ErrorCode.USER_NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         String encodedPassword = passwordEncoder.encode(newPassword);
-        user.update(user.getUsername(), user.getEmail(), encodedPassword);
+        user.update(user.getUsername(), user.getEmail(), user.getPhoneNumber(), encodedPassword);
         userRepository.save(user);
 
         log.debug("비밀번호 재설정 완료: email={}", email);
