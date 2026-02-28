@@ -6,66 +6,156 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title layout:title>로그인</title>
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .login-form .form-control {
+            height: 48px;
+            border-radius: 4px;
+        }
+        .login-form .mb-3 {
+            margin-bottom: 16px !important;
+        }
+        .btn-login {
+            width: 100%;
+            height: 48px;
+            font-size: 16px;
+            font-weight: 500;
+            background-color: #03c75a;
+            border-color: #03c75a;
+        }
+        .btn-login:hover {
+            background-color: #02b350;
+            border-color: #02b350;
+        }
+        .stay-logged-in {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .stay-logged-in input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+        }
+        .stay-logged-in label {
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            user-select: none;
+        }
+        .login-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+        .login-links a {
+            color: #666;
+            text-decoration: none;
+        }
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+        .login-links .divider {
+            color: #ddd;
+        }
+        .signup-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .btn-signup {
+            width: 100%;
+            height: 48px;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 <section layout:fragment="content">
-    <div class="card">
-        <div class="card-body">
-            <h1 class="card-title">로그인</h1>
-            <div id="error-message" class="alert alert-danger" role="alert" style="display: none;"></div>
-            <form id="login-form" onsubmit="handleLogin(event)">
-                <div class="mb-3">
-                    <label for="username" class="form-label">사용자 이름</label>
-                    <input type="text" id="username" name="username" class="form-control w-50" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">비밀번호</label>
-                    <input type="password" id="password" name="password" class="form-control w-50" required>
-                </div>
-                <button type="submit" class="btn btn-primary">로그인</button>
-            </form>
-            <script>
-                console.log("login.html: 스크립트 로드 시작");
-                function handleLogin(event) {
-                    event.preventDefault();
-                    console.log("login.html: 로그인 폼 제출 시작");
-                    var username = document.getElementById('username').value;
-                    var password = document.getElementById('password').value;
-                    var errorMessage = document.getElementById('error-message');
-                    if (!username || !password) {
-                        console.error("login.html: 사용자 이름 또는 비밀번호 누락");
-                        errorMessage.textContent = "사용자 이름과 비밀번호를 입력하세요.";
-                        errorMessage.style.display = 'block';
-                        return;
-                    }
-                    console.log("login.html: 로그인 요청 데이터: username=" + username);
-                    fetch('/login', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ username: username, password: password })
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('로그인 실패: ' + response.status);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("login.html: 로그인 성공: ", data);
-                        errorMessage.style.display = 'none';
-                        window.location.href = '/';
-                    })
-                    .catch(error => {
-                        console.error("login.html: 로그인 실패: ", error);
-                        errorMessage.textContent = error.message || "로그인 중 오류가 발생했습니다.";
-                        errorMessage.style.display = 'block';
-                    });
-                }
-            </script>
+    <div class="login-container">
+        <h1 class="login-title">로그인</h1>
+        <form id="login-form" class="login-form" onsubmit="handleLogin(event)">
+            <div class="mb-3">
+                <input type="text" id="username" name="username" class="form-control"
+                       placeholder="아이디" required>
+            </div>
+            <div class="mb-3">
+                <input type="password" id="password" name="password" class="form-control"
+                       placeholder="비밀번호" required>
+            </div>
+            <div class="stay-logged-in">
+                <input type="checkbox" id="stayLoggedIn" name="stayLoggedIn">
+                <label for="stayLoggedIn">로그인 상태 유지</label>
+            </div>
+            <button type="submit" class="btn btn-success btn-login">로그인</button>
+        </form>
+        <div class="login-links">
+            <a href="/find-password">비밀번호 찾기</a>
+            <span class="divider">|</span>
+            <a href="/find-username">아이디 찾기</a>
+            <span class="divider">|</span>
+            <a href="/signup">회원가입</a>
         </div>
     </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var stayLoggedIn = document.getElementById('stayLoggedIn').checked;
+
+            if (!username || !password) {
+                UI.warning("아이디와 비밀번호를 입력하세요.");
+                return;
+            }
+
+            var loading = UI.loading('로그인 중...');
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                    stayLoggedIn: stayLoggedIn
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('아이디 또는 비밀번호가 올바르지 않습니다.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loading.hide();
+                    UI.success('로그인 성공!');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 500);
+                })
+                .catch(error => {
+                    loading.hide();
+                    UI.error(error.message || "로그인 중 오류가 발생했습니다.");
+                });
+        }
+    </script>
 </section>
 </body>
 </html>
