@@ -1,6 +1,7 @@
 package com.matchhub.catconnect.domain.user.service;
 
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.catconnect.domain.user.model.dto.UserUpdateRequestDTO;
 import com.matchhub.catconnect.domain.user.model.entity.User;
 import com.matchhub.catconnect.domain.user.model.enums.Role;
 import com.matchhub.catconnect.domain.user.repository.UserRepository;
@@ -210,6 +211,133 @@ class UserServiceTest {
             assertDoesNotThrow(() -> userService.deleteUsers(null));
 
             log.debug("빈 목록으로 삭제 테스트 완료");
+        }
+    }
+
+    @Nested
+    @DisplayName("사용자 수정 테스트")
+    class UserUpdateTests {
+
+        @Test
+        @DisplayName("사용자 정보 전체 수정 성공")
+        void testUpdateUserAllFields() {
+            log.debug("사용자 전체 정보 수정 테스트 시작");
+
+            // 수정 요청 생성
+            UserUpdateRequestDTO request = new UserUpdateRequestDTO();
+            request.setUsername("updatedUser");
+            request.setEmail("updated@gmail.com");
+            request.setPhoneNumber("01012345678");
+            request.setPassword("newPassword123");
+
+            // 사용자 수정
+            UserResponseDTO updated = userService.updateUser(testUser.getId(), request);
+
+            // 수정 확인
+            assertEquals("updatedUser", updated.getUsername());
+            assertEquals("updated@gmail.com", updated.getEmail());
+            assertEquals("01012345678", updated.getPhoneNumber());
+
+            log.debug("사용자 전체 정보 수정 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("사용자 일부 정보만 수정 성공 (null 필드는 기존 값 유지)")
+        void testUpdateUserPartialFields() {
+            log.debug("사용자 일부 정보 수정 테스트 시작");
+
+            // 이메일만 수정
+            UserUpdateRequestDTO request = new UserUpdateRequestDTO();
+            request.setEmail("partial@gmail.com");
+
+            // 사용자 수정
+            UserResponseDTO updated = userService.updateUser(testUser.getId(), request);
+
+            // 수정 확인 - 이메일만 변경, 나머지는 기존 값 유지
+            assertEquals("testUser", updated.getUsername()); // 기존 값 유지
+            assertEquals("partial@gmail.com", updated.getEmail()); // 변경됨
+            assertNull(updated.getPhoneNumber()); // 기존 값 유지 (null)
+
+            log.debug("사용자 일부 정보 수정 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("사용자 휴대폰 번호만 수정 성공")
+        void testUpdateUserPhoneNumberOnly() {
+            log.debug("사용자 휴대폰 번호만 수정 테스트 시작");
+
+            // 휴대폰 번호만 수정
+            UserUpdateRequestDTO request = new UserUpdateRequestDTO();
+            request.setPhoneNumber("01098765432");
+
+            // 사용자 수정
+            UserResponseDTO updated = userService.updateUser(testUser.getId(), request);
+
+            // 수정 확인
+            assertEquals("testUser", updated.getUsername()); // 기존 값 유지
+            assertEquals("test@example.com", updated.getEmail()); // 기존 값 유지
+            assertEquals("01098765432", updated.getPhoneNumber()); // 변경됨
+
+            log.debug("사용자 휴대폰 번호만 수정 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("사용자 수정 실패 - 사용자 없음")
+        void testUpdateUserNotFound() {
+            log.debug("사용자 수정 실패 테스트 시작");
+
+            UserUpdateRequestDTO request = new UserUpdateRequestDTO();
+            request.setUsername("newName");
+
+            // 존재하지 않는 ID로 수정 시도
+            AppException exception = assertThrows(AppException.class, () ->
+                    userService.updateUser(999L, request)
+            );
+            assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+
+            log.debug("사용자 수정 실패 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("사용자 수정 실패 - 중복 사용자명")
+        void testUpdateUserDuplicateUsername() {
+            log.debug("중복 사용자명 수정 실패 테스트 시작");
+
+            // 다른 사용자 생성
+            User otherUser = new User("otherUser", "other@example.com", passwordEncoder.encode("password"), Role.USER);
+            userRepository.save(otherUser);
+
+            // 기존 다른 사용자의 이름으로 수정 시도
+            UserUpdateRequestDTO request = new UserUpdateRequestDTO();
+            request.setUsername("otherUser");
+
+            AppException exception = assertThrows(AppException.class, () ->
+                    userService.updateUser(testUser.getId(), request)
+            );
+            assertEquals(ErrorCode.USER_DUPLICATE_USERNAME, exception.getErrorCode());
+
+            log.debug("중복 사용자명 수정 실패 테스트 완료");
+        }
+
+        @Test
+        @DisplayName("사용자 수정 실패 - 중복 이메일")
+        void testUpdateUserDuplicateEmail() {
+            log.debug("중복 이메일 수정 실패 테스트 시작");
+
+            // 다른 사용자 생성
+            User otherUser = new User("otherUser", "other@gmail.com", passwordEncoder.encode("password"), Role.USER);
+            userRepository.save(otherUser);
+
+            // 기존 다른 사용자의 이메일로 수정 시도
+            UserUpdateRequestDTO request = new UserUpdateRequestDTO();
+            request.setEmail("other@gmail.com");
+
+            AppException exception = assertThrows(AppException.class, () ->
+                    userService.updateUser(testUser.getId(), request)
+            );
+            assertEquals(ErrorCode.USER_DUPLICATE_EMAIL, exception.getErrorCode());
+
+            log.debug("중복 이메일 수정 실패 테스트 완료");
         }
     }
 }
