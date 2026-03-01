@@ -9,6 +9,11 @@ pipeline {
         CATCONNECT_DEV_DB_USERNAME = credentials('catconnect-dev-db-username')
         CATCONNECT_DEV_DB_PASSWORD = credentials('catconnect-dev-db-password')
         CATCONNECT_DEV_DB_NAME = credentials('catconnect-dev-db-name')
+        MAIL_USERNAME = credentials('catconnect-mail-username')
+        MAIL_PASSWORD = credentials('catconnect-mail-password')
+        SOLAPI_API_KEY = credentials('catconnect-solapi-api-key')
+        SOLAPI_API_SECRET = credentials('catconnect-solapi-api-secret')
+        SOLAPI_SENDER_PHONE = credentials('catconnect-solapi-sender-phone')
         DOCKER_IMAGE = 'catconnect'
         DOCKER_CONTAINER_NAME = 'catconnect-container'
     }
@@ -32,6 +37,11 @@ pipeline {
                 export CATCONNECT_DEV_DB_USERNAME=${CATCONNECT_DEV_DB_USERNAME}
                 export CATCONNECT_DEV_DB_PASSWORD=${CATCONNECT_DEV_DB_PASSWORD}
                 export CATCONNECT_DEV_DB_NAME=${CATCONNECT_DEV_DB_NAME}
+                export MAIL_USERNAME=${MAIL_USERNAME}
+                export MAIL_PASSWORD=${MAIL_PASSWORD}
+                export SOLAPI_API_KEY=${SOLAPI_API_KEY}
+                export SOLAPI_API_SECRET=${SOLAPI_API_SECRET}
+                export SOLAPI_SENDER_PHONE=${SOLAPI_SENDER_PHONE}
                 ./gradlew clean build
                 '''
             }
@@ -55,6 +65,11 @@ pipeline {
                 -e CATCONNECT_DEV_DB_USERNAME=${CATCONNECT_DEV_DB_USERNAME} \
                 -e CATCONNECT_DEV_DB_PASSWORD=${CATCONNECT_DEV_DB_PASSWORD} \
                 -e CATCONNECT_DEV_DB_NAME=${CATCONNECT_DEV_DB_NAME} \
+                -e MAIL_USERNAME=${MAIL_USERNAME} \
+                -e MAIL_PASSWORD=${MAIL_PASSWORD} \
+                -e SOLAPI_API_KEY=${SOLAPI_API_KEY} \
+                -e SOLAPI_API_SECRET=${SOLAPI_API_SECRET} \
+                -e SOLAPI_SENDER_PHONE=${SOLAPI_SENDER_PHONE} \
                 ${DOCKER_IMAGE}
                 '''
             }

@@ -1,5 +1,5 @@
 server:
-  port: ${LOCAL_TOMCAT_PORT:8080}
+  port: ${CATCONNECT_TOMCAT_PORT:8080}
 
 spring:
   datasource:
@@ -11,6 +11,8 @@ spring:
   h2:
     console:
       enabled: true
+      settings:
+        webAllowOthers: true
       path: /h2-console
 
   thymeleaf:
@@ -23,6 +25,11 @@ spring:
       ddl-auto: create
     show-sql: true
     open-in-view: false
+
+jwt:
+  secret: local-test-secret-key-1234567890-must-be-32bytes
+  expiration: 3600000
+  extended-expiration: 604800000
 
   mail:
     host: smtp.gmail.com
