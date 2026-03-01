@@ -26,11 +26,6 @@ spring:
     show-sql: true
     open-in-view: false
 
-jwt:
-  secret: local-test-secret-key-1234567890-must-be-32bytes
-  expiration: 3600000
-  extended-expiration: 604800000
-
   mail:
     host: smtp.gmail.com
     port: 587
@@ -59,6 +54,10 @@ app:
     api-secret: ${SOLAPI_API_SECRET:test-api-secret}
     sender-phone: ${SOLAPI_SENDER_PHONE:01012345678}
     api-url: https://api.solapi.com/messages/v4/send-many/detail
+  jwt:
+    secret: local-test-secret-key-1234567890-must-be-32bytes
+    expiration: 3600000
+    extended-expiration: 604800000
 
 file:
   upload-dir: ${user.home}/catconnect-uploads
