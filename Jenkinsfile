@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     environment {
         CATCONNECT_SPRING_PROFILE_ACTIVE = credentials('catconnect-spring-profile-active')
         CATCONNECT_TOMCAT_PORT = credentials('catconnect-tomcat-port')
@@ -14,10 +15,26 @@ pipeline {
         SOLAPI_API_KEY = credentials('catconnect-solapi-api-key')
         SOLAPI_API_SECRET = credentials('catconnect-solapi-api-secret')
         SOLAPI_SENDER_PHONE = credentials('catconnect-solapi-sender-phone')
+
         DOCKER_IMAGE = 'catconnect'
         DOCKER_CONTAINER_NAME = 'catconnect-container'
     }
+
     stages {
+
+        stage('Debug Environment') {
+            steps {
+                sh """
+                echo "===== DEBUG START ====="
+                echo "DOCKER_IMAGE=${env.DOCKER_IMAGE}"
+                echo "DOCKER_CONTAINER_NAME=${env.DOCKER_CONTAINER_NAME}"
+                echo "PORT=${env.CATCONNECT_TOMCAT_PORT}"
+                echo "PROFILE=${env.CATCONNECT_SPRING_PROFILE_ACTIVE}"
+                echo "===== DEBUG END ====="
+                """
+            }
+        }
+
         stage('Clone Repository') {
             steps {
                 git credentialsId: 'github-credentials',
@@ -25,54 +42,50 @@ pipeline {
                     branch: 'main'
             }
         }
+
         stage('Build Gradle') {
             steps {
-                sh 'chmod +x gradlew'
-                sh '''
-                export CATCONNECT_SPRING_PROFILE_ACTIVE=${CATCONNECT_SPRING_PROFILE_ACTIVE}
-                export CATCONNECT_TOMCAT_PORT=${CATCONNECT_TOMCAT_PORT}
-                export CATCONNECT_SPRING_SECURITY_JWT_SECRET=${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
-                export CATCONNECT_SPRING_SECURITY_EXPIRATION=${CATCONNECT_SPRING_SECURITY_EXPIRATION}
-                export CATCONNECT_DEV_DB_URL=${CATCONNECT_DEV_DB_URL}
-                export CATCONNECT_DEV_DB_USERNAME=${CATCONNECT_DEV_DB_USERNAME}
-                export CATCONNECT_DEV_DB_PASSWORD=${CATCONNECT_DEV_DB_PASSWORD}
-                export CATCONNECT_DEV_DB_NAME=${CATCONNECT_DEV_DB_NAME}
-                export MAIL_USERNAME=${MAIL_USERNAME}
-                export MAIL_PASSWORD=${MAIL_PASSWORD}
-                export SOLAPI_API_KEY=${SOLAPI_API_KEY}
-                export SOLAPI_API_SECRET=${SOLAPI_API_SECRET}
-                export SOLAPI_SENDER_PHONE=${SOLAPI_SENDER_PHONE}
+                sh """
+                chmod +x gradlew
                 ./gradlew clean build
-                '''
+                """
             }
         }
+
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE} .'
+                sh """
+                docker build -t ${env.DOCKER_IMAGE} .
+                """
             }
         }
+
         stage('Deploy Docker Container') {
             steps {
-                sh 'docker rm -f ${DOCKER_CONTAINER_NAME} || true'
-                sh '''
-                docker run -d -p ${CATCONNECT_TOMCAT_PORT}:${CATCONNECT_TOMCAT_PORT} \
-                --name ${DOCKER_CONTAINER_NAME} \
-                -e CATCONNECT_SPRING_PROFILE_ACTIVE=${CATCONNECT_SPRING_PROFILE_ACTIVE} \
-                -e CATCONNECT_TOMCAT_PORT=${CATCONNECT_TOMCAT_PORT} \
-                -e CATCONNECT_SPRING_SECURITY_JWT_SECRET=${CATCONNECT_SPRING_SECURITY_JWT_SECRET} \
-                -e CATCONNECT_SPRING_SECURITY_EXPIRATION=${CATCONNECT_SPRING_SECURITY_EXPIRATION} \
-                -e CATCONNECT_DEV_DB_URL=${CATCONNECT_DEV_DB_URL} \
-                -e CATCONNECT_DEV_DB_USERNAME=${CATCONNECT_DEV_DB_USERNAME} \
-                -e CATCONNECT_DEV_DB_PASSWORD=${CATCONNECT_DEV_DB_PASSWORD} \
-                -e CATCONNECT_DEV_DB_NAME=${CATCONNECT_DEV_DB_NAME} \
-                -e MAIL_USERNAME=${MAIL_USERNAME} \
-                -e MAIL_PASSWORD=${MAIL_PASSWORD} \
-                -e SOLAPI_API_KEY=${SOLAPI_API_KEY} \
-                -e SOLAPI_API_SECRET=${SOLAPI_API_SECRET} \
-                -e SOLAPI_SENDER_PHONE=${SOLAPI_SENDER_PHONE} \
-                ${DOCKER_IMAGE}
-                '''
+                sh """
+                docker rm -f ${env.DOCKER_CONTAINER_NAME} || true
+
+                docker run -d \
+                --restart unless-stopped \
+                -p ${env.CATCONNECT_TOMCAT_PORT}:${env.CATCONNECT_TOMCAT_PORT} \
+                --name ${env.DOCKER_CONTAINER_NAME} \
+                -e CATCONNECT_SPRING_PROFILE_ACTIVE=${env.CATCONNECT_SPRING_PROFILE_ACTIVE} \
+                -e CATCONNECT_TOMCAT_PORT=${env.CATCONNECT_TOMCAT_PORT} \
+                -e CATCONNECT_SPRING_SECURITY_JWT_SECRET=${env.CATCONNECT_SPRING_SECURITY_JWT_SECRET} \
+                -e CATCONNECT_SPRING_SECURITY_EXPIRATION=${env.CATCONNECT_SPRING_SECURITY_EXPIRATION} \
+                -e CATCONNECT_DEV_DB_URL=${env.CATCONNECT_DEV_DB_URL} \
+                -e CATCONNECT_DEV_DB_USERNAME=${env.CATCONNECT_DEV_DB_USERNAME} \
+                -e CATCONNECT_DEV_DB_PASSWORD=${env.CATCONNECT_DEV_DB_PASSWORD} \
+                -e CATCONNECT_DEV_DB_NAME=${env.CATCONNECT_DEV_DB_NAME} \
+                -e MAIL_USERNAME=${env.MAIL_USERNAME} \
+                -e MAIL_PASSWORD=${env.MAIL_PASSWORD} \
+                -e SOLAPI_API_KEY=${env.SOLAPI_API_KEY} \
+                -e SOLAPI_API_SECRET=${env.SOLAPI_API_SECRET} \
+                -e SOLAPI_SENDER_PHONE=${env.SOLAPI_SENDER_PHONE} \
+                ${env.DOCKER_IMAGE}
+                """
             }
         }
+
     }
 }
