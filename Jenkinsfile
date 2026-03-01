@@ -22,19 +22,6 @@ pipeline {
 
     stages {
 
-        stage('Debug Environment') {
-            steps {
-                sh '''
-                echo "===== DEBUG START ====="
-                echo "DOCKER_IMAGE=$DOCKER_IMAGE"
-                echo "DOCKER_CONTAINER_NAME=$DOCKER_CONTAINER_NAME"
-                echo "PORT=$CATCONNECT_TOMCAT_PORT"
-                echo "PROFILE=$CATCONNECT_SPRING_PROFILE_ACTIVE"
-                echo "===== DEBUG END ====="
-                '''
-            }
-        }
-
         stage('Clone Repository') {
             steps {
                 git credentialsId: 'github-credentials',
@@ -55,8 +42,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                echo "Building Docker image: $DOCKER_IMAGE"
-                docker build -t $DOCKER_IMAGE .
+                docker build -t ${DOCKER_IMAGE} .
                 '''
             }
         }
@@ -64,32 +50,29 @@ pipeline {
         stage('Deploy Docker Container') {
             steps {
                 sh '''
-                echo "Stopping old container..."
-                docker rm -f $DOCKER_CONTAINER_NAME || true
-
-                echo "Starting new container with image: $DOCKER_IMAGE"
+                docker rm -f ${DOCKER_CONTAINER_NAME} || true
 
                 docker run -d \
                 --restart unless-stopped \
-                -p $CATCONNECT_TOMCAT_PORT:$CATCONNECT_TOMCAT_PORT \
-                --name $DOCKER_CONTAINER_NAME \
-                -e CATCONNECT_SPRING_PROFILE_ACTIVE=$CATCONNECT_SPRING_PROFILE_ACTIVE \
-                -e CATCONNECT_TOMCAT_PORT=$CATCONNECT_TOMCAT_PORT \
-                -e CATCONNECT_SPRING_SECURITY_JWT_SECRET=$CATCONNECT_SPRING_SECURITY_JWT_SECRET \
-                -e CATCONNECT_SPRING_SECURITY_EXPIRATION=$CATCONNECT_SPRING_SECURITY_EXPIRATION \
-                -e CATCONNECT_DEV_DB_URL=$CATCONNECT_DEV_DB_URL \
-                -e CATCONNECT_DEV_DB_USERNAME=$CATCONNECT_DEV_DB_USERNAME \
-                -e CATCONNECT_DEV_DB_PASSWORD=$CATCONNECT_DEV_DB_PASSWORD \
-                -e CATCONNECT_DEV_DB_NAME=$CATCONNECT_DEV_DB_NAME \
-                -e MAIL_USERNAME=$MAIL_USERNAME \
-                -e MAIL_PASSWORD=$MAIL_PASSWORD \
-                -e SOLAPI_API_KEY=$SOLAPI_API_KEY \
-                -e SOLAPI_API_SECRET=$SOLAPI_API_SECRET \
-                -e SOLAPI_SENDER_PHONE=$SOLAPI_SENDER_PHONE \
-                $DOCKER_IMAGE
+                -p "$CATCONNECT_TOMCAT_PORT:$CATCONNECT_TOMCAT_PORT" \
+                --name ${DOCKER_CONTAINER_NAME} \
+                -e "CATCONNECT_SPRING_PROFILE_ACTIVE=$CATCONNECT_SPRING_PROFILE_ACTIVE" \
+                -e "CATCONNECT_TOMCAT_PORT=$CATCONNECT_TOMCAT_PORT" \
+                -e "CATCONNECT_SPRING_SECURITY_JWT_SECRET=$CATCONNECT_SPRING_SECURITY_JWT_SECRET" \
+                -e "CATCONNECT_SPRING_SECURITY_EXPIRATION=$CATCONNECT_SPRING_SECURITY_EXPIRATION" \
+                -e "CATCONNECT_DEV_DB_URL=$CATCONNECT_DEV_DB_URL" \
+                -e "CATCONNECT_DEV_DB_USERNAME=$CATCONNECT_DEV_DB_USERNAME" \
+                -e "CATCONNECT_DEV_DB_PASSWORD=$CATCONNECT_DEV_DB_PASSWORD" \
+                -e "CATCONNECT_DEV_DB_NAME=$CATCONNECT_DEV_DB_NAME" \
+                -e "MAIL_USERNAME=$MAIL_USERNAME" \
+                -e "MAIL_PASSWORD=$MAIL_PASSWORD" \
+                -e "SOLAPI_API_KEY=$SOLAPI_API_KEY" \
+                -e "SOLAPI_API_SECRET=$SOLAPI_API_SECRET" \
+                -e "SOLAPI_SENDER_PHONE=$SOLAPI_SENDER_PHONE" \
+                ${DOCKER_IMAGE}
 
                 echo "Container started successfully"
-                docker ps | grep $DOCKER_CONTAINER_NAME
+                docker ps | grep ${DOCKER_CONTAINER_NAME}
                 '''
             }
         }
