@@ -75,6 +75,19 @@ public class UserService {
     }
 
     /**
+     * 사용자명으로 사용자 조회
+     * @param username 사용자명
+     * @return 사용자 DTO
+     */
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserByUsername(String username) {
+        log.debug("사용자명으로 조회 요청: username={}", username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(Domain.USER, ErrorCode.USER_NOT_FOUND));
+        return toResponseDTO(user);
+    }
+
+    /**
      * 여러 사용자 삭제
      * @param ids 삭제할 사용자 ID 목록
      */
@@ -144,6 +157,7 @@ public class UserService {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setProfileImageUrl(user.getProfileImageUrl());
         dto.setRole(user.getRole().name());
         dto.setCreatedDttm(user.getCreatedDttm());
         return dto;
