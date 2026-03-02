@@ -40,6 +40,9 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String phoneNumber;
 
+    @Column
+    private String profileImageUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -59,10 +62,14 @@ public class User extends BaseEntity {
         this.role = role;
     }
 
-    public void update(String username, String email, String phoneNumber,String password) {
+    public void update(String username, String email, String phoneNumber, String password) {
         this.username = username;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }
