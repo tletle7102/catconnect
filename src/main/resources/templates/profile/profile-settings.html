@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title>프로필 설정</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container py-4">
+        <h2 class="mb-4">프로필 설정</h2>
+
+        <div class="row">
+            <!-- 프로필 이미지 섹션 -->
+            <div class="col-md-4 text-center mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">프로필 이미지</h5>
+
+                        <!-- 프로필 이미지 미리보기 (클릭하여 변경) -->
+                        <div class="mb-3">
+                            <div id="profileImagePreview"
+                                 class="rounded-circle mx-auto d-flex align-items-center justify-content-center position-relative"
+                                 style="width: 150px; height: 150px; background-color: #e9ecef; overflow: hidden; cursor: pointer; transition: opacity 0.2s;"
+                                 onclick="document.getElementById('profileImageInput').click()"
+                                 title="클릭하여 이미지 변경">
+                                <img th:if="${user.profileImageUrl != null}"
+                                     th:src="${user.profileImageUrl}"
+                                     alt="프로필 이미지"
+                                     class="w-100 h-100"
+                                     style="object-fit: cover;"
+                                     id="profileImage">
+                                <svg th:if="${user.profileImageUrl == null}"
+                                     xmlns="http://www.w3.org/2000/svg"
+                                     width="64" height="64"
+                                     fill="#adb5bd"
+                                     class="bi bi-person-fill"
+                                     viewBox="0 0 16 16"
+                                     id="defaultIcon">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                </svg>
+                                <!-- 호버 오버레이 -->
+                                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded-circle"
+                                     style="background-color: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.2s;"
+                                     id="hoverOverlay">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 16 16">
+                                        <path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+                                        <path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1m9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="form-text mt-2">클릭하여 이미지 변경 (JPG, PNG, GIF, WEBP / 최대 10MB)</div>
+                        </div>
+
+                        <!-- 숨김 파일 입력 -->
+                        <input type="file"
+                               class="d-none"
+                               id="profileImageInput"
+                               accept="image/jpeg,image/png,image/gif,image/webp">
+
+                        <!-- 삭제 버튼만 표시 -->
+                        <div class="d-grid gap-2">
+                            <button type="button"
+                                    class="btn btn-outline-danger"
+                                    id="deleteBtn"
+                                    th:disabled="${user.profileImageUrl == null}"
+                                    onclick="deleteProfileImage()">
+                                이미지 삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 프로필 정보 섹션 -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">프로필 정보</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">사용자 이름</label>
+                            <p class="form-control-plaintext fw-bold" th:text="${user.username}"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">이메일</label>
+                            <p class="form-control-plaintext" th:text="${user.email}"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">휴대폰 번호</label>
+                            <p class="form-control-plaintext"
+                               th:text="${user.phoneNumber != null ? user.phoneNumber : '등록되지 않음'}"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">가입일</label>
+                            <p class="form-control-plaintext"
+                               th:text="${#temporals.format(user.createdDttm, 'yyyy-MM-dd HH:mm')}"></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">권한</label>
+                            <p class="form-control-plaintext">
+                                <span class="badge"
+                                      th:classappend="${user.role == 'ADMIN' ? 'bg-danger' : 'bg-secondary'}"
+                                      th:text="${user.role}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const currentProfileImageUrl = /*[[${user.profileImageUrl}]]*/ null;
+        const preview = document.getElementById('profileImagePreview');
+        const hoverOverlay = document.getElementById('hoverOverlay');
+
+        // 호버 효과
+        preview.addEventListener('mouseenter', function() {
+            hoverOverlay.style.opacity = '1';
+        });
+        preview.addEventListener('mouseleave', function() {
+            hoverOverlay.style.opacity = '0';
+        });
+
+        // 파일 선택 시 바로 업로드
+        document.getElementById('profileImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // 파일 크기 검증 (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('파일 크기는 10MB 이하여야 합니다.');
+                    e.target.value = '';
+                    return;
+                }
+
+                // 바로 업로드 진행
+                uploadProfileImage(file);
+            }
+        });
+
+        // 프로필 이미지 업로드
+        function uploadProfileImage(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 업로드 중 표시
+            preview.style.opacity = '0.5';
+            preview.style.pointerEvents = 'none';
+
+            fetch('/api/profile/image', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'SUCCESS') {
+                        location.reload();
+                    } else {
+                        alert('업로드 실패: ' + data.message);
+                        preview.style.opacity = '1';
+                        preview.style.pointerEvents = 'auto';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('업로드 중 오류가 발생했습니다.');
+                    preview.style.opacity = '1';
+                    preview.style.pointerEvents = 'auto';
+                });
+        }
+
+        // 프로필 이미지 삭제
+        function deleteProfileImage() {
+            if (!confirm('프로필 이미지를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            fetch('/api/profile/image', {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'SUCCESS') {
+                        location.reload();
+                    } else {
+                        alert('삭제 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('삭제 중 오류가 발생했습니다.');
+                });
+        }
+        /*]]>*/
+    </script>
+</section>
+</body>
+</html>
