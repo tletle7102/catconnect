@@ -1,11 +1,12 @@
-package com.matchhub.catconnect.domain.sms.service;
+package com.matchhub.catconnect.domain.notification.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.matchhub.catconnect.domain.notification.model.enums.NotificationChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
@@ -13,16 +14,18 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- * SMS 발송 서비스 (SOLAPI 연동)
- * 범용 SMS 발송 기능 제공, 추후 다양한 용도로 확장 가능
+ * SMS 알림 발송 구현체 (SOLAPI)
  */
-@Service
-public class SmsService {
+@Component
+public class SmsNotificationSender implements NotificationSender {
 
-    private static final Logger log = LoggerFactory.getLogger(SmsService.class);
+    private static final Logger log = LoggerFactory.getLogger(SmsNotificationSender.class);
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -39,63 +42,62 @@ public class SmsService {
     @Value("${app.solapi.api-url}")
     private String apiUrl;
 
-    public SmsService() {
+    public SmsNotificationSender() {
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
     }
 
-    /**
-     * SMS 발송
-     * @param to 수신자 전화번호
-     * @param text 메시지 내용 (90바이트 이하)
-     * @return 발송 성공 여부
-     */
-    public boolean sendSms(String to, String text) {
-        log.debug("SMS 발송 시작: to={}", to);
+    @Override
+    public NotificationChannel getChannel() {
+        return NotificationChannel.SMS;
+    }
+
+    @Override
+    public boolean supportsTemplate() {
+        return false;
+    }
+
+    @Override
+    public void send(String recipient, String message) {
+        log.debug("SMS 발송: to={}", recipient);
 
         try {
             HttpHeaders headers = createAuthHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            Map<String, Object> message = new HashMap<>();
-            message.put("to", to);
-            message.put("from", senderPhone);
-            message.put("text", text);
-            message.put("type", "SMS");
+            Map<String, Object> messageMap = new HashMap<>();
+            messageMap.put("to", recipient);
+            messageMap.put("from", senderPhone);
+            messageMap.put("text", message);
+            messageMap.put("type", "SMS");
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("messages", Collections.singletonList(message));
+            requestBody.put("messages", Collections.singletonList(messageMap));
 
             String jsonBody = objectMapper.writeValueAsString(requestBody);
-
             HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
                     apiUrl, HttpMethod.POST, entity, String.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.debug("SMS 발송 성공: to={}", to);
-                return true;
+                log.debug("SMS 발송 성공: to={}", recipient);
             } else {
                 log.error("SMS 발송 실패: to={}, status={}, body={}",
-                        to, response.getStatusCode(), response.getBody());
-                return false;
+                        recipient, response.getStatusCode(), response.getBody());
+                throw new RuntimeException("SMS 발송에 실패했습니다.");
             }
         } catch (Exception e) {
-            log.error("SMS 발송 중 오류 발생: to={}, error={}", to, e.getMessage());
-            return false;
+            log.error("SMS 발송 중 오류 발생: to={}, error={}", recipient, e.getMessage());
+            throw new RuntimeException("SMS 발송에 실패했습니다.", e);
         }
     }
 
-    /**
-     * 인증번호 SMS 발송
-     * @param to 수신자 전화번호
-     * @param code 인증번호
-     * @return 발송 성공 여부
-     */
-    public boolean sendVerificationCode(String to, String code) {
-        String text = "[CatConnect] 인증번호: " + code + " (3분간 유효)";
-        return sendSms(to, text);
+    @Override
+    public void sendWithTemplate(String recipient, String templateName, Map<String, Object> variables) {
+        // SMS는 템플릿 미지원, 단순 메시지로 대체
+        String message = (String) variables.getOrDefault("message", "알림 메시지입니다.");
+        send(recipient, message);
     }
 
     /**

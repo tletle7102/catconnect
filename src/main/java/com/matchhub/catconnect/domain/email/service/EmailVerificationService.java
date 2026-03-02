@@ -3,6 +3,8 @@ package com.matchhub.catconnect.domain.email.service;
 import com.matchhub.catconnect.domain.email.model.entity.EmailVerificationToken;
 import com.matchhub.catconnect.domain.email.model.enums.TokenType;
 import com.matchhub.catconnect.domain.email.repository.EmailVerificationTokenRepository;
+import com.matchhub.catconnect.domain.notification.model.enums.NotificationChannel;
+import com.matchhub.catconnect.domain.notification.service.NotificationService;
 import com.matchhub.catconnect.domain.sms.model.enums.SmsTokenType;
 import com.matchhub.catconnect.domain.sms.service.SmsVerificationService;
 import com.matchhub.catconnect.domain.user.model.entity.User;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -32,7 +35,7 @@ public class EmailVerificationService {
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
-    private final EmailService emailService;
+    private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
     private final SmsVerificationService smsVerificationService;
 
@@ -45,12 +48,12 @@ public class EmailVerificationService {
     public EmailVerificationService(
             EmailVerificationTokenRepository tokenRepository,
             UserRepository userRepository,
-            EmailService emailService,
+            NotificationService notificationService,
             PasswordEncoder passwordEncoder,
             SmsVerificationService smsVerificationService) {
         this.tokenRepository = tokenRepository;
         this.userRepository = userRepository;
-        this.emailService = emailService;
+        this.notificationService = notificationService;
         this.passwordEncoder = passwordEncoder;
         this.smsVerificationService = smsVerificationService;
     }
@@ -78,7 +81,7 @@ public class EmailVerificationService {
         tokenRepository.save(verificationToken);
 
         // 인증번호 이메일 발송
-        emailService.sendSignupVerificationCode(email, code);
+        notificationService.sendWithTemplate(email, NotificationChannel.EMAIL, "signup-code", Map.of("code", code));
 
         log.debug("회원가입 이메일 인증번호 발송 완료: email={}", email);
     }
@@ -197,7 +200,7 @@ public class EmailVerificationService {
 
         // 인증 링크 생성 및 이메일 발송
         String verificationLink = baseUrl + "/verify-email?token=" + token;
-        emailService.sendVerificationEmail(email, username, verificationLink);
+        notificationService.sendWithTemplate(email, NotificationChannel.EMAIL, "signup-verification", Map.of("username", username, "verificationLink", verificationLink));
 
         log.debug("회원가입 인증 이메일 발송 완료: email={}", email);
     }
@@ -267,7 +270,7 @@ public class EmailVerificationService {
         tokenRepository.save(resetToken);
 
         // 인증번호 이메일 발송
-        emailService.sendPasswordResetCode(email, username, code);
+        notificationService.sendWithTemplate(email, NotificationChannel.EMAIL, "password-reset", Map.of("username", username, "code", code));
 
         log.debug("비밀번호 재설정 인증번호 발송 완료: email={}", email);
     }
