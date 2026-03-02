@@ -5,7 +5,6 @@ import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.service.BoardService;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.domain.comment.service.CommentService;
-import com.matchhub.catconnect.domain.user.model.dto.UserRequestDTO;
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
 import com.matchhub.catconnect.domain.user.model.entity.User;
 import com.matchhub.catconnect.domain.user.model.enums.Role;
@@ -50,8 +49,14 @@ class SearchControllerTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     private BoardResponseDTO testBoard;
-    private UserResponseDTO testUser;
+    private User testUser;
 
     @BeforeEach
     void setUp() {
@@ -68,12 +73,9 @@ class SearchControllerTest {
             userService.deleteUsers(userIds);
         }
 
-        // 테스트용 사용자 생성
-        UserRequestDTO userRequestDTO = new UserRequestDTO();
-        userRequestDTO.setUsername("searchTestUser");
-        userRequestDTO.setEmail("search@email.com");
-        userRequestDTO.setPassword("password123");
-        testUser = userService.createUser(userRequestDTO);
+        // 테스트용 사용자 생성 (Repository 직접 사용)
+        testUser = new User("searchTestUser", "search@email.com", passwordEncoder.encode("password123"), Role.USER);
+        userRepository.save(testUser);
 
         // 테스트용 게시글 생성
         BoardRequestDTO boardRequestDTO = new BoardRequestDTO();

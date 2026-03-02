@@ -1,8 +1,9 @@
 package com.matchhub.catconnect.domain.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matchhub.catconnect.domain.user.model.dto.UserRequestDTO;
 import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.catconnect.domain.user.model.entity.User;
+import com.matchhub.catconnect.domain.user.model.enums.Role;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.domain.user.service.UserService;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,12 +37,15 @@ class UserRestControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     private UserService userService;
 
-    private UserResponseDTO testUser;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private User testUser;
 
     @BeforeEach
     void setUp() {
@@ -53,12 +58,9 @@ class UserRestControllerTest {
             log.debug("기존 사용자 정리 완료: count={}", userIds.size());
         }
 
-        // 테스트용 사용자 생성
-        UserRequestDTO requestDTO = new UserRequestDTO();
-        requestDTO.setUsername("testUser");
-        requestDTO.setEmail("test@example.com");
-        requestDTO.setPassword("password");
-        testUser = userService.createUser(requestDTO);
+        // 테스트용 사용자 생성 (Repository 직접 사용)
+        testUser = new User("testUser", "test@example.com", passwordEncoder.encode("password"), Role.USER);
+        userRepository.save(testUser);
 
         log.debug("테스트 설정 완료: userId={}", testUser.getId());
     }
@@ -115,28 +117,6 @@ class UserRestControllerTest {
 
         @Test
         @WithMockUser(roles = "ADMIN")
-        @DisplayName("사용자 생성 성공")
-        void testCreateUser() throws Exception {
-            log.debug("사용자 생성 테스트 시작");
-
-            UserRequestDTO requestDTO = new UserRequestDTO();
-            requestDTO.setUsername("newUser");
-            requestDTO.setEmail("new@example.com");
-            requestDTO.setPassword("password");
-
-            mockMvc.perform(post("/api/users")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(requestDTO)))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.result").value("SUCCESS"))
-                    .andExpect(jsonPath("$.data.username").value("newUser"))
-                    .andDo(result -> log.debug("사용자 생성 응답: {}", result.getResponse().getContentAsString()));
-
-            log.debug("사용자 생성 테스트 완료");
-        }
-
-        @Test
-        @WithMockUser(roles = "ADMIN")
         @DisplayName("사용자 삭제 성공")
         void testDeleteUser() throws Exception {
             log.debug("사용자 삭제 테스트 시작");
@@ -149,6 +129,83 @@ class UserRestControllerTest {
                     .andDo(result -> log.debug("사용자 삭제 응답: {}", result.getResponse().getContentAsString()));
 
             log.debug("사용자 삭제 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("사용자 수정 성공")
+        void testUpdateUser() throws Exception {
+            log.debug("사용자 수정 테스트 시작");
+
+            String requestBody = """
+					{
+						"username": "updatedUser",
+						"email": "updated@gmail.com",
+						"phoneNumber": "01012345678",
+						"password": "newPassword123"
+					}
+					""";
+
+            mockMvc.perform(put("/api/users/" + testUser.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.message").value("사용자 수정 성공"))
+                    .andExpect(jsonPath("$.data.username").value("updatedUser"))
+                    .andExpect(jsonPath("$.data.email").value("updated@gmail.com"))
+                    .andExpect(jsonPath("$.data.phoneNumber").value("01012345678"))
+                    .andDo(result -> log.debug("사용자 수정 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("사용자 수정 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("사용자 일부 정보만 수정 성공")
+        void testUpdateUserPartial() throws Exception {
+            log.debug("사용자 일부 정보 수정 테스트 시작");
+
+            // 휴대폰 번호만 수정
+            String requestBody = """
+					{
+						"phoneNumber": "01098765432"
+					}
+					""";
+
+            mockMvc.perform(put("/api/users/" + testUser.getId())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result").value("SUCCESS"))
+                    .andExpect(jsonPath("$.data.username").value("testUser")) // 기존 값 유지
+                    .andExpect(jsonPath("$.data.email").value("test@example.com")) // 기존 값 유지
+                    .andExpect(jsonPath("$.data.phoneNumber").value("01098765432")) // 변경됨
+                    .andDo(result -> log.debug("사용자 일부 수정 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("사용자 일부 정보 수정 테스트 완료");
+        }
+
+        @Test
+        @WithMockUser(roles = "ADMIN")
+        @DisplayName("사용자 수정 실패 - 사용자 없음")
+        void testUpdateUserNotFound() throws Exception {
+            log.debug("사용자 수정 실패 테스트 시작");
+
+            String requestBody = """
+					{
+						"username": "newName"
+					}
+					""";
+
+            mockMvc.perform(put("/api/users/999")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.code").value("USER_001"))
+                    .andDo(result -> log.debug("사용자 수정 실패 응답: {}", result.getResponse().getContentAsString()));
+
+            log.debug("사용자 수정 실패 테스트 완료");
         }
     }
 }

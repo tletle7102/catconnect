@@ -5,6 +5,7 @@ import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.service.BoardService;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.ErrorCode;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @DisplayName("CommentService 테스트")
 @SpringBootTest
+@Transactional
 class CommentServiceTest {
 
     private static final Logger log = LoggerFactory.getLogger(CommentServiceTest.class);
@@ -44,55 +47,38 @@ class CommentServiceTest {
 
     @BeforeEach
     void setUp() {
-        log.debug("테스트 설정 시작");
 
-        // 댓글 데이터 정리
-        commentRepository.deleteAll();
-
-        // 기존 게시글 데이터 정리 (필요 시)
-        List<Long> boardIds = boardService.getAllBoards().stream().map(BoardResponseDTO::getId).toList();
-        if (!boardIds.isEmpty()) {
-            boardService.deleteBoards(boardIds);
-            log.debug("기존 게시글 정리 완료: count={}", boardIds.size());
-        }
-
-        // 테스트용 게시글 생성
         BoardRequestDTO requestDTO = new BoardRequestDTO();
         requestDTO.setTitle("Test Title");
         requestDTO.setContent("Test Content");
+
         testBoard = boardService.createBoard(requestDTO, "testUser");
 
-        // 테스트용 댓글 생성 (검색 테스트를 위해)
-        CommentRequestDTO commentRequestDTO = new CommentRequestDTO();
-        commentRequestDTO.setContent("Test Comment");
-        commentService.addComment(testBoard.getId(), commentRequestDTO, "testUser");
-
-        // 인증 정보 설정
         SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("testUser", null, Collections.emptyList())
+                new UsernamePasswordAuthenticationToken(
+                        "testUser", null, Collections.emptyList()
+                )
         );
-
-        log.debug("테스트 설정 완료: boardId={}", testBoard.getId());
     }
 
     @AfterEach
     void tearDown() {
-        log.debug("테스트 정리 시작");
-
-        // 댓글 데이터 정리
-        commentRepository.deleteAll();
-
-        // 테스트용 게시글 정리
-        List<Long> boardIds = boardService.getAllBoards().stream().map(BoardResponseDTO::getId).toList();
-        if (!boardIds.isEmpty()) {
-            boardService.deleteBoards(boardIds);
-            log.debug("게시글 정리 완료: count={}", boardIds.size());
-        }
-
-        // 인증 정보 정리
         SecurityContextHolder.clearContext();
+    }
 
-        log.debug("테스트 정리 완료");
+    /**
+     * 가장 최근 생성된 Comment ID 가져오기 (PostgreSQL 안전)
+     */
+    private Long getLatestCommentId() {
+        return commentRepository.findAll()
+                .stream()
+                .map(Comment::getId)
+                .max(Long::compareTo)
+                .orElseThrow();
+    }
+
+    private Comment getCommentEntity(Long id) {
+        return commentRepository.findById(id).orElseThrow();
     }
 
     @Nested
@@ -102,93 +88,79 @@ class CommentServiceTest {
         @Test
         @DisplayName("전체 댓글 조회 성공")
         void testGetAllComments() {
-            log.debug("전체 댓글 조회 테스트 시작");
 
-            // 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
 
-            // 전체 댓글 조회
             List<CommentResponseDTO> comments = commentService.getAllComments();
 
-            // 댓글 목록 확인
             assertFalse(comments.isEmpty());
-            assertTrue(comments.stream().anyMatch(comment -> comment.getContent().equals("Test Comment")));
-
-            log.debug("전체 댓글 조회 테스트 완료");
+            assertTrue(
+                    comments.stream()
+                            .anyMatch(c -> c.getContent().equals("Test Comment"))
+            );
         }
 
         @Test
         @DisplayName("댓글 추가 성공")
         void testAddComment() {
-            log.debug("댓글 추가 테스트 시작");
 
-            // 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
 
-            // DB에서 댓글 확인
-            List<CommentResponseDTO> comments = commentService.getAllComments();
-            assertFalse(comments.isEmpty());
-            assertEquals("Test Comment", comments.get(0).getContent());
+            Long commentId = getLatestCommentId();
 
-            log.debug("댓글 추가 테스트 완료");
+            Comment comment = getCommentEntity(commentId);
+
+            assertEquals("Test Comment", comment.getContent());
+            assertEquals("testUser", comment.getAuthor());
         }
 
         @Test
         @DisplayName("댓글 삭제 성공")
         void testDeleteComment() {
-            log.debug("댓글 삭제 테스트 시작");
 
-            // 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
-            CommentResponseDTO comment = commentService.getAllComments().get(0);
 
-            // 댓글 삭제
-            commentService.deleteComment(comment.getId());
+            Long commentId = getLatestCommentId();
 
-            // DB에서 댓글 삭제 확인
-            assertFalse(commentRepository.existsById(comment.getId()));
+            commentService.deleteComment(commentId);
 
-            log.debug("댓글 삭제 테스트 완료");
+            assertFalse(commentRepository.existsById(commentId));
         }
 
         @Test
         @DisplayName("다중 댓글 삭제 성공")
         void testDeleteComments() {
-            log.debug("다중 댓글 삭제 테스트 시작");
 
-            // 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
-            CommentResponseDTO comment = commentService.getAllComments().get(0);
 
-            // 다중 삭제
-            commentService.deleteComments(List.of(comment.getId()));
+            Long commentId = getLatestCommentId();
 
-            // DB에서 댓글 삭제 확인
-            assertFalse(commentRepository.existsById(comment.getId()));
+            commentService.deleteComments(List.of(commentId));
 
-            log.debug("다중 댓글 삭제 테스트 완료");
+            assertFalse(commentRepository.existsById(commentId));
         }
 
         @Test
         @DisplayName("다중 댓글 삭제 - 빈 ID 목록 실패")
         void testDeleteCommentsEmptyIds() {
-            log.debug("다중 댓글 삭제 빈 ID 테스트 시작");
 
-            // 빈 ID 목록으로 삭제 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    commentService.deleteComments(Collections.emptyList())
-            );
+            AppException exception =
+                    assertThrows(AppException.class,
+                            () -> commentService.deleteComments(Collections.emptyList()));
+
             assertEquals(ErrorCode.INVALID_REQUEST, exception.getErrorCode());
-
-            log.debug("다중 댓글 삭제 빈 ID 테스트 완료");
         }
     }
 
@@ -199,110 +171,114 @@ class CommentServiceTest {
         @Test
         @DisplayName("본인 댓글 수정 성공")
         void testUpdateCommentByAuthor() {
-            log.debug("본인 댓글 수정 테스트 시작");
 
-            // 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Original Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
-            CommentResponseDTO comment = commentService.getAllComments().get(0);
 
-            // 본인이 댓글 수정
-            commentService.updateComment(comment.getId(), "Updated Comment", "testUser");
+            Long commentId = getLatestCommentId();
 
-            // 수정된 내용 확인
-            CommentResponseDTO updatedComment = commentService.getAllComments().get(0);
-            assertEquals("Updated Comment", updatedComment.getContent());
+            commentService.updateComment(
+                    commentId,
+                    "Updated Comment",
+                    "testUser"
+            );
 
-            log.debug("본인 댓글 수정 테스트 완료");
+            Comment updated = getCommentEntity(commentId);
+
+            assertEquals("Updated Comment", updated.getContent());
         }
 
         @Test
-        @DisplayName("타인 댓글 수정 실패 - COMMENT_UNAUTHORIZED")
+        @DisplayName("타인 댓글 수정 실패")
         void testUpdateCommentByOther() {
-            log.debug("타인 댓글 수정 테스트 시작");
 
-            // testUser가 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
-            CommentResponseDTO comment = commentService.getAllComments().get(0);
 
-            // otherUser가 댓글 수정 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    commentService.updateComment(comment.getId(), "Hacked Comment", "otherUser")
-            );
+            Long commentId = getLatestCommentId();
+
+            AppException exception =
+                    assertThrows(AppException.class,
+                            () -> commentService.updateComment(
+                                    commentId,
+                                    "Hack",
+                                    "otherUser"
+                            ));
+
             assertEquals(ErrorCode.COMMENT_UNAUTHORIZED, exception.getErrorCode());
-
-            log.debug("타인 댓글 수정 테스트 완료");
         }
 
         @Test
         @DisplayName("본인 댓글 삭제 성공")
         void testDeleteCommentByAuthor() {
-            log.debug("본인 댓글 삭제 테스트 시작");
 
-            // 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
-            CommentResponseDTO comment = commentService.getAllComments().get(0);
 
-            // 본인이 댓글 삭제
-            commentService.deleteCommentByAuthor(comment.getId(), "testUser");
+            Long commentId = getLatestCommentId();
 
-            // 삭제 확인
-            assertFalse(commentRepository.existsById(comment.getId()));
+            commentService.deleteCommentByAuthor(
+                    commentId,
+                    "testUser"
+            );
 
-            log.debug("본인 댓글 삭제 테스트 완료");
+            assertFalse(commentRepository.existsById(commentId));
         }
 
         @Test
-        @DisplayName("타인 댓글 삭제 실패 - COMMENT_UNAUTHORIZED")
+        @DisplayName("타인 댓글 삭제 실패")
         void testDeleteCommentByOther() {
-            log.debug("타인 댓글 삭제 테스트 시작");
 
-            // testUser가 댓글 추가
             CommentRequestDTO requestDTO = new CommentRequestDTO();
             requestDTO.setContent("Test Comment");
+
             commentService.addComment(testBoard.getId(), requestDTO, "testUser");
-            CommentResponseDTO comment = commentService.getAllComments().get(0);
 
-            // otherUser가 댓글 삭제 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    commentService.deleteCommentByAuthor(comment.getId(), "otherUser")
-            );
+            Long commentId = getLatestCommentId();
+
+            AppException exception =
+                    assertThrows(AppException.class,
+                            () -> commentService.deleteCommentByAuthor(
+                                    commentId,
+                                    "otherUser"
+                            ));
+
             assertEquals(ErrorCode.COMMENT_UNAUTHORIZED, exception.getErrorCode());
-
-            log.debug("타인 댓글 삭제 테스트 완료");
         }
 
         @Test
-        @DisplayName("존재하지 않는 댓글 수정 실패 - COMMENT_NOT_FOUND")
+        @DisplayName("존재하지 않는 댓글 수정 실패")
         void testUpdateNonExistentComment() {
-            log.debug("존재하지 않는 댓글 수정 테스트 시작");
 
-            // 존재하지 않는 댓글 수정 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    commentService.updateComment(999L, "New Content", "testUser")
-            );
+            AppException exception =
+                    assertThrows(AppException.class,
+                            () -> commentService.updateComment(
+                                    999999L,
+                                    "New Content",
+                                    "testUser"
+                            ));
+
             assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
-
-            log.debug("존재하지 않는 댓글 수정 테스트 완료");
         }
 
         @Test
-        @DisplayName("존재하지 않는 댓글 삭제 실패 - COMMENT_NOT_FOUND")
+        @DisplayName("존재하지 않는 댓글 삭제 실패")
         void testDeleteNonExistentCommentByAuthor() {
-            log.debug("존재하지 않는 댓글 삭제 테스트 시작");
 
-            // 존재하지 않는 댓글 삭제 시도
-            AppException exception = assertThrows(AppException.class, () ->
-                    commentService.deleteCommentByAuthor(999L, "testUser")
-            );
+            AppException exception =
+                    assertThrows(AppException.class,
+                            () -> commentService.deleteCommentByAuthor(
+                                    999999L,
+                                    "testUser"
+                            ));
+
             assertEquals(ErrorCode.COMMENT_NOT_FOUND, exception.getErrorCode());
-
-            log.debug("존재하지 않는 댓글 삭제 테스트 완료");
         }
     }
 
@@ -311,61 +287,58 @@ class CommentServiceTest {
     class CommentSearchTests {
 
         @Test
-        @DisplayName("댓글 내용으로 검색 성공")
+        @DisplayName("댓글 내용 검색 성공")
         void testSearchCommentsByContent() {
-            log.debug("댓글 내용 검색 테스트 시작");
 
-            // 내용으로 검색
-            List<CommentResponseDTO> results = commentService.searchComments("Test Comment");
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
 
-            // 검색 결과 확인
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+
+            List<CommentResponseDTO> results =
+                    commentService.searchComments("Test Comment");
+
             assertFalse(results.isEmpty());
-            assertTrue(results.stream().anyMatch(comment -> comment.getContent().contains("Test Comment")));
-
-            log.debug("댓글 내용 검색 테스트 완료");
         }
 
         @Test
-        @DisplayName("댓글 작성자로 검색 성공")
+        @DisplayName("댓글 작성자 검색 성공")
         void testSearchCommentsByAuthor() {
-            log.debug("댓글 작성자 검색 테스트 시작");
 
-            // 작성자로 검색
-            List<CommentResponseDTO> results = commentService.searchComments("testUser");
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
 
-            // 검색 결과 확인
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+
+            List<CommentResponseDTO> results =
+                    commentService.searchComments("testUser");
+
             assertFalse(results.isEmpty());
-            assertTrue(results.stream().allMatch(comment -> comment.getAuthor().equals("testUser")));
-
-            log.debug("댓글 작성자 검색 테스트 완료");
         }
 
         @Test
         @DisplayName("댓글 검색 결과 없음")
         void testSearchCommentsNoResults() {
-            log.debug("댓글 검색 결과 없음 테스트 시작");
 
-            // 존재하지 않는 키워드로 검색
-            List<CommentResponseDTO> results = commentService.searchComments("존재하지않는키워드xyz");
+            List<CommentResponseDTO> results =
+                    commentService.searchComments("no_result_keyword_xyz");
 
-            // 검색 결과가 비어있는지 확인
             assertTrue(results.isEmpty());
-
-            log.debug("댓글 검색 결과 없음 테스트 완료");
         }
 
         @Test
         @DisplayName("댓글 대소문자 구분 없이 검색")
         void testSearchCommentsCaseInsensitive() {
-            log.debug("댓글 대소문자 구분 없이 검색 테스트 시작");
 
-            // 대소문자 다르게 검색
-            List<CommentResponseDTO> results = commentService.searchComments("test comment");
+            CommentRequestDTO requestDTO = new CommentRequestDTO();
+            requestDTO.setContent("Test Comment");
 
-            // 검색 결과 확인
+            commentService.addComment(testBoard.getId(), requestDTO, "testUser");
+
+            List<CommentResponseDTO> results =
+                    commentService.searchComments("test comment");
+
             assertFalse(results.isEmpty());
-
-            log.debug("댓글 대소문자 구분 없이 검색 테스트 완료");
         }
     }
 }

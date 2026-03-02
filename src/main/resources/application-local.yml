@@ -1,5 +1,5 @@
 server:
-  port: ${LOCAL_TOMCAT_PORT:8080}
+  port: ${CATCONNECT_TOMCAT_PORT:8080}
 
 spring:
   datasource:
@@ -11,6 +11,8 @@ spring:
   h2:
     console:
       enabled: true
+      settings:
+        webAllowOthers: true
       path: /h2-console
 
   thymeleaf:
@@ -23,7 +25,48 @@ spring:
       ddl-auto: create
     show-sql: true
     open-in-view: false
-    defer-datasource-initialization: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:test@example.com}
+    password: ${MAIL_PASSWORD:test-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+app:
+  mail:
+    from-name: 관리자
+    verification-expiry-minutes: 10
+    password-reset-expiry-minutes: 5
+  sms:
+    verification-expiry-minutes: 3
+  solapi:
+    api-key: ${SOLAPI_API_KEY:test-api-key}
+    api-secret: ${SOLAPI_API_SECRET:test-api-secret}
+    sender-phone: ${SOLAPI_SENDER_PHONE:01012345678}
+    api-url: https://api.solapi.com/messages/v4/send-many/detail
+  jwt:
+    secret: local-test-secret-key-1234567890-must-be-32bytes
+    expiration: 3600000
+    extended-expiration: 604800000
+
+file:
+  upload-dir: ${user.home}/catconnect-uploads
+  max-size: 10MB
+
+spring.servlet.multipart:
+  enabled: true
+  max-file-size: 10MB
+  max-request-size: 10MB
 
 logging:
   level:
