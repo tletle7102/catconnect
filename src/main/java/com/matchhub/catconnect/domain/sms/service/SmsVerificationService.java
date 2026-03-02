@@ -1,5 +1,7 @@
 package com.matchhub.catconnect.domain.sms.service;
 
+import com.matchhub.catconnect.domain.notification.model.enums.NotificationChannel;
+import com.matchhub.catconnect.domain.notification.service.NotificationService;
 import com.matchhub.catconnect.domain.sms.model.dto.SmsResponseDTO;
 import com.matchhub.catconnect.domain.sms.model.entity.SmsVerificationToken;
 import com.matchhub.catconnect.domain.sms.model.enums.SmsTokenType;
@@ -27,14 +29,14 @@ public class SmsVerificationService {
     private static final Logger log = LoggerFactory.getLogger(SmsVerificationService.class);
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private final SmsService smsService;
+    private final NotificationService notificationService;
     private final SmsVerificationTokenRepository tokenRepository;
 
     @Value("${app.sms.verification-expiry-minutes}")
     private int expiryMinutes;
 
-    public SmsVerificationService(SmsService smsService, SmsVerificationTokenRepository tokenRepository) {
-        this.smsService = smsService;
+    public SmsVerificationService(NotificationService notificationService, SmsVerificationTokenRepository tokenRepository) {
+        this.notificationService = notificationService;
         this.tokenRepository = tokenRepository;
     }
 
@@ -62,8 +64,10 @@ public class SmsVerificationService {
         tokenRepository.save(token);
 
         // SMS 발송
-        boolean sent = smsService.sendVerificationCode(phoneNumber, code);
-        if (!sent) {
+        String message = "[CatConnect] 인증번호: " + code + " (3분간 유효)";
+        try {
+            notificationService.send(phoneNumber, NotificationChannel.SMS, message);
+        } catch (Exception e) {
             log.error("SMS 발송 실패: phoneNumber={}", phoneNumber);
             throw new AppException(Domain.SMS, ErrorCode.SMS_SEND_FAILED, "SMS 발송에 실패했습니다.");
         }
