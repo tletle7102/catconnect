@@ -157,6 +157,23 @@ public class BoardService {
         log.debug("게시글 개별 삭제 완료: id={}", id);
     }
 
+    // 게시글 삭제 (작성자 본인만 가능)
+    @Transactional
+    public void deleteBoardByAuthor(Long id, String author) {
+        log.debug("게시글 삭제 요청 (작성자 확인): id={}, author={}", id, author);
+        // 게시글 존재 확인
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+        // 작성자 권한 확인
+        if (!board.getAuthor().equals(author)) {
+            log.warn("게시글 삭제 권한 없음: id={}, author={}", id, author);
+            throw new AppException(Domain.BOARD, ErrorCode.BOARD_UNAUTHORIZED);
+        }
+        // 게시글 삭제
+        boardRepository.delete(board);
+        log.debug("게시글 삭제 완료: id={}", id);
+    }
+
     // 게시글 검색
     @Transactional(readOnly = true)
     public List<BoardResponseDTO> searchBoards(String keyword) {

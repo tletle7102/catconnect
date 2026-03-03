@@ -5,7 +5,7 @@
 </head>
 <body>
 <div th:fragment="side-nav" class="list-group" style="padding: 1rem;">
-  <a href="/users" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'users' ? 'active' : ''}">사용자</a>
+  <a href="/users" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'users' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">사용자</a>
   <a href="/boards" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'boards' ? 'active' : ''}">게시판</a>
   <a href="/admin/comments" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-comments' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">댓글</a>
   <a href="/admin/likes" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-likes' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">좋아요</a>

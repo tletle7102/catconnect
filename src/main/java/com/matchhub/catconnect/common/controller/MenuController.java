@@ -35,19 +35,11 @@ public class MenuController {
         return "like/admin-likes";
     }
 
-    // 사용자 목록 페이지 요청 처리
+    // 사용자 목록 페이지 요청 처리 (ADMIN 전용, 삭제 기능 포함)
     @GetMapping("/users")
     public String listUsers(Model model) {
         log.debug("GET /users 요청, 사용자 목록 뷰 렌더링");
         model.addAttribute("currentPage", "users");
-        return "user/users";
-    }
-
-    // 관리자용 사용자 목록 페이지 요청 처리
-    @GetMapping("/admin/users")
-    public String adminListUsers(Model model) {
-        log.debug("GET /admin/users 요청, 관리자 사용자 목록 뷰 렌더링");
-        model.addAttribute("currentPage", "admin-users");
         return "user/admin-users";
     }
 }

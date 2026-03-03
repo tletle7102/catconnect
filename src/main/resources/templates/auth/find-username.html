@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title layout:title>아이디 찾기</title>
+    <style>
+        .find-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .find-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .find-form .form-control {
+            height: 48px;
+            border-radius: 4px;
+        }
+        .btn-find {
+            width: 100%;
+            height: 48px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #666;
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .result-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result-username {
+            font-size: 24px;
+            font-weight: bold;
+            color: #03c75a;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="find-container">
+        <h1 class="find-title">아이디 찾기</h1>
+        <form id="find-form" class="find-form" onsubmit="handleFindUsername(event)">
+            <div class="mb-3">
+                <label for="email" class="form-label">가입 시 등록한 이메일</label>
+                <input type="email" id="email" name="email" class="form-control"
+                       placeholder="example@gmail.com" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-find">아이디 찾기</button>
+        </form>
+        <div id="result-area"></div>
+        <div class="back-link">
+            <a href="/login">로그인으로 돌아가기</a>
+        </div>
+    </div>
+
+    <script>
+        function handleFindUsername(event) {
+            event.preventDefault();
+
+            var email = document.getElementById('email').value.trim();
+
+            if (!email) {
+                UI.warning('이메일을 입력해주세요.');
+                return;
+            }
+
+            var loading = UI.loading('아이디 찾는 중...');
+
+            fetch('/api/auth/find-username', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || '아이디 찾기에 실패했습니다.'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loading.hide();
+                    document.getElementById('result-area').innerHTML = `
+                    <div class="result-box">
+                        <p>가입된 아이디</p>
+                        <div class="result-username">${data.username}</div>
+                        <p class="text-muted">보안을 위해 일부가 마스킹 처리되었습니다.</p>
+                    </div>
+                `;
+                })
+                .catch(error => {
+                    loading.hide();
+                    UI.error(error.message);
+                });
+        }
+    </script>
+</section>
+</body>
+</html>

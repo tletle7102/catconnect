@@ -20,6 +20,7 @@ bin/
 ### IntelliJ IDEA ###
 .idea
 *.env.json
+.env
 *.env
 *.iws
 *.iml
@@ -27,6 +28,8 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+!.env.example
+!.env.sample
 
 ### NetBeans ###
 /nbproject/private/

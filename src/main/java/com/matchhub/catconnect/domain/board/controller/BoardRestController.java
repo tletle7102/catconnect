@@ -105,13 +105,20 @@ public class BoardRestController {
         return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
     }
 
-    @Operation(summary = "게시글 단일 삭제", description = "특정 게시글을 삭제합니다.")
+    @Operation(summary = "게시글 단일 삭제", description = "특정 게시글을 삭제합니다. 작성자 본인만 삭제 가능합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 삭제 성공"),
+            @ApiResponse(responseCode = "403", description = "삭제 권한 없음"),
+            @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Void>> deleteBoard(
-            @Parameter(description = "삭제할 게시글 ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "삭제할 게시글 ID", required = true) @PathVariable Long id,
+            Authentication authentication) {
         log.debug("DELETE /api/boards/{} 요청", id);
-        // 서비스 호출하여 게시글 삭제
-        boardService.deleteBoard(id);
+        String author = authentication.getName();
+        // 서비스 호출하여 게시글 삭제 (작성자 확인)
+        boardService.deleteBoardByAuthor(id, author);
         return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
     }
 }

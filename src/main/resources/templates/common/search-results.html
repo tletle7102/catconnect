@@ -16,7 +16,7 @@
                     <thead>
                     <tr>
                         <th>타입</th>
-                        <th>ID</th>
+                        <th>번호</th>
                         <th>내용</th>
                         <th>작성자</th>
                         <th>생성 시간</th>
@@ -59,7 +59,7 @@
                 searchData(keyword, type);
             } else {
                 console.warn("search-results.html: 검색 키워드 없음");
-                alert("검색 키워드를 입력하세요.");
+                UI.warning("검색 키워드를 입력하세요.");
             }
         });
 
@@ -114,7 +114,7 @@
                 })
                 .catch(error => {
                     console.error("search-results.html: 검색 API 호출 실패", error);
-                    alert(error.response?.data?.message || "검색 중 오류가 발생했습니다.");
+                    UI.handleApiError(error, "검색 중 오류가 발생했습니다.");
                 });
         }
 
@@ -132,11 +132,13 @@
                 tr.innerHTML = '<td colspan="5" class="text-center">검색 결과가 없습니다.</td>';
                 tbody.appendChild(tr);
             } else {
-                pageResults.forEach(item => {
+                pageResults.forEach((item, index) => {
+                    // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
+                    const rowNumber = (currentPage * pageSize) + index + 1;
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td><span class="badge ${item.type === '게시글' ? 'bg-primary' : 'bg-success'}">${item.type}</span></td>
-                        <td>${item.id}</td>
+                        <td>${rowNumber}</td>
                         <td><a href="${item.link}">${item.content}</a></td>
                         <td>${item.author}</td>
                         <td>${new Date(item.createdDttm).toLocaleString('ko-KR')}</td>
