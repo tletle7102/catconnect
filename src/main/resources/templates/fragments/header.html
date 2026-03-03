@@ -33,7 +33,27 @@
                     </div>
                 </form>
             </div>
-            <ul class="navbar-nav">
+            <ul class="navbar-nav align-items-center">
+                <!-- 프로필 아이콘 (로그인 시) -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a th:href="@{/profile}" class="nav-link p-0 me-2" title="프로필 설정">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                             style="width: 32px; height: 32px; background-color: #6c757d; overflow: hidden;">
+                            <img th:if="${currentUser != null && currentUser.profileImageUrl != null}"
+                                 th:src="${currentUser.profileImageUrl}"
+                                 alt="프로필"
+                                 class="w-100 h-100"
+                                 style="object-fit: cover;">
+                            <svg th:if="${currentUser == null || currentUser.profileImageUrl == null}"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 width="20" height="20"
+                                 fill="white"
+                                 viewBox="0 0 16 16">
+                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                            </svg>
+                        </div>
+                    </a>
+                </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
                     <form th:action="@{/logout}" method="post" style="display: inline;" id="logoutForm">
                         <button type="submit" class="nav-link btn btn-link">로그아웃</button>
