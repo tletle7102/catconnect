@@ -32,7 +32,7 @@ public class Board extends BaseEntity {
     private String title;
 
     @NotBlank(message = "내용은 필수입니다.")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @NotBlank(message = "작성자는 필수입니다.")
