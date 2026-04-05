@@ -7,6 +7,8 @@
     <meta http-equiv="Expires" content="0">
     <title layout:title th:if="${boardId != null}">게시글 수정</title>
     <title layout:title th:unless="${boardId != null}">새 게시글 추가</title>
+    <!-- Toast UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
 </head>
 <section layout:fragment="content">
     <div class="card">
@@ -17,46 +19,70 @@
                 <input type="hidden" id="boardId" th:value="${boardId}">
                 <div class="mb-3">
                     <label for="title" class="form-label">제목</label>
-                    <input type="text" id="title" name="title" class="form-control w-50" required>
+                    <input type="text" id="title" name="title" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="content" class="form-label">내용</label>
-                    <textarea id="content" name="content" class="form-control w-50" required></textarea>
+                    <label class="form-label">내용</label>
+                    <div id="editor"></div>
                 </div>
                 <button type="submit" class="btn btn-primary" th:text="${boardId != null} ? '수정' : '저장'">저장</button>
                 <a href="/boards" class="btn btn-secondary">목록으로 돌아가기</a>
             </form>
         </div>
     </div>
+    <!-- Toast UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         console.log("board-form.html: 스크립트 로드 시작");
         const boardId = document.getElementById('boardId')?.value;
+        let editor;
 
-        // 수정 시 게시글 데이터 로드
-        if (boardId) {
-            console.log("board-form.html: 게시글 데이터 로드 시작, boardId=" + boardId);
-            axios.get('/api/boards/' + boardId, { withCredentials: true })
-                .then(response => {
-                    console.log("board-form.html: 게시글 데이터 로드 성공", response.data);
-                    document.getElementById('title').value = response.data.data.title;
-                    document.getElementById('content').value = response.data.data.content;
-                })
-                .catch(error => {
-                    console.error("board-form.html: 게시글 데이터 로드 실패", error);
-                    document.getElementById('error-message').textContent = error.response?.data?.message || "게시글 로드 중 오류가 발생했습니다.";
-                    document.getElementById('error-message').style.display = 'block';
-                });
-        }
+        // Toast UI Editor 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            editor = new toastui.Editor({
+                el: document.querySelector('#editor'),
+                height: '400px',
+                initialEditType: 'wysiwyg',
+                previewStyle: 'vertical',
+                placeholder: '내용을 입력하세요...',
+                toolbarItems: [
+                    ['heading', 'bold', 'italic', 'strike'],
+                    ['hr', 'quote'],
+                    ['ul', 'ol', 'task', 'indent', 'outdent'],
+                    ['table', 'link'],
+                    ['code', 'codeblock'],
+                    ['scrollSync']
+                ]
+            });
+
+            // 수정 시 게시글 데이터 로드
+            if (boardId) {
+                console.log("board-form.html: 게시글 데이터 로드 시작, boardId=" + boardId);
+                axios.get('/api/boards/' + boardId, { withCredentials: true })
+                    .then(response => {
+                        console.log("board-form.html: 게시글 데이터 로드 성공", response.data);
+                        document.getElementById('title').value = response.data.data.title;
+                        editor.setHTML(response.data.data.content);
+                    })
+                    .catch(error => {
+                        console.error("board-form.html: 게시글 데이터 로드 실패", error);
+                        document.getElementById('error-message').textContent = error.response?.data?.message || "게시글 로드 중 오류가 발생했습니다.";
+                        document.getElementById('error-message').style.display = 'block';
+                    });
+            }
+        });
 
         function handleSubmit(event) {
             event.preventDefault();
             console.log("board-form.html: 폼 제출 시작");
             const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
+            const content = editor.getHTML();
             const errorMessage = document.getElementById('error-message');
 
-            if (!title || !content) {
+            // 에디터 내용이 비어있는지 확인 (빈 p 태그 등 제외)
+            const textContent = editor.getMarkdown().trim();
+            if (!title || !textContent) {
                 console.error("board-form.html: 제목 또는 내용 누락");
                 errorMessage.textContent = "제목과 내용을 입력하세요.";
                 errorMessage.style.display = 'block';
