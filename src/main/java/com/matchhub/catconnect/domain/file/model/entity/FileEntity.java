@@ -3,17 +3,14 @@ package com.matchhub.catconnect.domain.file.model.entity;
 import com.matchhub.catconnect.common.model.entity.BaseEntity;
 import com.matchhub.catconnect.domain.file.model.enums.FileType;
 import jakarta.persistence.*;
-import jdk.jfr.Enabled;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.cfg.defs.AssertFalseDef;
 
 /**
  * 파일 메타데이터 엔티티
  */
 @Entity
-@Table(name = "files")
+@Table(name = "tb_file")
 @Getter
 @NoArgsConstructor
 public class FileEntity extends BaseEntity {
