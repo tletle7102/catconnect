@@ -15,6 +15,8 @@ public class HtmlSanitizer {
     public HtmlSanitizer() {
         // Toast UI Editor에서 생성하는 HTML 태그들을 허용
         this.safelist = Safelist.relaxed()
+                // 상대 경로 링크 유지 (/api/files/download/... 등)
+                .preserveRelativeLinks(true)
                 // 기본 서식
                 .addTags("div", "span", "br", "hr")
                 // 코드 블록
@@ -34,7 +36,7 @@ public class HtmlSanitizer {
                 .addProtocols("a", "href", "http", "https", "mailto")
                 // 이미지
                 .addAttributes("img", "src", "alt", "title", "width", "height")
-                .addProtocols("img", "src", "http", "https", "data")
+                .addProtocols("img", "src", "http", "https", "data", "relpath")
                 // 일반 속성
                 .addAttributes(":all", "class", "id", "style");
     }
@@ -48,6 +50,10 @@ public class HtmlSanitizer {
         if (html == null || html.isBlank()) {
             return html;
         }
-        return Jsoup.clean(html, safelist);
+        // 상대 경로를 임시 프로토콜로 변환 (Jsoup이 프로토콜 없는 src를 제거하므로)
+        String preprocessed = html.replace("src=\"/", "src=\"relpath:///");
+        String cleaned = Jsoup.clean(preprocessed, "", safelist);
+        // 다시 상대 경로로 복원
+        return cleaned.replace("src=\"relpath:///", "src=\"/");
     }
 }
