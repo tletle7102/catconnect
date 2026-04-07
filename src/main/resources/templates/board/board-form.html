@@ -9,6 +9,12 @@
     <title layout:title th:unless="${boardId != null}">새 게시글 추가</title>
     <!-- Toast UI Editor CSS -->
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+    <style>
+        /* 툴바 그룹 간격 조정 */
+        .toastui-editor-toolbar .toastui-editor-toolbar-group {
+            margin-right: 4px;
+        }
+    </style>
 </head>
 <section layout:fragment="content">
     <div class="card">
@@ -50,10 +56,36 @@
                     ['heading', 'bold', 'italic', 'strike'],
                     ['hr', 'quote'],
                     ['ul', 'ol', 'task', 'indent', 'outdent'],
-                    ['table', 'link'],
+                    ['table'],
+                    ['image'],
+                    ['link'],
                     ['code', 'codeblock'],
                     ['scrollSync']
-                ]
+                ],
+                hooks: {
+                    addImageBlobHook: (blob, callback) => {
+                        const formData = new FormData();
+                        formData.append('file', blob);
+                        formData.append('fileType', 'BOARD');
+
+                        axios.post('/api/files/upload', formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            },
+                            withCredentials: true
+                        })
+                            .then(response => {
+                                const imageUrl = response.data.data.downloadUrl;
+                                callback(imageUrl, 'image');
+                            })
+                            .catch(error => {
+                                console.error('이미지 업로드 실패:', error);
+                                alert('이미지 업로드에 실패했습니다.');
+                            });
+
+                        return false;
+                    }
+                }
             });
 
             // 수정 시 게시글 데이터 로드
