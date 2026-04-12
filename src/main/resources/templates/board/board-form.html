@@ -9,12 +9,6 @@
     <title layout:title th:unless="${boardId != null}">새 게시글 추가</title>
     <!-- Toast UI Editor CSS -->
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
-    <style>
-        /* 툴바 그룹 간격 조정 */
-        .toastui-editor-toolbar .toastui-editor-toolbar-group {
-            margin-right: 4px;
-        }
-    </style>
 </head>
 <section layout:fragment="content">
     <div class="card">
@@ -56,9 +50,7 @@
                     ['heading', 'bold', 'italic', 'strike'],
                     ['hr', 'quote'],
                     ['ul', 'ol', 'task', 'indent', 'outdent'],
-                    ['table'],
-                    ['image'],
-                    ['link'],
+                    ['table', 'image', 'link'],
                     ['code', 'codeblock'],
                     ['scrollSync']
                 ],
@@ -146,3 +138,4 @@
     </script>
 </section>
 </html>
+
