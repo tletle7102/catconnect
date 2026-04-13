@@ -15,7 +15,7 @@
                 <p class="mb-0" style="margin-left: 1rem;">작성자: <span id="board-author"></span></p>
                 <p class="mb-0" style="margin-right: 1rem;">생성 시간: <span id="board-created"></span></p>
             </div>
-            <p class="card-text" id="board-content"></p>
+            <div class="card-text" id="board-content"></div>
             <button id="like-button" class="btn btn-outline-primary" onclick="toggleLike()"><span id="like-icon">🤍</span> <span id="like-count">0</span></button>
             <a th:href="@{/boards}" class="btn btn-secondary">목록으로 돌아가기</a>
             <a th:href="@{/boards/{id}/comments/new(id=${boardId})}" class="btn btn-primary">댓글 추가</a>
@@ -96,8 +96,10 @@
                     titleElement.textContent = board.title;
                     authorElement.textContent = board.author;
                     createdElement.textContent = new Date(board.createdDttm).toLocaleString('ko-KR');
-                    contentElement.textContent = board.content;
                     likeCountElement.textContent = board.likeCount;
+
+                    // HTML 콘텐츠 직접 렌더링 (Toast UI Editor에서 생성한 HTML)
+                    contentElement.innerHTML = board.content;
 
                     // 현재 사용자의 좋아요 상태 확인
                     if (currentUsername && board.likes) {

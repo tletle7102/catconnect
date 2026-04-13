@@ -9,6 +9,7 @@ import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.catconnect.global.util.HtmlSanitizer;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
@@ -31,11 +32,13 @@ public class BoardService {
     private static final Logger log = LoggerFactory.getLogger(BoardService.class);
     private final BoardRepository boardRepository;
     private final Validator validator;
+    private final HtmlSanitizer htmlSanitizer;
 
     // 생성자 주입 방식 (Spring이 의존 객체를 자동으로 넣어줌)
-    public BoardService(BoardRepository boardRepository, Validator validator) {
+    public BoardService(BoardRepository boardRepository, Validator validator, HtmlSanitizer htmlSanitizer) {
         this.boardRepository = boardRepository;
         this.validator = validator;
+        this.htmlSanitizer = htmlSanitizer;
     }
 
     // 전체 게시글 조회
@@ -77,8 +80,10 @@ public class BoardService {
     @Transactional
     public BoardResponseDTO createBoard(BoardRequestDTO requestDTO, String author) {
         log.debug("게시글 생성 요청: author={}", author);
+        // HTML 콘텐츠 XSS 방어를 위한 sanitize
+        String sanitizedContent = htmlSanitizer.sanitize(requestDTO.getContent());
         // 게시글 엔티티 생성 및 저장
-        Board board = new Board(requestDTO.getTitle(), requestDTO.getContent(), author);
+        Board board = new Board(requestDTO.getTitle(), sanitizedContent, author);
         // 엔티티 유효성 검증
         Set<ConstraintViolation<Board>> violations = validator.validate(board);
         if (!violations.isEmpty()) {
@@ -106,8 +111,10 @@ public class BoardService {
             log.warn("게시글 수정 권한 없음: id={}, author={}", id, author);
             throw new AppException(Domain.BOARD, ErrorCode.BOARD_UNAUTHORIZED);
         }
+        // HTML 콘텐츠 XSS 방어를 위한 sanitize
+        String sanitizedContent = htmlSanitizer.sanitize(requestDTO.getContent());
         // 게시글 정보 수정
-        board.update(requestDTO.getTitle(), requestDTO.getContent());
+        board.update(requestDTO.getTitle(), sanitizedContent);
         // 엔티티 유효성 검증
         Set<ConstraintViolation<Board>> violations = validator.validate(board);
         if (!violations.isEmpty()) {
