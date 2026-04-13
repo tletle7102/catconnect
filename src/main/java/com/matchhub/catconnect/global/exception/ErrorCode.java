@@ -35,7 +35,10 @@ public enum ErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH_002", "접근 권한이 없습니다."),
     UNAUTHORIZED(HttpStatus.FORBIDDEN, "AUTH_003", "권한이 없습니다."),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "AUTH_004", "유효하지 않은 토큰입니다."),
-    TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "AUTH_005", "토큰이 만료되었습니다."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_005", "토큰이 만료되었습니다."),
+    REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_006", "Refresh Token을 찾을 수 없습니다."),
+    REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_007", "Refresh Token이 만료되었습니다."),
+    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_008", "유효하지 않은 Refresh Token입니다."),
 
     // SMS 관련 에러 (SMS)
     SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_001", "SMS 발송에 실패했습니다."),
