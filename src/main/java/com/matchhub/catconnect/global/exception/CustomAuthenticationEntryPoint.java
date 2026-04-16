@@ -1,6 +1,7 @@
 package com.matchhub.catconnect.global.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.matchhub.catconnect.global.util.auth.JwtAuthenticationFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +17,9 @@ import java.io.IOException;
 
 /**
  * 인증 실패 시 호출되는 EntryPoint 구현체 (401 Unauthorized 응답 처리용)
+ *
+ * Access Token 만료와 일반 인증 실패를 구분하여 응답
+ * 클라이언트는 TOKEN_EXPIRED 에러 코드를 받으면 /api/auth/refresh 호출하여 토큰 갱신
  */
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -29,15 +33,28 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
 
-        // 인증 예외가 발생했을 때 로그 출력 (요청 URI와 예외 메시지 포함)
-        log.error("인증 실패: requestURI={}, message={}", request.getRequestURI(), authException.getMessage());
+        // 토큰 만료 여부 확인 (JwtAuthenticationFilter에서 설정한 attribute)
+        Boolean tokenExpired = (Boolean) request.getAttribute(JwtAuthenticationFilter.TOKEN_EXPIRED_ATTRIBUTE);
 
-        // 에러 응답 객체 생성 (에러 도메인: AUTH, 에러 코드: AUTHENTICATION_FAILED, 메시지 포함)
-        ErrorResponse errorResponse = new ErrorResponse(
-                Domain.AUTH,
-                ErrorCode.AUTHENTICATION_FAILED,
-                "인증에 실패했습니다: " + authException.getMessage()
-        );
+        ErrorResponse errorResponse;
+
+        if (Boolean.TRUE.equals(tokenExpired)) {
+            // Access Token이 만료된 경우 - 클라이언트가 /api/auth/refresh 호출하도록 유도
+            log.warn("Access Token 만료: requestURI={}", request.getRequestURI());
+            errorResponse = new ErrorResponse(
+                    Domain.AUTH,
+                    ErrorCode.TOKEN_EXPIRED,
+                    "Access Token이 만료되었습니다. Refresh Token으로 토큰을 갱신해주세요."
+            );
+        } else {
+            // 일반 인증 실패 (토큰 없음, 토큰 형식 오류 등)
+            log.error("인증 실패: requestURI={}, message={}", request.getRequestURI(), authException.getMessage());
+            errorResponse = new ErrorResponse(
+                    Domain.AUTH,
+                    ErrorCode.AUTHENTICATION_FAILED,
+                    "인증에 실패했습니다: " + authException.getMessage()
+            );
+        }
 
         // HTTP 상태 코드 401 (Unauthorized) 설정
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
