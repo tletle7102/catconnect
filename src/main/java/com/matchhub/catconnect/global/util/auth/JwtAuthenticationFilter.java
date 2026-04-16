@@ -1,5 +1,6 @@
 package com.matchhub.catconnect.global.util.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -16,10 +17,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
+/**
+ * JWT 인증 필터
+ *
+ * 모든 요청에서 JWT 토큰을 추출하고 검증
+ * Access Token 만료 시 request attribute에 만료 정보를 저장하여
+ * CustomAuthenticationEntryPoint에서 적절한 에러 응답 반환 가능
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
+    // Request attribute 키: 토큰 만료 여부
+    public static final String TOKEN_EXPIRED_ATTRIBUTE = "TOKEN_EXPIRED";
+
     private final JwtProvider jwtProvider;
 
     public JwtAuthenticationFilter(JwtProvider jwtProvider) {
@@ -47,7 +59,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     logger.debug("SecurityContext 설정 완료: username={}", username);
                 } else {
                     logger.warn("토큰 유효성 검증 실패: token={}", token.substring(0, Math.min(token.length(), 20)) + "...");
+                    // 토큰이 만료된 경우 request attribute에 저장
+                    if (jwtProvider.isTokenExpired(token)) {
+                        request.setAttribute(TOKEN_EXPIRED_ATTRIBUTE, true);
+                        logger.debug("토큰 만료됨, request attribute 설정: TOKEN_EXPIRED=true");
+                    }
                 }
+            } catch (ExpiredJwtException e) {
+                // 토큰 만료 예외 처리
+                request.setAttribute(TOKEN_EXPIRED_ATTRIBUTE, true);
+                logger.warn("토큰 만료: error={}", e.getMessage());
             } catch (Exception e) {
                 logger.error("토큰 처리 중 예외 발생: error={}, token={}", e.getMessage(), token.substring(0, Math.min(token.length(), 20)) + "...");
             }
