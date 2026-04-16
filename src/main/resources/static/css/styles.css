@@ -63,3 +63,13 @@ body {
     border-color: #fcf6e5;
     color: #fcf6e5;
 }
+
+/* Toast UI Editor - Bootstrap CSS 충돌 해결 */
+.toastui-editor-toolbar-icons {
+    min-width: auto !important;
+}
+
+.placeholder.ProseMirror-widget {
+    background-color: transparent !important;
+    cursor: text !important;
+}
