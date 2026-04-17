@@ -108,7 +108,7 @@ public class SecurityConfig {
         http.logout(logout -> logout
                 .logoutUrl("/logout")           // 로그아웃 요청 URL
                 .logoutSuccessUrl("/")          // 로그아웃 성공 후 이동할 URL
-                .deleteCookies("jwtToken")      // 로그아웃 시 JWT 쿠키 삭제
+                .deleteCookies("jwtToken", "refreshToken")  // 로그아웃 시 Access/Refresh Token 쿠키 삭제
                 .permitAll()                    // 모두 접근 허용
                 .addLogoutHandler((request, response, authentication) -> {
                     log.debug("로그아웃 처리: username={}", authentication != null ? authentication.getName() : "없음");
@@ -118,7 +118,7 @@ public class SecurityConfig {
                     response.sendRedirect("/");
                 })
         );
-        log.debug("로그아웃 설정: logoutUrl=/logout, logoutSuccessUrl=/, deleteCookies=jwtToken");
+        log.debug("로그아웃 설정: logoutUrl=/logout, logoutSuccessUrl=/, deleteCookies=jwtToken,refreshToken");
 
         // H2 콘솔 iframe 접근 허용 (기본 보안 설정 해제)
         http.headers(headers -> headers
