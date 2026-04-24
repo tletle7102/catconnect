@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
 </head>
 <body>
-<div th:fragment="side-nav" class="list-group" style="padding: 1rem;">
+<div th:fragment="side-nav" class="list-group" style="padding: 1rem; background-color: #edeeea; border-radius: 8px;">
   <a href="/users" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'users' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">사용자</a>
   <a href="/boards" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'boards' ? 'active' : ''}">게시판</a>
   <a href="/admin/comments" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-comments' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">댓글</a>
   <a href="/admin/likes" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-likes' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">좋아요</a>
+  <a href="/admin/reports" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-reports' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">신고 관리</a>
 </div>
 </body>
 </html>

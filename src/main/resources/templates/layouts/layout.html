@@ -13,9 +13,9 @@
 </head>
 <body>
 <header th:replace="~{fragments/header :: header}"></header>
-<div class="container" style="max-width: var(--max-width);">
-    <div class="row">
-        <div class="col-md-2">
+<div class="container main-content" style="max-width: var(--max-width); padding-left: 0; padding-bottom: 48px;">
+    <div class="row" style="margin-left: 0;">
+        <div class="col-md-2" style="padding-left: 0;">
             <aside th:replace="~{fragments/side-nav :: side-nav}"></aside>
         </div>
         <div class="col-md-10">

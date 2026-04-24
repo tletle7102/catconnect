@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav th:fragment="header" class="navbar navbar-expand-lg" style="background-color: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
     <div class="container" style="max-width: var(--max-width);">
-        <a class="navbar-brand" href="/">CatConnect</a>
+        <a class="navbar-brand" href="/" style="color: #10ba8c; font-weight: bold;">CatConnect</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -25,7 +25,7 @@
                         </select>
                     </div>
                     <div style="height: 31px; display: flex; align-items: center; margin: 0; padding: 0;">
-                        <button class="btn btn-outline-light btn-sm" type="submit" style="height: 31px; border-radius: 0 0.25rem 0.25rem 0; margin: 0;">
+                        <button class="btn btn-outline-success btn-sm" type="submit" style="height: 31px; border-radius: 0 0.25rem 0.25rem 0; margin: 0;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                             </svg>
@@ -38,7 +38,7 @@
                 <li class="nav-item" sec:authorize="isAuthenticated()">
                     <a th:href="@{/profile}" class="nav-link p-0 me-2" title="프로필 설정">
                         <div class="rounded-circle d-flex align-items-center justify-content-center"
-                             style="width: 32px; height: 32px; background-color: #6c757d; overflow: hidden;">
+                             style="width: 32px; height: 32px; background-color: #10ba8c; overflow: hidden;">
                             <img th:if="${currentUser != null && currentUser.profileImageUrl != null}"
                                  th:src="${currentUser.profileImageUrl}"
                                  alt="프로필"
