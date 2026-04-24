@@ -1,13 +1,245 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
 <head>
-    <title layout:title>홈</title>
+    <title>홈</title>
 </head>
 <section layout:fragment="content">
-    <div class="card">
-        <div class="card-body text-center">
-            <h1 class="card-title">CatConnect에 오신 것을 환영합니다!</h1>
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #006c4f 0%, #10ba8c 100%);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 150px;
+            height: 150px;
+            background: rgba(16, 186, 140, 0.08);
+            border-radius: 50%;
+        }
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 108, 79, 0.06);
+            border-radius: 50%;
+        }
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .hero-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--outline);
+            margin-bottom: 1.5rem;
+        }
+        .hero-cta {
+            display: inline-block;
+            padding: 0.7rem 2rem;
+            background-color: #006c4f;
+            color: #ffffff;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 0;
+        }
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 108, 79, 0.25);
+            color: #ffffff;
+        }
+        .recent-posts-card {
+            background: #ffffff;
+            border: 1px solid var(--outline-variant);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        .recent-posts-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .recent-posts-header h5 {
+            margin: 0;
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+        .recent-posts-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .recent-posts-list li {
+            padding: 0.85rem 1.5rem;
+            border-bottom: 1px solid var(--surface-container);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.15s;
+        }
+        .recent-posts-list li:last-child {
+            border-bottom: none;
+        }
+        .recent-posts-list li:hover {
+            background-color: var(--surface-container);
+        }
+        .post-title-link {
+            text-decoration: none;
+            color: var(--on-surface);
+            font-weight: 500;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 1rem;
+        }
+        .post-title-link:hover {
+            color: var(--primary);
+        }
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--outline);
+            flex-shrink: 0;
+        }
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--outline);
+        }
+        .loading-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--outline);
+        }
+    </style>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <span class="hero-icon">🐱</span>
+        <h1 class="hero-title">CatConnect</h1>
+        <p class="hero-subtitle">고양이를 사랑하는 사람들을 위한 커뮤니티</p>
+        <a href="/boards" class="hero-cta">게시판 바로가기</a>
+    </div>
+
+    <!-- Recent Posts Section -->
+    <div class="recent-posts-card mb-4">
+        <div class="recent-posts-header">
+            <h5>최근 게시글</h5>
+            <a href="/boards" style="font-size: 0.85rem; text-decoration: none;">전체보기 &rarr;</a>
+        </div>
+        <div id="recentPostsContainer">
+            <div class="loading-state">불러오는 중...</div>
         </div>
     </div>
+
+    <div th:replace="~{fragments/author-profile-modal :: author-profile-modal}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/author-profile.js}"></script>
+    <script>
+        var isAuthenticated = false;
+
+        async function viewBoard(boardId) {
+            if (isAuthenticated) {
+                window.location.href = '/boards/' + boardId;
+            } else {
+                UI.showLoginRequired('/boards/' + boardId);
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const isToday = date.getFullYear() === now.getFullYear()
+                && date.getMonth() === now.getMonth()
+                && date.getDate() === now.getDate();
+            if (isToday) {
+                return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+            }
+            return date.getFullYear() + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getDate()).padStart(2, '0');
+        }
+
+        function isWithin24Hours(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            return (now.getTime() - date.getTime()) < 24 * 60 * 60 * 1000;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check auth status
+            axios.get('/api/auth/check', { withCredentials: true })
+                .then(function(response) {
+                    if (response.data.data && response.data.data.authenticated) {
+                        isAuthenticated = true;
+                    }
+                })
+                .catch(function() {});
+
+            // Fetch recent posts
+            axios.get('/api/boards', { params: { page: 0, size: 5 }, withCredentials: true })
+                .then(function (response) {
+                    var posts = response.data.data.content;
+                    var container = document.getElementById('recentPostsContainer');
+
+                    if (!posts || posts.length === 0) {
+                        container.innerHTML = '<div class="empty-state">아직 게시글이 없습니다.</div>';
+                        return;
+                    }
+
+                    var ul = document.createElement('ul');
+                    ul.className = 'recent-posts-list';
+
+                    posts.forEach(function (post) {
+                        var li = document.createElement('li');
+                        var newBadge = isWithin24Hours(post.createdDttm)
+                            ? '<span class="badge-new">N</span>'
+                            : '';
+                        var authorHtml = post.author === '(탈퇴한 사용자)'
+                            ? '<span style="color: #999;">' + post.author + '</span>'
+                            : '<a href="#" onclick="showAuthorProfile(\'' + post.author + '\'); return false;" style="color: var(--primary); text-decoration: none;">' + post.author + '</a>';
+                        li.innerHTML =
+                            '<a href="#" onclick="viewBoard(' + post.id + '); return false;" class="post-title-link">' +
+                                post.title + newBadge +
+                            '</a>' +
+                            '<div class="post-meta">' +
+                                '<span>' + authorHtml + '</span>' +
+                                '<span>' + formatDate(post.createdDttm) + '</span>' +
+                            '</div>';
+                        ul.appendChild(li);
+                    });
+
+                    container.innerHTML = '';
+                    container.appendChild(ul);
+                })
+                .catch(function () {
+                    document.getElementById('recentPostsContainer').innerHTML =
+                        '<div class="empty-state">게시글을 불러올 수 없습니다.</div>';
+                });
+        });
+    </script>
 </section>
 </html>
