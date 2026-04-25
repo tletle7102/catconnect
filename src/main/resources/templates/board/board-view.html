@@ -15,10 +15,9 @@
                 <p class="mb-0" style="margin-left: 1rem;">작성자: <span id="board-author"></span></p>
                 <p class="mb-0" style="margin-right: 1rem;">생성 시간: <span id="board-created"></span></p>
             </div>
-            <div class="card-text" id="board-content"></div>
+            <div class="card-text board-content" id="board-content"></div>
             <button id="like-button" class="btn btn-outline-primary" onclick="toggleLike()"><span id="like-icon">🤍</span> <span id="like-count">0</span></button>
             <a th:href="@{/boards}" class="btn btn-secondary">목록으로 돌아가기</a>
-            <a th:href="@{/boards/{id}/comments/new(id=${boardId})}" class="btn btn-primary">댓글 추가</a>
             <!-- 공유 드롭다운 -->
             <div class="btn-group">
                 <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
@@ -28,6 +27,7 @@
                     <li><a class="dropdown-item" href="#" onclick="copyLink(); return false;">🔗 링크 복사</a></li>
                 </ul>
             </div>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="showReportModal('BOARD', boardId)" style="margin-left: 4px;">신고</button>
             <!-- 수정/삭제 버튼은 JavaScript에서 작성자 본인일 때만 표시 -->
             <span id="author-buttons" style="display: none;">
                 <a th:href="@{/boards/{id}/edit(id=${boardId})}" class="btn btn-primary">수정</a>
@@ -35,11 +35,54 @@
             </span>
         </div>
     </div>
-    <div id="comment-section">
+    <div id="comment-section" style="margin-bottom: 32px;">
         <h2 class="mt-3">댓글</h2>
         <ul class="list-group" id="comment-list"></ul>
+        <div id="inline-comment-form" class="mt-3" style="display: none;">
+            <div class="d-flex gap-2">
+                <textarea id="new-comment-input" class="form-control" rows="2" placeholder="댓글을 입력하세요..."></textarea>
+                <button class="btn btn-primary align-self-end" onclick="submitInlineComment()" style="white-space: nowrap;">등록</button>
+            </div>
+        </div>
     </div>
+    <div class="modal fade" id="reportModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">신고</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="reportTargetType">
+                    <input type="hidden" id="reportTargetId">
+                    <p class="text-muted" style="font-size: 0.85rem;">신고 사유를 선택해주세요.</p>
+                    <div class="mb-3">
+                        <select class="form-select" id="reportReason">
+                            <option value="">-- 사유 선택 --</option>
+                            <option value="ABUSE">욕설 / 비방</option>
+                            <option value="HATE_SPEECH">혐오 표현</option>
+                            <option value="INAPPROPRIATE">음란물 / 부적절한 이미지</option>
+                            <option value="SPAM">스팸 / 도배</option>
+                            <option value="OFF_TOPIC">커뮤니티 주제 무관</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="reportDetailGroup" style="display: none;">
+                        <textarea class="form-control" id="reportDetail" rows="3" placeholder="구체적인 사유를 입력해주세요..." maxlength="500"></textarea>
+                    </div>
+                    <div id="reportError" class="text-danger" style="display: none; font-size: 0.85rem;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" onclick="submitReport()">신고</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/author-profile-modal :: author-profile-modal}"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/author-profile.js}"></script>
     <script th:inline="javascript">
         console.log("board-view.html: 스크립트 로드 시작");
         // Thymeleaf로 전달된 게시글 ID
@@ -57,6 +100,7 @@
                     if (response.data.data && response.data.data.authenticated) {
                         currentUsername = response.data.data.username;
                         console.log("board-view.html: 로그인 사용자=" + currentUsername);
+                        document.getElementById('inline-comment-form').style.display = 'block';
                     }
                     // 사용자 정보 로드 후 게시글 조회
                     loadBoard();
@@ -103,12 +147,22 @@
                     }
                     // 게시글 정보 렌더링
                     titleElement.textContent = board.title;
-                    authorElement.textContent = board.author;
+                    if (board.author === '(탈퇴한 사용자)') {
+                        authorElement.innerHTML = '<span style="color: #999;">' + board.author + '</span>';
+                    } else {
+                        authorElement.innerHTML = '<a href="#" onclick="showAuthorProfile(\'' + board.author + '\'); return false;" style="color: var(--primary); text-decoration: none;">' + board.author + '</a>';
+                    }
                     createdElement.textContent = new Date(board.createdDttm).toLocaleString('ko-KR');
                     likeCountElement.textContent = board.likeCount;
 
-                    // HTML 콘텐츠 직접 렌더링 (Toast UI Editor에서 생성한 HTML)
-                    contentElement.innerHTML = board.content;
+                    // 블라인드 처리된 게시글 확인
+                    if (board.blinded) {
+                        contentElement.innerHTML = '<div class="alert alert-warning">블라인드 처리된 게시글입니다.</div>';
+                        titleElement.textContent = '블라인드 처리된 게시글';
+                    } else {
+                        // HTML 콘텐츠 직접 렌더링 (Toast UI Editor에서 생성한 HTML)
+                        contentElement.innerHTML = board.content;
+                    }
 
                     // 현재 사용자의 좋아요 상태 확인
                     if (currentUsername && board.likes) {
@@ -132,8 +186,32 @@
                     }
                     commentList.innerHTML = ''; // 기존 댓글 초기화
                     if (board.comments && board.comments.length > 0) {
+                        // Build tree from flat comments
+                        const topLevelComments = [];
+                        const commentMap = {};
+
+                        // First pass: create map
                         board.comments.forEach(comment => {
-                            renderComment(comment, commentList);
+                            commentMap[comment.id] = comment;
+                        });
+
+                        // Second pass: build tree
+                        board.comments.forEach(comment => {
+                            if (comment.parentId === null || comment.parentId === undefined) {
+                                topLevelComments.push(comment);
+                            }
+                            // replies are rendered inline based on parentId
+                        });
+
+                        // Render top-level comments and their replies
+                        topLevelComments.forEach(comment => {
+                            renderComment(comment, commentList, false);
+                            // Render replies for this comment
+                            board.comments.forEach(reply => {
+                                if (reply.parentId === comment.id) {
+                                    renderComment(reply, commentList, true);
+                                }
+                            });
                         });
                     } else {
                         const li = document.createElement('li');
@@ -148,41 +226,108 @@
                 });
         }
 
+        // 24시간 이내 여부 확인
+        function isWithin24Hours(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            return (now - date) < 24 * 60 * 60 * 1000;
+        }
+
         // 댓글 렌더링 함수
-        function renderComment(comment, commentList) {
+        function renderComment(comment, commentList, isReply) {
             const li = document.createElement('li');
             li.className = 'list-group-item';
             li.id = 'comment-' + comment.id;
 
+            if (isReply) {
+                li.style.cssText = 'margin-left: 40px; border-left: 3px solid var(--primary-container, #10ba8c); padding-left: 12px;';
+            }
+
             const isAuthor = currentUsername && currentUsername === comment.author;
+            const newBadge = isWithin24Hours(comment.createdDttm) ? '<span class="badge-new">N</span>' : '';
+
+            // 블라인드 처리된 댓글
+            if (comment.blinded) {
+                const blindedDiv = document.createElement('div');
+                blindedDiv.innerHTML = '<span class="text-muted">블라인드 처리된 댓글입니다.</span>';
+                li.appendChild(blindedDiv);
+                commentList.appendChild(li);
+                return;
+            }
 
             const commentDiv = document.createElement('div');
             commentDiv.className = 'd-flex justify-content-between align-items-start';
 
             const contentDiv = document.createElement('div');
             contentDiv.id = 'comment-content-' + comment.id;
-            contentDiv.innerHTML = `<strong>${comment.author}</strong>: ${comment.content} <small class="text-muted">(${new Date(comment.createdDttm).toLocaleString('ko-KR')})</small>`;
+            const commentAuthorHtml = comment.author === '(탈퇴한 사용자)'
+                ? `<strong><span style="color: #999;">${comment.author}</span></strong>`
+                : `<strong><a href="#" onclick="showAuthorProfile('${comment.author}'); return false;" style="color: var(--primary); text-decoration: none;">${comment.author}</a></strong>`;
+            contentDiv.innerHTML = `${commentAuthorHtml}${newBadge}: ${comment.content} <small class="text-muted">(${new Date(comment.createdDttm).toLocaleString('ko-KR')})</small>`;
+
+            // 답글 버튼 (top-level 댓글에만 표시)
+            if (!isReply) {
+                const replyBtn = document.createElement('a');
+                replyBtn.href = '#';
+                replyBtn.className = 'text-muted';
+                replyBtn.style.cssText = 'font-size: 0.8rem; text-decoration: none; margin-left: 8px;';
+                replyBtn.textContent = '답글';
+                replyBtn.onclick = function(e) {
+                    e.preventDefault();
+                    toggleReplyForm(comment.id);
+                };
+                contentDiv.appendChild(replyBtn);
+            }
+
+            // 다른 사용자의 댓글에 신고 버튼 추가
+            if (currentUsername && currentUsername !== comment.author) {
+                const reportBtn = document.createElement('button');
+                reportBtn.className = 'btn btn-link btn-sm text-muted p-0';
+                reportBtn.style.cssText = 'font-size: 0.75rem; margin-left: 8px;';
+                reportBtn.textContent = '신고';
+                reportBtn.onclick = function() { showReportModal('COMMENT', comment.id); };
+                contentDiv.appendChild(reportBtn);
+            }
 
             commentDiv.appendChild(contentDiv);
 
-            // 본인 댓글인 경우 수정/삭제 버튼 추가
+            // 본인 댓글인 경우 kebab 메뉴 추가
             if (isAuthor) {
-                const buttonGroup = document.createElement('div');
-                buttonGroup.className = 'btn-group btn-group-sm';
+                const kebabDiv = document.createElement('div');
+                kebabDiv.className = 'dropdown';
 
-                const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-outline-primary';
-                editBtn.textContent = '수정';
-                editBtn.onclick = () => editComment(comment.id, comment.content);
+                const kebabBtn = document.createElement('button');
+                kebabBtn.className = 'btn btn-sm btn-link text-muted p-0';
+                kebabBtn.type = 'button';
+                kebabBtn.setAttribute('data-bs-toggle', 'dropdown');
+                kebabBtn.setAttribute('aria-expanded', 'false');
+                kebabBtn.style.cssText = 'font-size: 1.2rem; line-height: 1;';
+                kebabBtn.textContent = '⋮';
 
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'btn btn-outline-danger';
-                deleteBtn.textContent = '삭제';
-                deleteBtn.onclick = () => deleteMyComment(comment.id);
+                const dropdownMenu = document.createElement('ul');
+                dropdownMenu.className = 'dropdown-menu dropdown-menu-end';
 
-                buttonGroup.appendChild(editBtn);
-                buttonGroup.appendChild(deleteBtn);
-                commentDiv.appendChild(buttonGroup);
+                const editLi = document.createElement('li');
+                const editLink = document.createElement('a');
+                editLink.className = 'dropdown-item';
+                editLink.href = '#';
+                editLink.textContent = '수정';
+                editLink.onclick = function(e) { e.preventDefault(); editComment(comment.id, comment.content); };
+                editLi.appendChild(editLink);
+
+                const deleteLi = document.createElement('li');
+                const deleteLink = document.createElement('a');
+                deleteLink.className = 'dropdown-item text-danger';
+                deleteLink.href = '#';
+                deleteLink.textContent = '삭제';
+                deleteLink.onclick = function(e) { e.preventDefault(); deleteMyComment(comment.id); };
+                deleteLi.appendChild(deleteLink);
+
+                dropdownMenu.appendChild(editLi);
+                dropdownMenu.appendChild(deleteLi);
+                kebabDiv.appendChild(kebabBtn);
+                kebabDiv.appendChild(dropdownMenu);
+                commentDiv.appendChild(kebabDiv);
             }
 
             li.appendChild(commentDiv);
@@ -233,6 +378,64 @@
                 });
         }
 
+        // 인라인 댓글 등록
+        function submitInlineComment() {
+            const input = document.getElementById('new-comment-input');
+            const content = input.value.trim();
+            if (!content) { UI.error('댓글 내용을 입력해주세요.'); return; }
+
+            axios.post('/api/comments/' + boardId, { content: content }, { withCredentials: true })
+                .then(response => {
+                    input.value = '';
+                    UI.success('댓글이 등록되었습니다.');
+                    loadBoard(); // reload to show new comment
+                })
+                .catch(error => {
+                    UI.handleApiError(error, '댓글 등록 중 오류가 발생했습니다.');
+                });
+        }
+
+        // 답글 폼 토글
+        function toggleReplyForm(commentId) {
+            const existingForm = document.getElementById('reply-form-' + commentId);
+            if (existingForm) {
+                existingForm.style.display = existingForm.style.display === 'none' ? 'block' : 'none';
+                return;
+            }
+
+            const commentLi = document.getElementById('comment-' + commentId);
+            const replyFormDiv = document.createElement('div');
+            replyFormDiv.id = 'reply-form-' + commentId;
+            replyFormDiv.style.cssText = 'margin-left: 40px; margin-top: 8px; margin-bottom: 8px;';
+            replyFormDiv.innerHTML =
+                '<div class="d-flex gap-2">' +
+                '<textarea class="form-control form-control-sm" rows="1" placeholder="답글을 입력하세요..." id="reply-input-' + commentId + '"></textarea>' +
+                '<button class="btn btn-sm btn-primary align-self-end" onclick="submitReply(' + commentId + ')" style="white-space: nowrap;">등록</button>' +
+                '<button class="btn btn-sm btn-secondary align-self-end" onclick="toggleReplyForm(' + commentId + ')" style="white-space: nowrap;">취소</button>' +
+                '</div>';
+
+            // Insert after the comment li
+            commentLi.parentNode.insertBefore(replyFormDiv, commentLi.nextSibling);
+        }
+
+        // 답글 등록
+        function submitReply(parentId) {
+            const input = document.getElementById('reply-input-' + parentId);
+            const content = input.value.trim();
+            if (!content) { UI.error('답글 내용을 입력해주세요.'); return; }
+
+            axios.post('/api/comments/' + boardId + '?parentId=' + parentId,
+                { content: content },
+                { withCredentials: true })
+                .then(response => {
+                    UI.success('답글이 등록되었습니다.');
+                    loadBoard(); // reload
+                })
+                .catch(error => {
+                    UI.handleApiError(error, '답글 등록 중 오류가 발생했습니다.');
+                });
+        }
+
         // 좋아요 아이콘 업데이트
         function updateLikeIcon() {
             const likeIcon = document.getElementById('like-icon');
@@ -273,6 +476,56 @@
                 })
                 .catch(error => {
                     UI.handleApiError(error, '링크 조회 중 오류가 발생했습니다.');
+                });
+        }
+
+        // 신고 모달 표시
+        function showReportModal(targetType, targetId) {
+            document.getElementById('reportTargetType').value = targetType;
+            document.getElementById('reportTargetId').value = targetId;
+            document.getElementById('reportReason').value = '';
+            document.getElementById('reportDetail').value = '';
+            document.getElementById('reportDetailGroup').style.display = 'none';
+            document.getElementById('reportError').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('reportModal')).show();
+        }
+
+        document.getElementById('reportReason').addEventListener('change', function() {
+            document.getElementById('reportDetailGroup').style.display = this.value === 'OTHER' ? 'block' : 'none';
+        });
+
+        function submitReport() {
+            const targetType = document.getElementById('reportTargetType').value;
+            const targetId = document.getElementById('reportTargetId').value;
+            const reason = document.getElementById('reportReason').value;
+            const detail = document.getElementById('reportDetail').value.trim();
+            const errorEl = document.getElementById('reportError');
+
+            if (!reason) {
+                errorEl.textContent = '신고 사유를 선택해주세요.';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (reason === 'OTHER' && !detail) {
+                errorEl.textContent = '기타 사유를 입력해주세요.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            axios.post('/api/reports', {
+                targetType: targetType,
+                targetId: parseInt(targetId),
+                reason: reason,
+                detail: detail || null
+            }, { withCredentials: true })
+                .then(function() {
+                    bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
+                    UI.success('신고가 접수되었습니다.');
+                })
+                .catch(function(error) {
+                    const msg = error.response?.data?.message || '신고 처리 중 오류가 발생했습니다.';
+                    errorEl.textContent = msg;
+                    errorEl.style.display = 'block';
                 });
         }
 

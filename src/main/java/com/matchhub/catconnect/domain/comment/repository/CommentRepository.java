@@ -3,7 +3,9 @@ package com.matchhub.catconnect.domain.comment.repository;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -38,4 +40,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "LOWER(c.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.author) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Comment> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"board"})
+    Page<Comment> findByAuthor(String author, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Comment c SET c.author = :newAuthor WHERE c.author = :oldAuthor")
+    void updateAuthorByAuthor(@Param("oldAuthor") String oldAuthor, @Param("newAuthor") String newAuthor);
 }

@@ -62,12 +62,34 @@ public class CommentService {
 
     @Transactional
     public void addComment(Long boardId, CommentRequestDTO requestDTO, String author) {
-        log.debug("댓글 추가 요청: boardId={}, author={}", boardId, author);
+        addComment(boardId, requestDTO, author, null);
+    }
+
+    @Transactional
+    public void addComment(Long boardId, CommentRequestDTO requestDTO, String author, Long parentId) {
+        log.debug("댓글 추가 요청: boardId={}, author={}, parentId={}", boardId, author, parentId);
         // 게시글 존재 확인
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
-        // 댓글 엔티티 생성 및 저장
-        Comment comment = new Comment(requestDTO.getContent(), author, board);
+
+        Comment comment;
+        if (parentId != null) {
+            // 부모 댓글 존재 확인
+            Comment parentComment = commentRepository.findById(parentId)
+                    .orElseThrow(() -> new AppException(Domain.COMMENT, ErrorCode.COMMENT_NOT_FOUND));
+            // 부모 댓글이 같은 게시글에 속하는지 확인
+            if (!parentComment.getBoard().getId().equals(boardId)) {
+                throw new AppException(Domain.COMMENT, ErrorCode.INVALID_REQUEST, "부모 댓글이 해당 게시글에 속하지 않습니다.");
+            }
+            // 대댓글은 1단계만 허용 (부모 댓글이 이미 대댓글이면 거부)
+            if (parentComment.getParent() != null) {
+                throw new AppException(Domain.COMMENT, ErrorCode.INVALID_REQUEST, "대댓글에는 답글을 달 수 없습니다.");
+            }
+            comment = new Comment(requestDTO.getContent(), author, board, parentComment);
+        } else {
+            comment = new Comment(requestDTO.getContent(), author, board);
+        }
+
         // 엔티티 유효성 검증
         Set<ConstraintViolation<Comment>> violations = validator.validate(comment);
         if (!violations.isEmpty()) {
@@ -168,6 +190,7 @@ public class CommentService {
         dto.setAuthor(comment.getAuthor());
         dto.setCreatedDttm(comment.getCreatedDttm());
         dto.setBoardId(comment.getBoard().getId());
+        dto.setParentId(comment.getParent() != null ? comment.getParent().getId() : null);
         return dto;
     }
 }

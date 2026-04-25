@@ -9,6 +9,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tb_comment")
 @Getter
@@ -33,13 +36,34 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    @Column(nullable = false)
+    private boolean blinded = false;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> replies = new ArrayList<>();
+
     public Comment(String content, String author, Board board) {
         this.content = content;
         this.author = author;
         this.board = board;
     }
 
+    public Comment(String content, String author, Board board, Comment parent) {
+        this.content = content;
+        this.author = author;
+        this.board = board;
+        this.parent = parent;
+    }
+
     public void update(String content) {
         this.content = content;
+    }
+
+    public void blind() {
+        this.blinded = true;
     }
 }
