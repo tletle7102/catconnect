@@ -1,5 +1,6 @@
 package com.matchhub.catconnect.domain.board.model.dto;
 
+import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
 import lombok.Getter;
@@ -17,7 +18,12 @@ public class BoardResponseDTO {
     private String author;
     private LocalDateTime createdDttm;
     private LocalDateTime updatedDttm;
+    private int viewCount;
     private int likeCount;
+    private boolean blinded;
+    private BoardPermissionLevel readPermission;
+    private BoardPermissionLevel writePermission;
+    private boolean ownerReadOnly;
     private List<CommentResponseDTO> comments;
     private List<LikeResponseDTO> likes;
 }

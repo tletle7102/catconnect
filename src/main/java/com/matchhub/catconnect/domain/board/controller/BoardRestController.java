@@ -3,6 +3,7 @@ package com.matchhub.catconnect.domain.board.controller;
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.service.BoardService;
+import com.matchhub.catconnect.domain.report.service.ReportService;
 import com.matchhub.catconnect.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,10 +31,12 @@ public class BoardRestController {
 
     private static final Logger log = LoggerFactory.getLogger(BoardRestController.class);
     private final BoardService boardService;
+    private final ReportService reportService;
 
     // 생성자를 통한 의존성 주입 (Service 사용을 위해)
-    public BoardRestController(BoardService boardService) {
+    public BoardRestController(BoardService boardService, ReportService reportService) {
         this.boardService = boardService;
+        this.reportService = reportService;
     }
 
     // 게시글 전체 조회 (페이지네이션)
@@ -52,14 +55,14 @@ public class BoardRestController {
     @GetMapping("/{id}") // 경로에 ID 포함
     public ResponseEntity<Response<BoardResponseDTO>> getBoardById(@Parameter(description = "조회할 게시글 ID", required = true) @PathVariable Long id) {
         log.debug("GET /api/boards/{} 요청", id);
-        BoardResponseDTO board = boardService.getBoardById(id); // ID로 게시글 조회
+        BoardResponseDTO board = boardService.getBoardByIdWithViewCount(id); // ID로 게시글 조회 (조회수 증가)
         return ResponseEntity.ok(Response.success(board, "게시글 상세 조회 성공"));
     }
 
     // 게시글 작성
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
     @PostMapping
-    public ResponseEntity<Response<BoardResponseDTO>> createBoard(
+    public ResponseEntity<?> createBoard(
             @Valid @RequestBody BoardRequestDTO requestDTO,
             Authentication authentication
     ) {
@@ -67,6 +70,12 @@ public class BoardRestController {
 
         // 현재 로그인된 사용자 이름(author) 추출
         String author = authentication.getName();
+
+        // 게시글 작성 제한 여부 확인
+        if (reportService.isUserPostBanned(author)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Response.error("게시글 작성이 제한된 상태입니다.", HttpStatus.FORBIDDEN));
+        }
 
         BoardResponseDTO board = boardService.createBoard(requestDTO, author); // 서비스에 저장 요청
         return ResponseEntity.status(HttpStatus.CREATED).body(Response.success(board, "게시글 생성 성공"));

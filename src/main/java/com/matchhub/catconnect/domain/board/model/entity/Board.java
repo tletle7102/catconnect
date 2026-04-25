@@ -1,6 +1,7 @@
 package com.matchhub.catconnect.domain.board.model.entity;
 
 import com.matchhub.catconnect.common.model.entity.BaseEntity;
+import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.like.model.entity.Like;
 import com.matchhub.catconnect.global.validation.RestrictedString;
@@ -39,6 +40,23 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private String author;
 
+    @Column(nullable = false)
+    private int viewCount = 0;
+
+    @Column(nullable = false)
+    private boolean blinded = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BoardPermissionLevel readPermission = BoardPermissionLevel.ANYONE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BoardPermissionLevel writePermission = BoardPermissionLevel.MEMBER;
+
+    @Column(nullable = false)
+    private boolean ownerReadOnly = false;
+
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
@@ -54,5 +72,13 @@ public class Board extends BaseEntity {
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
+
+    public void blind() {
+        this.blinded = true;
     }
 }

@@ -3,6 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>게시판 목록</title>
+    <style>
+        /* Board list card/row styles */
+        .board-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.15s;
+        }
+        .board-list-item:hover {
+            background-color: #f8f9fa;
+        }
+        .board-list-left {
+            flex: 1;
+            min-width: 0;
+        }
+        .board-title-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .board-title-row a {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 400px;
+            display: inline-block;
+            font-weight: 500;
+            color: #333;
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .board-title-row a:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+        .board-meta {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .board-meta .author-link {
+            color: #555;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .board-meta .author-link:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+        .board-meta .separator {
+            color: #ccc;
+        }
+        .board-list-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+        .board-thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        .board-comment-count {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        .board-comment-count .count-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.2;
+        }
+        .board-comment-count .count-label {
+            font-size: 10px;
+            color: #aaa;
+            line-height: 1.2;
+        }
+
+    </style>
 </head>
 <section layout:fragment="content">
     <!-- 인증 상태를 JavaScript에서 사용할 수 있도록 전달 -->
@@ -12,26 +104,21 @@
             <h1 class="card-title">게시판 목록</h1>
             <a href="/boards/new" class="btn btn-primary mb-3" sec:authorize="isAuthenticated()">새 게시글 추가</a>
             <a href="/admin/boards" class="btn btn-secondary mb-3" sec:authorize="hasRole('ADMIN')">관리자 보기</a>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>번호</th>
-                        <th>제목</th>
-                        <th>작성자</th>
-                        <th>생성 시간</th>
-                    </tr>
-                    </thead>
-                    <tbody id="board-list"></tbody>
-                </table>
-            </div>
+
+            <!-- Board list container -->
+            <div id="board-list" style="border-top: 2px solid #333;"></div>
+
             <!-- 페이지네이션 UI -->
-            <nav aria-label="게시글 페이지 네비게이션">
+            <nav aria-label="게시글 페이지 네비게이션" class="mt-3">
                 <ul class="pagination justify-content-center" id="pagination"></ul>
             </nav>
         </div>
     </div>
+
+    <div th:replace="~{fragments/author-profile-modal :: author-profile-modal}"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/author-profile.js}"></script>
     <script>
         console.log("boards.html: 스크립트 로드 시작");
 
@@ -40,7 +127,6 @@
         const pageSize = 10;
         // 인증 상태 (Thymeleaf에서 전달)
         let isAuthenticated = false;
-
         document.addEventListener('DOMContentLoaded', function () {
             console.log("boards.html: DOM 로드 완료");
             // 인증 상태 확인
@@ -53,6 +139,42 @@
             currentPage = parseInt(urlParams.get('page')) || 0;
             loadBoards(currentPage);
         });
+
+        /**
+         * 날짜 포맷 함수
+         * - 오늘이면 HH:mm
+         * - 오늘이 아니면 YYYY.MM.DD
+         */
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const isToday = date.getFullYear() === now.getFullYear()
+                && date.getMonth() === now.getMonth()
+                && date.getDate() === now.getDate();
+            if (isToday) {
+                return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+            } else {
+                return date.getFullYear() + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getDate()).padStart(2, '0');
+            }
+        }
+
+        /**
+         * 24시간 이내 작성 여부 확인 (N 뱃지용)
+         */
+        function isNewPost(dateStr) {
+            const created = new Date(dateStr);
+            const now = new Date();
+            return (now.getTime() - created.getTime()) < 24 * 60 * 60 * 1000;
+        }
+
+        /**
+         * content에서 첫 번째 img 태그의 src 추출
+         */
+        function extractFirstImage(content) {
+            if (!content) return null;
+            const match = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+            return match ? match[1] : null;
+        }
 
         // 게시글 목록 조회
         function loadBoards(page) {
@@ -75,48 +197,88 @@
 
         // 게시글 목록 렌더링
         function renderBoards(boards) {
-            const tbody = document.getElementById('board-list');
-            tbody.innerHTML = '';
-            boards.forEach((board, index) => {
+            const container = document.getElementById('board-list');
+            container.innerHTML = '';
+            boards.forEach(function (board) {
                 console.log("boards.html: 게시글 렌더링, id=" + board.id);
                 if (!board.id) {
                     console.error("boards.html: 유효하지 않은 board.id", board);
                     return;
                 }
-                // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
-                const rowNumber = (currentPage * pageSize) + index + 1;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${rowNumber}</td>
-                    <td><a href="#" onclick="viewBoard(${board.id}); return false;">${board.title}</a></td>
-                    <td>${board.author}</td>
-                    <td>${new Date(board.createdDttm).toLocaleString('ko-KR')}</td>
-                `;
-                tbody.appendChild(tr);
+
+                const item = document.createElement('div');
+                item.className = 'board-list-item';
+
+                // 블라인드 처리된 게시글
+                if (board.blinded) {
+                    item.innerHTML =
+                        '<div class="board-list-left">'
+                        +   '<div class="board-title-row">'
+                        +     '<span style="color: #999;">블라인드 처리된 게시글입니다</span>'
+                        +   '</div>'
+                        +   '<div class="board-meta">'
+                        +     '<span>' + formatDate(board.createdDttm) + '</span>'
+                        +   '</div>'
+                        + '</div>';
+                    container.appendChild(item);
+                    return;
+                }
+
+                const thumbnailSrc = extractFirstImage(board.content);
+                const newBadge = isNewPost(board.createdDttm)
+                    ? '<span class="badge-new">N</span>'
+                    : '';
+                const commentCount = (board.comments && board.comments.length) || 0;
+                const viewCount = board.viewCount || 0;
+                const likeCount = board.likeCount || 0;
+
+                let rightHtml = '';
+
+                // Thumbnail
+                if (thumbnailSrc) {
+                    rightHtml += '<img class="board-thumbnail" src="' + thumbnailSrc + '" alt="썸네일" onerror="this.style.display=\'none\'" />';
+                }
+
+                // Comment count
+                rightHtml += '<div class="board-comment-count">'
+                    + '<span class="count-number">' + commentCount + '</span>'
+                    + '<span class="count-label">댓글</span>'
+                    + '</div>';
+
+                const authorHtml = board.author === '(탈퇴한 사용자)'
+                    ? '<span style="color: #999;">' + escapeHtml(board.author) + '</span>'
+                    : '<a class="author-link" href="#" onclick="showAuthorProfile(\'' + escapeHtml(board.author) + '\'); return false;">' + escapeHtml(board.author) + '</a>';
+
+                item.innerHTML =
+                    '<div class="board-list-left">'
+                    +   '<div class="board-title-row">'
+                    +     '<a href="#" onclick="viewBoard(' + board.id + '); return false;">' + escapeHtml(board.title) + '</a>'
+                    +     newBadge
+                    +   '</div>'
+                    +   '<div class="board-meta">'
+                    +     authorHtml
+                    +     '<span class="separator">|</span>'
+                    +     '<span>' + formatDate(board.createdDttm) + '</span>'
+                    +     '<span class="separator">|</span>'
+                    +     '<span>조회 ' + viewCount + '</span>'
+                    +     '<span class="separator">|</span>'
+                    +     '<span>좋아요 ' + likeCount + '</span>'
+                    +   '</div>'
+                    + '</div>'
+                    + '<div class="board-list-right">'
+                    +   rightHtml
+                    + '</div>';
+
+                container.appendChild(item);
             });
         }
 
         // 게시글 상세보기 (인증 확인 후 이동)
         async function viewBoard(boardId) {
             if (isAuthenticated) {
-                // 로그인 상태면 바로 이동
                 window.location.href = '/boards/' + boardId;
             } else {
-                // 비로그인 상태면 모달로 안내
-                const result = await UI.confirm(
-                    '게시글 상세 내용을 보려면 로그인이 필요합니다.\n로그인 페이지로 이동하시겠습니까?',
-                    '로그인 필요',
-                    {
-                        confirmText: '로그인',
-                        cancelText: '회원가입'
-                    }
-                );
-                if (result === true) {
-                    window.location.href = '/login';
-                } else if (result === false) {
-                    // 취소 버튼(회원가입)을 누른 경우
-                    window.location.href = '/users/new';
-                }
+                UI.showLoginRequired('/boards/' + boardId);
             }
         }
 
@@ -131,7 +293,7 @@
             // 이전 버튼
             const prevLi = document.createElement('li');
             prevLi.className = 'page-item' + (pageData.first ? ' disabled' : '');
-            prevLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPageNum - 1}); return false;">이전</a>`;
+            prevLi.innerHTML = '<a class="page-link" href="#" onclick="goToPage(' + (currentPageNum - 1) + '); return false;">이전</a>';
             pagination.appendChild(prevLi);
 
             // 페이지 번호 (최대 5개 표시)
@@ -144,14 +306,14 @@
             for (let i = startPage; i <= endPage; i++) {
                 const li = document.createElement('li');
                 li.className = 'page-item' + (i === currentPageNum ? ' active' : '');
-                li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i + 1}</a>`;
+                li.innerHTML = '<a class="page-link" href="#" onclick="goToPage(' + i + '); return false;">' + (i + 1) + '</a>';
                 pagination.appendChild(li);
             }
 
             // 다음 버튼
             const nextLi = document.createElement('li');
             nextLi.className = 'page-item' + (pageData.last ? ' disabled' : '');
-            nextLi.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${currentPageNum + 1}); return false;">다음</a>`;
+            nextLi.innerHTML = '<a class="page-link" href="#" onclick="goToPage(' + (currentPageNum + 1) + '); return false;">다음</a>';
             pagination.appendChild(nextLi);
         }
 
@@ -160,11 +322,11 @@
             if (page < 0) return;
             currentPage = page;
             loadBoards(page);
-            // URL 업데이트 (히스토리에 추가)
             const url = new URL(window.location);
             url.searchParams.set('page', page);
             window.history.pushState({}, '', url);
         }
+
     </script>
 </section>
 </html>

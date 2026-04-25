@@ -3,6 +3,7 @@ package com.matchhub.catconnect.domain.board.service;
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
+import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
@@ -72,6 +73,20 @@ public class BoardService {
         // 게시글 존재 확인
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+        // Entity를 DTO로 변환
+        return toResponseDTO(board);
+    }
+
+    // 게시글 상세 조회 (조회수 증가)
+    @Transactional
+    public BoardResponseDTO getBoardByIdWithViewCount(Long id) {
+        log.debug("게시글 상세 조회 요청 (조회수 증가): id={}", id);
+        // 게시글 존재 확인
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new AppException(Domain.BOARD, ErrorCode.BOARD_NOT_FOUND));
+        // 조회수 증가
+        board.incrementViewCount();
+        boardRepository.save(board);
         // Entity를 DTO로 변환
         return toResponseDTO(board);
     }
@@ -202,6 +217,19 @@ public class BoardService {
         return boardPage.map(this::toResponseDTO);
     }
 
+    // 게시글 읽기 권한 확인
+    public boolean canRead(Board board, String username, String role) {
+        if (board.isOwnerReadOnly()) {
+            return (username != null && username.equals(board.getAuthor())) || "ADMIN".equals(role);
+        }
+        switch (board.getReadPermission()) {
+            case ANYONE: return true;
+            case MEMBER: return username != null;
+            case ADMIN: return "ADMIN".equals(role);
+            default: return false;
+        }
+    }
+
     // Board → BoardResponseDTO 변환 도우미 메서드
     private BoardResponseDTO toResponseDTO(Board board) {
         BoardResponseDTO dto = new BoardResponseDTO();
@@ -211,6 +239,11 @@ public class BoardService {
         dto.setAuthor(board.getAuthor());
         dto.setCreatedDttm(board.getCreatedDttm());
         dto.setUpdatedDttm(board.getUpdatedDttm());
+        dto.setViewCount(board.getViewCount());
+        dto.setBlinded(board.isBlinded());
+        dto.setReadPermission(board.getReadPermission());
+        dto.setWritePermission(board.getWritePermission());
+        dto.setOwnerReadOnly(board.isOwnerReadOnly());
         dto.setLikeCount(board.getLikes().size());
         dto.setComments(board.getComments().stream()
                 .map(comment -> {
@@ -220,6 +253,9 @@ public class BoardService {
                     commentDTO.setAuthor(comment.getAuthor());
                     commentDTO.setCreatedDttm(comment.getCreatedDttm());
                     commentDTO.setBoardId(comment.getBoard().getId());
+                    commentDTO.setBlinded(comment.isBlinded());
+                    commentDTO.setParentId(comment.getParent() != null ? comment.getParent().getId() : null);
+                    commentDTO.setReplies(null);
                     return commentDTO;
                 })
                 .collect(Collectors.toList()));
