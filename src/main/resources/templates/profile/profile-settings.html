@@ -108,12 +108,102 @@
                                       th:text="${user.role}"></span>
                             </p>
                         </div>
+
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-primary" onclick="showPasswordVerifyModal()">정보 수정</button>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 회원 탈퇴 -->
+        <div class="mt-4 mb-4 text-end">
+            <button type="button" class="btn btn-link text-muted" style="font-size: 0.8rem;" onclick="showDeleteAccountModal()">회원 탈퇴</button>
+        </div>
+    </div>
+
+    <!-- 비밀번호 확인 모달 (1단계) -->
+    <div class="modal fade" id="passwordVerifyModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">본인 확인</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted" style="font-size: 0.85rem;">정보를 수정하려면 현재 비밀번호를 입력해주세요.</p>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="verifyPassword" placeholder="현재 비밀번호">
+                    </div>
+                    <div id="verifyPasswordError" class="text-danger" style="display: none; font-size: 0.85rem;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="verifyPasswordAndProceed()">확인</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 정보 수정 모달 (2단계) -->
+    <div class="modal fade" id="profileEditModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">정보 수정</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="profileEditError" class="alert alert-danger" style="display: none;"></div>
+                    <div class="mb-3">
+                        <label class="form-label">이메일</label>
+                        <input type="email" class="form-control" id="editEmail" placeholder="새 이메일 주소">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">전화번호</label>
+                        <input type="text" class="form-control" id="editPhone" placeholder="새 전화번호">
+                    </div>
+                    <hr>
+                    <p class="text-muted" style="font-size: 0.85rem;">비밀번호 변경 시에만 아래를 입력하세요.</p>
+                    <div class="mb-3">
+                        <label class="form-label">새 비밀번호</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="새 비밀번호 (6자 이상)">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProfile()">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회원 탈퇴 확인 모달 -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">회원 탈퇴</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger">정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+                    <p class="text-muted" style="font-size: 0.85rem;">작성하신 게시글과 댓글의 작성자명이 "(탈퇴한 사용자)"로 변경됩니다.</p>
+                    <div class="mb-3">
+                        <label class="form-label">비밀번호 확인</label>
+                        <input type="password" class="form-control" id="deletePassword" placeholder="현재 비밀번호를 입력하세요">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteAccount()">탈퇴</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script th:inline="javascript">
         /*<![CDATA[*/
         const currentProfileImageUrl = /*[[${user.profileImageUrl}]]*/ null;
@@ -197,6 +287,157 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('삭제 중 오류가 발생했습니다.');
+                });
+        }
+        // 검증된 비밀번호 저장 (1단계에서 확인 후 2단계에서 사용)
+        var verifiedPassword = null;
+
+        // 1단계: 비밀번호 확인 모달 표시
+        function showPasswordVerifyModal() {
+            document.getElementById('verifyPassword').value = '';
+            document.getElementById('verifyPasswordError').style.display = 'none';
+            new bootstrap.Modal(document.getElementById('passwordVerifyModal')).show();
+        }
+
+        // 1단계 → 2단계 전환
+        function verifyPasswordAndProceed() {
+            var password = document.getElementById('verifyPassword').value;
+            var errorEl = document.getElementById('verifyPasswordError');
+
+            if (!password) {
+                errorEl.textContent = '비밀번호를 입력해주세요.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            axios.post('/api/profile/verify-password', { password: password }, { withCredentials: true })
+                .then(function(response) {
+                    // 검증된 비밀번호 저장
+                    verifiedPassword = password;
+                    // 1단계 모달 닫기
+                    bootstrap.Modal.getInstance(document.getElementById('passwordVerifyModal')).hide();
+                    // 2단계 모달 열기 (약간의 딜레이로 애니메이션 충돌 방지)
+                    setTimeout(function() {
+                        showProfileEditModal();
+                    }, 300);
+                })
+                .catch(function(error) {
+                    errorEl.textContent = error.response?.data?.message || '비밀번호가 일치하지 않습니다.';
+                    errorEl.style.display = 'block';
+                });
+        }
+
+        // 2단계: 정보 수정 모달 표시
+        function showProfileEditModal() {
+            // 폼 초기화
+            document.getElementById('editEmail').value = '';
+            document.getElementById('editPhone').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('profileEditError').style.display = 'none';
+            document.getElementById('profileEditError').textContent = '';
+            new bootstrap.Modal(document.getElementById('profileEditModal')).show();
+        }
+
+        // 정보 수정
+        function updateProfile() {
+            const errorDiv = document.getElementById('profileEditError');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            const data = {};
+            const email = document.getElementById('editEmail').value.trim();
+            const phone = document.getElementById('editPhone').value.trim();
+            const newPw = document.getElementById('newPassword').value;
+
+            if (email) data.email = email;
+            if (phone) data.phoneNumber = phone;
+            if (newPw) {
+                if (newPw.length < 6) {
+                    errorDiv.textContent = '새 비밀번호는 6자 이상이어야 합니다.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                data.currentPassword = verifiedPassword;
+                data.newPassword = newPw;
+            }
+
+            if (Object.keys(data).length === 0) {
+                errorDiv.textContent = '변경할 항목을 입력해주세요.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            axios.put('/api/profile', data, { withCredentials: true })
+                .then(response => {
+                    // 모달 닫기
+                    const modalEl = document.getElementById('profileEditModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+
+                    // DOM 직접 업데이트
+                    if (email) {
+                        const emailElements = document.querySelectorAll('.form-control-plaintext');
+                        // 이메일은 두 번째 form-control-plaintext (사용자 이름 다음)
+                        if (emailElements.length > 1) {
+                            emailElements[1].textContent = email;
+                        }
+                    }
+                    if (phone) {
+                        const phoneElements = document.querySelectorAll('.form-control-plaintext');
+                        // 전화번호는 세 번째 form-control-plaintext
+                        if (phoneElements.length > 2) {
+                            phoneElements[2].textContent = phone;
+                        }
+                    }
+
+                    // 에러 div 초기화
+                    errorDiv.style.display = 'none';
+                    errorDiv.textContent = '';
+
+                    // 검증된 비밀번호 초기화
+                    verifiedPassword = null;
+
+                    UI.success('정보가 수정되었습니다.');
+                })
+                .catch(error => {
+                    // 모달 열린 상태 유지, 에러 표시
+                    const msg = (error.response && error.response.data && error.response.data.message)
+                        ? error.response.data.message
+                        : '정보 수정 중 오류가 발생했습니다.';
+                    errorDiv.textContent = msg;
+                    errorDiv.style.display = 'block';
+                });
+        }
+
+        // 회원 탈퇴 모달 표시
+        function showDeleteAccountModal() {
+            document.getElementById('deletePassword').value = '';
+            new bootstrap.Modal(document.getElementById('deleteAccountModal')).show();
+        }
+
+        // 회원 탈퇴 처리
+        function deleteAccount() {
+            const password = document.getElementById('deletePassword').value;
+            if (!password) {
+                UI.error('비밀번호를 입력해주세요.');
+                return;
+            }
+
+            axios.delete('/api/profile', {
+                data: { password: password },
+                withCredentials: true
+            })
+                .then(response => {
+                    UI.success('회원 탈퇴가 완료되었습니다.');
+                    setTimeout(() => {
+                        // 쿠키 삭제 후 홈으로 이동
+                        document.cookie = 'jwtToken=; Max-Age=0; path=/';
+                        document.cookie = 'refreshToken=; Max-Age=0; path=/';
+                        window.location.href = '/';
+                    }, 1500);
+                })
+                .catch(error => {
+                    UI.handleApiError(error, '회원 탈퇴 중 오류가 발생했습니다.');
                 });
         }
         /*]]>*/
