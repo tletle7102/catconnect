@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/layout}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>검색 결과</title>
 </head>
 <section layout:fragment="content">
+    <input type="hidden" id="isAuthenticated" th:value="${#authorization.expression('isAuthenticated()')}" />
     <div class="card">
         <div class="card-body">
             <h1 class="card-title">검색 결과</h1>
@@ -33,7 +34,9 @@
             <a th:href="@{/boards}" class="btn btn-secondary mt-3">게시판으로 돌아가기</a>
         </div>
     </div>
+    <div th:replace="~{fragments/author-profile-modal :: author-profile-modal}"></div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/author-profile.js}"></script>
     <script th:inline="javascript">
         console.log("search-results.html: 스크립트 로드 시작");
         // Thymeleaf로 전달된 검색 파라미터
@@ -41,14 +44,37 @@
         const type = [[${type}]];
         console.log("search-results.html: keyword=" + keyword + ", type=" + type);
 
+        // 인증 상태
+        let isAuthenticated = false;
         // 전체 검색 결과를 저장할 배열
         let allResults = [];
         // 페이지네이션 상태
         let currentPage = 0;
         const pageSize = 10;
 
+        // 게시글 상세보기 (인증 확인)
+        async function viewBoard(boardId) {
+            if (isAuthenticated) {
+                window.location.href = '/boards/' + boardId;
+            } else {
+                UI.showLoginRequired('/boards/' + boardId);
+            }
+        }
+
+        // HTML 이스케이프
+        function escapeHtmlSearch(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             console.log("search-results.html: DOM 로드 완료");
+
+            // 인증 상태 확인
+            var authEl = document.getElementById('isAuthenticated');
+            isAuthenticated = authEl && authEl.value === 'true';
 
             // 검색 파라미터 표시
             document.getElementById('keyword-display').textContent = keyword || '';
@@ -83,10 +109,10 @@
                             allResults.push({
                                 type: '게시글',
                                 id: board.id,
+                                boardId: board.id,
                                 content: board.title,
                                 author: board.author,
-                                createdDttm: board.createdDttm,
-                                link: `/boards/${board.id}`
+                                createdDttm: board.createdDttm
                             });
                         });
                     }
@@ -97,10 +123,10 @@
                             allResults.push({
                                 type: '댓글',
                                 id: comment.id,
+                                boardId: comment.boardId,
                                 content: comment.content,
                                 author: comment.author,
-                                createdDttm: comment.createdDttm,
-                                link: `/boards/${comment.boardId}`
+                                createdDttm: comment.createdDttm
                             });
                         });
                     }
@@ -133,16 +159,26 @@
                 tbody.appendChild(tr);
             } else {
                 pageResults.forEach((item, index) => {
-                    // 순번 계산: (현재 페이지 * 페이지 크기) + 인덱스 + 1
                     const rowNumber = (currentPage * pageSize) + index + 1;
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td><span class="badge ${item.type === '게시글' ? 'bg-primary' : 'bg-success'}">${item.type}</span></td>
-                        <td>${rowNumber}</td>
-                        <td><a href="${item.link}">${item.content}</a></td>
-                        <td>${item.author}</td>
-                        <td>${new Date(item.createdDttm).toLocaleString('ko-KR')}</td>
-                    `;
+
+                    // 제목/내용 클릭: viewBoard로 인증 체크
+                    var contentHtml = '<a href="#" onclick="viewBoard(' + item.boardId + '); return false;">' + escapeHtmlSearch(item.content) + '</a>';
+
+                    // 작성자 클릭: showAuthorProfile로 인증 체크 (author-profile.js가 인증 체크)
+                    var authorHtml;
+                    if (item.author === '(탈퇴한 사용자)') {
+                        authorHtml = '<span style="color: #999;">' + escapeHtmlSearch(item.author) + '</span>';
+                    } else {
+                        authorHtml = '<a href="#" onclick="showAuthorProfile(\'' + escapeHtmlSearch(item.author) + '\'); return false;" style="color: var(--primary); text-decoration: none;">' + escapeHtmlSearch(item.author) + '</a>';
+                    }
+
+                    tr.innerHTML =
+                        '<td><span class="badge ' + (item.type === '게시글' ? 'bg-primary' : 'bg-success') + '">' + item.type + '</span></td>' +
+                        '<td>' + rowNumber + '</td>' +
+                        '<td>' + contentHtml + '</td>' +
+                        '<td>' + authorHtml + '</td>' +
+                        '<td>' + new Date(item.createdDttm).toLocaleString('ko-KR') + '</td>';
                     tbody.appendChild(tr);
                 });
             }
