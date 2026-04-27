@@ -7,3 +7,19 @@ springdoc:
     path: /api-docs  # (선택) 기본은 /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html  # (선택) 기본은 /swagger-ui/index.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
