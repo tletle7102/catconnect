@@ -35,6 +35,14 @@ public class MenuController {
         return "like/admin-likes";
     }
 
+    // 관리자용 신고 관리 페이지 요청 처리
+    @GetMapping("/admin/reports")
+    public String adminListReports(Model model) {
+        log.debug("GET /admin/reports 요청, 관리자 신고 관리 뷰 렌더링");
+        model.addAttribute("currentPage", "admin-reports");
+        return "admin/admin-reports";
+    }
+
     // 사용자 목록 페이지 요청 처리 (ADMIN 전용, 삭제 기능 포함)
     @GetMapping("/users")
     public String listUsers(Model model) {
