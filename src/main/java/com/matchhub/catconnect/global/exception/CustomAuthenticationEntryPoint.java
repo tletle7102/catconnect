@@ -33,6 +33,18 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {
 
+        // 페이지 요청(text/html)인 경우 로그인 페이지로 리다이렉트
+        String acceptHeader = request.getHeader("Accept");
+        if (acceptHeader != null && acceptHeader.contains("text/html")) {
+            String redirectUrl = request.getRequestURI();
+            String queryString = request.getQueryString();
+            if (queryString != null) {
+                redirectUrl += "?" + queryString;
+            }
+            response.sendRedirect("/login?redirect=" + java.net.URLEncoder.encode(redirectUrl, "UTF-8"));
+            return;
+        }
+
         // 토큰 만료 여부 확인 (JwtAuthenticationFilter에서 설정한 attribute)
         Boolean tokenExpired = (Boolean) request.getAttribute(JwtAuthenticationFilter.TOKEN_EXPIRED_ATTRIBUTE);
 

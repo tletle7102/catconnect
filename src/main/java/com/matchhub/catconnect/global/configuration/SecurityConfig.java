@@ -77,12 +77,15 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(WHITELIST).permitAll()        // 화이트리스트는 인증없이 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN") // /admin/** 경로는 ADMIN 권한만 접근 가능
+                .requestMatchers("/api/admin/**").hasRole("ADMIN") // /api/admin/** 경로는 ADMIN 권한만 접근 가능
+                .requestMatchers("/api/reports/**").authenticated() // 신고 API는 인증 필요
                 .requestMatchers("/users").hasRole("ADMIN")    // 사용자 목록은 ADMIN 권한만 접근 가능
-                .requestMatchers("/boards/new", "/boards/**").authenticated() // 게시판 생성 및 상세는 인증 필요
-                .requestMatchers("/api/likes/**", "/api/comments/**").authenticated() // 좋아요 및 댓글은 인증 필요
+                .requestMatchers("/boards/new", "/boards/*/edit").authenticated() // 게시판 생성 및 수정은 인증 필요
+                .requestMatchers("/api/likes/**", "/api/comments/**", "/api/profile/**").authenticated() // 좋아요, 댓글, 프로필은 인증 필요
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/files/upload").authenticated() // 파일 업로드는 인증 필요
                 .requestMatchers("/api/files/admin/**").hasRole("ADMIN") // 파일 관리자 삭제는 ADMIN 권한 필요 (DELETE 전에 선언)
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/files/**").authenticated() // 일반 파일 삭제는 인증 필요
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/profile/**").permitAll() // 사용자 프로필 조회는 모두 허용
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").hasRole("ADMIN") // 사용자 조회는 ADMIN 권한만 접근 가능
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/users/**").hasRole("ADMIN") // 사용자 삭제는 ADMIN 권한만 접근 가능
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() // 회원가입은 모두 허용

@@ -56,12 +56,13 @@ public class CommentRestController {
     public ResponseEntity<Response<Void>> addComment(
             @Parameter(description = "댓글을 추가할 게시글 ID", required = true) @PathVariable Long boardId,
             @Valid @RequestBody CommentRequestDTO requestDTO,
+            @Parameter(description = "부모 댓글 ID (대댓글인 경우)") @RequestParam(required = false) Long parentId,
             Authentication authentication) {
-        log.debug("POST /api/comments/{} 요청", boardId);
+        log.debug("POST /api/comments/{} 요청, parentId={}", boardId, parentId);
         // 현재 사용자 이름 추출
         String author = authentication.getName();
         // 댓글 추가 서비스 호출
-        commentService.addComment(boardId, requestDTO, author);
+        commentService.addComment(boardId, requestDTO, author, parentId);
         return ResponseEntity.ok(Response.success(null, "댓글 추가 성공"));
     }
 

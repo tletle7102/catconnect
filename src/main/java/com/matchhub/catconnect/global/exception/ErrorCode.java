@@ -24,6 +24,10 @@ public enum ErrorCode {
     LIKE_ALREADY_EXISTS(HttpStatus.CONFLICT, "LIKE_001", "이미 좋아요를 눌렀습니다."),
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "LIKE_002", "좋아요를 찾을 수 없습니다."),
 
+    // 신고 관련 에러 (REPORT)
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT_001", "신고를 찾을 수 없습니다."),
+    REPORT_ALREADY_EXISTS(HttpStatus.CONFLICT, "REPORT_002", "이미 신고한 콘텐츠입니다."),
+
     // 파일 관련 에러 (FILE)
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "FILE_001", "파일을 찾을 수 없습니다."),
     FILE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_002", "파일 업로드에 실패했습니다."),

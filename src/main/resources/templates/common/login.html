@@ -32,6 +32,7 @@
             font-weight: 500;
             background-color: #03c75a;
             border-color: #03c75a;
+            margin: 0;
         }
         .btn-login:hover {
             background-color: #02b350;
@@ -146,8 +147,10 @@
                 .then(data => {
                     loading.hide();
                     UI.success('로그인 성공!');
+                    var urlParams = new URLSearchParams(window.location.search);
+                    var redirectUrl = urlParams.get('redirect') || '/';
                     setTimeout(() => {
-                        window.location.href = '/';
+                        window.location.href = redirectUrl;
                     }, 500);
                 })
                 .catch(error => {

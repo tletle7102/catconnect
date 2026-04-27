@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,4 +14,8 @@ public class CommentResponseDTO {
     private String author;
     private LocalDateTime createdDttm;
     private Long boardId;
+    private String boardTitle;
+    private Long parentId;
+    private boolean blinded;
+    private List<CommentResponseDTO> replies;
 }

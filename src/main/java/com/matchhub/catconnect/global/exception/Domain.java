@@ -7,7 +7,8 @@ public enum Domain {
     COMMENT("댓글"),
     LIKE("좋아요"),
     AUTH("인증"),
-    SMS("SMS");
+    SMS("SMS"),
+    REPORT("신고");
 
     private final String description;
 

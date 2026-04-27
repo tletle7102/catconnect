@@ -3,6 +3,7 @@ package com.matchhub.catconnect.domain.board.repository;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -50,4 +51,10 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             "LOWER(b.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Board> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+
+    Page<Board> findByAuthor(String author, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Board b SET b.author = :newAuthor WHERE b.author = :oldAuthor")
+    void updateAuthorByAuthor(@Param("oldAuthor") String oldAuthor, @Param("newAuthor") String newAuthor);
 }

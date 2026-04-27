@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="author-profile-modal">
+    <!-- Author Profile Modal -->
+    <div class="modal fade" id="authorProfileModal" tabindex="-1" aria-labelledby="authorProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="authorProfileModalLabel">작성자 프로필</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs" id="authorProfileTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-boards" data-bs-toggle="tab" data-bs-target="#tabPanelBoards" type="button" role="tab" aria-controls="tabPanelBoards" aria-selected="true">작성글</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-comments" data-bs-toggle="tab" data-bs-target="#tabPanelComments" type="button" role="tab" aria-controls="tabPanelComments" aria-selected="false">댓글단 글</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content author-tab-content mt-2" id="authorProfileTabContent">
+                        <div class="tab-pane fade show active" id="tabPanelBoards" role="tabpanel" aria-labelledby="tab-boards">
+                            <ul class="list-group list-group-flush" id="authorBoardsList"></ul>
+                            <div class="author-pagination" id="authorBoardsPagination"></div>
+                        </div>
+                        <div class="tab-pane fade" id="tabPanelComments" role="tabpanel" aria-labelledby="tab-comments">
+                            <ul class="list-group list-group-flush" id="authorCommentsList"></ul>
+                            <div class="author-pagination" id="authorCommentsPagination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .author-tab-content .list-group-item {
+            padding: 10px 16px;
+        }
+        .author-tab-content .list-group-item a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+        .author-tab-content .list-group-item a:hover {
+            color: #0d6efd;
+        }
+        .author-tab-content .item-meta {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .author-pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+    </style>
+</div>
+</body>
+</html>

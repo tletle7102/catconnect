@@ -29,6 +29,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         logger.debug("사용자 조회 시도: username={}", username);
         User user = findUserByUsername(username);
 
+        if (user.isDeleted()) {
+            throw new UsernameNotFoundException("탈퇴한 사용자입니다: " + username);
+        }
+
         logger.debug(
                 "사용자 조회 성공: username={}, role={}",
                 user.getUsername(),

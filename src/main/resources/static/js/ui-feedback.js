@@ -426,7 +426,18 @@ const UI = (function() {
         prompt: prompt,
         loading: loading,
         handleApiError: handleApiError,
-        checkUrlMessages: checkUrlMessages
+        checkUrlMessages: checkUrlMessages,
+        showLoginRequired: function(redirectUrl) {
+            return confirm(
+                '사용하시려면 로그인이 필요합니다.',
+                '로그인 필요',
+                { confirmText: '로그인', cancelText: '취소' }
+            ).then(function(result) {
+                if (result === true) {
+                    window.location.href = '/login' + (redirectUrl ? '?redirect=' + encodeURIComponent(redirectUrl) : '');
+                }
+            });
+        }
     };
 })();
 
