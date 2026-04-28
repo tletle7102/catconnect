@@ -6,5 +6,6 @@ package com.matchhub.catconnect.domain.file.model.enums;
 public enum FileType {
     PROFILE,  // 프로필 이미지
     BOARD,    // 게시글 첨부 이미지
+    CHAT,     // 채팅 첨부 이미지
     OTHER     // 기타
 }
