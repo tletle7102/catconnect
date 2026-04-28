@@ -20,6 +20,7 @@ services:
       - SOLAPI_API_KEY=${SOLAPI_API_KEY}
       - SOLAPI_API_SECRET=${SOLAPI_API_SECRET}
       - SOLAPI_SENDER_PHONE=${SOLAPI_SENDER_PHONE}
+      - TZ=Asia/Seoul
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

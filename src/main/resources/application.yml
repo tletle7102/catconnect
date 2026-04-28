@@ -1,6 +1,13 @@
 spring:
   profiles:
     active: ${CATCONNECT_SPRING_PROFILE_ACTIVE:local}
+  jackson:
+    time-zone: Asia/Seoul  # API 응답 직렬화
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul  # DB 저장
 
 springdoc:
   api-docs:
