@@ -8,7 +8,10 @@ public enum Domain {
     LIKE("좋아요"),
     AUTH("인증"),
     SMS("SMS"),
-    REPORT("신고");
+    REPORT("신고"),
+    CHAT("채팅"),
+    BLOCK("차단"),
+    INBOX("인박스");
 
     private final String description;
 
