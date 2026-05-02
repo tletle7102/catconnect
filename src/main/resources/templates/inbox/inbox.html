@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title>알림센터</title>
+    <link th:href="@{/css/inbox.css}" rel="stylesheet">
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="inbox-page">
+        <div class="inbox-page-header">
+            <h4>알림센터</h4>
+            <button class="btn btn-sm btn-outline-secondary" id="markAllReadBtn">모두 읽음</button>
+        </div>
+
+        <!-- 고객지원 버튼 -->
+        <div class="inbox-support-btn-wrap">
+            <a href="#" id="supportChatBtn" class="inbox-support-btn">
+                <span>고객지원 문의하기</span>
+                <span>&rarr;</span>
+            </a>
+        </div>
+
+        <!-- 필터 탭 -->
+        <div class="inbox-tabs">
+            <button class="inbox-tab active" data-type="">전체</button>
+            <button class="inbox-tab" data-type="CHAT">채팅</button>
+            <button class="inbox-tab" data-type="COMMENT">알림</button>
+        </div>
+
+        <!-- 인박스 목록 -->
+        <div class="inbox-list" id="inboxList">
+            <div class="inbox-empty" id="inboxEmpty" style="display:none;">
+                <p>알림이 없습니다</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/inbox-panel.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            InboxPanel.init(true); // fullPage mode
+        });
+    </script>
+</section>
+</body>
+</html>
