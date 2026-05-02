@@ -1,0 +1,259 @@
+/* 인박스 아이콘 + 배지 */
+.inbox-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.inbox-icon-wrapper svg {
+    transition: color 0.2s;
+}
+
+.inbox-icon-wrapper:hover svg {
+    color: #10ba8c;
+}
+
+.inbox-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #ba1a1a;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    padding: 0 4px;
+    text-align: center;
+    border: 2px solid #fff;
+    animation: badge-appear 0.2s ease-out;
+}
+
+@keyframes badge-appear {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+@keyframes badge-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.inbox-badge.pulse {
+    animation: badge-pulse 0.3s ease-out;
+}
+
+/* 인박스 드롭다운 패널 */
+.inbox-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 360px;
+    max-height: 480px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 1050;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.inbox-panel.show {
+    display: flex;
+}
+
+.inbox-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 600;
+}
+
+.inbox-support-btn-wrap {
+    padding: 8px 16px;
+}
+
+.inbox-support-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    background: #f0faf6;
+    border: 1px solid #10ba8c;
+    border-radius: 8px;
+    color: #10ba8c;
+    font-weight: 500;
+    font-size: 13px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.inbox-support-btn:hover {
+    background: #e0f5ef;
+}
+
+.inbox-tabs {
+    display: flex;
+    padding: 0 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.inbox-tab {
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.inbox-tab.active {
+    color: #10ba8c;
+    border-bottom-color: #10ba8c;
+    font-weight: 600;
+}
+
+.inbox-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.inbox-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+.inbox-item:hover {
+    background: #f8faf6;
+}
+
+.inbox-item.unread .inbox-item-title {
+    font-weight: 600;
+}
+
+.inbox-item.unread::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #10ba8c;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.inbox-item-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #10ba8c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.inbox-item-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inbox-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.inbox-item-title {
+    font-size: 13px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inbox-item-preview {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.inbox-item-meta {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.inbox-item-time {
+    font-size: 11px;
+    color: #999;
+}
+
+.inbox-item-unread-badge {
+    display: inline-block;
+    background: #10ba8c;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    line-height: 16px;
+    border-radius: 8px;
+    text-align: center;
+    padding: 0 4px;
+    margin-top: 4px;
+}
+
+.inbox-item-pin {
+    font-size: 11px;
+    color: #999;
+}
+
+.inbox-empty {
+    text-align: center;
+    padding: 40px 16px;
+    color: #999;
+}
+
+.inbox-panel-footer {
+    padding: 8px 16px;
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+}
+
+.inbox-panel-footer a {
+    font-size: 13px;
+    color: #10ba8c;
+    text-decoration: none;
+}
+
+/* 인박스 전체 페이지 (모바일) */
+.inbox-page {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.inbox-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
