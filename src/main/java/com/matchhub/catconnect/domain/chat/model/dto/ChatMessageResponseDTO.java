@@ -32,7 +32,22 @@ public class ChatMessageResponseDTO {
                 .content(message.getContent())
                 .messageType(message.getMessageType())
                 .fileId(message.getFileId())
-                .fileUrl(message.getFileId() != null ? "/api/files/download/" + message.getFileId() : null)
+                .fileUrl(null)
+                .createdAt(message.getCreatedDttm())
+                .build();
+    }
+
+    public static ChatMessageResponseDTO from(ChatMessage message, String fileUrl) {
+        return ChatMessageResponseDTO.builder()
+                .messageId(message.getId())
+                .roomId(message.getChatRoom().getId())
+                .senderId(message.getSender() != null ? message.getSender().getId() : null)
+                .senderName(message.getSender() != null ? message.getSender().getUsername() : null)
+                .senderProfileImage(message.getSender() != null ? message.getSender().getProfileImageUrl() : null)
+                .content(message.getContent())
+                .messageType(message.getMessageType())
+                .fileId(message.getFileId())
+                .fileUrl(fileUrl)
                 .createdAt(message.getCreatedDttm())
                 .build();
     }

@@ -35,4 +35,9 @@ public class ProfileController {
 
         return "profile/profile-settings";
     }
+
+    @GetMapping("/notification-settings")
+    public String notificationSettingsPage() {
+        return "profile/notification-settings";
+    }
 }

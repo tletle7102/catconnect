@@ -50,6 +50,7 @@ public class UserProfileRestController {
     @Getter
     @Setter
     public static class UserProfileResponseDTO {
+        private Long id;
         private String username;
         private String profileImageUrl;
         private LocalDateTime createdDttm;
@@ -65,6 +66,7 @@ public class UserProfileRestController {
                 .orElseThrow(() -> new AppException(Domain.USER, ErrorCode.USER_NOT_FOUND));
 
         UserProfileResponseDTO dto = new UserProfileResponseDTO();
+        dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setProfileImageUrl(user.getProfileImageUrl());
         dto.setCreatedDttm(user.getCreatedDttm());

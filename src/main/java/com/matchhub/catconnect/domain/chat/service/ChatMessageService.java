@@ -11,7 +11,10 @@ import com.matchhub.catconnect.domain.chat.model.enums.MessageType;
 import com.matchhub.catconnect.domain.chat.repository.ChatMessageRepository;
 import com.matchhub.catconnect.domain.chat.repository.ChatRoomParticipantRepository;
 import com.matchhub.catconnect.domain.chat.repository.ChatRoomRepository;
+import com.matchhub.catconnect.domain.file.model.entity.FileEntity;
+import com.matchhub.catconnect.domain.file.repository.FileRepository;
 import com.matchhub.catconnect.domain.inbox.service.InboxService;
+import com.matchhub.catconnect.domain.notification.sse.SseEmitterService;
 import com.matchhub.catconnect.domain.user.model.entity.User;
 import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.global.exception.AppException;
@@ -25,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +43,8 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final BlockService blockService;
     private final InboxService inboxService;
+    private final SseEmitterService sseEmitterService;
+    private final FileRepository fileRepository;
     private final HtmlSanitizer htmlSanitizer;
 
     @Transactional
@@ -56,9 +62,9 @@ public class ChatMessageService {
         }
 
         // 상대방 확인 및 차단/탈퇴 검증
-        var otherParticipant = participantRepository.findOtherParticipant(room.getId(), sender.getId());
-        if (otherParticipant.isPresent()) {
-            User other = otherParticipant.get().getUser();
+        var otherParticipants = participantRepository.findOtherParticipants(room.getId(), sender.getId());
+        if (!otherParticipants.isEmpty()) {
+            User other = otherParticipants.get(0).getUser();
             if (other.isDeleted()) {
                 throw new AppException(Domain.NONE, ErrorCode.INVALID_REQUEST, "탈퇴한 사용자에게 메시지를 보낼 수 없습니다.");
             }
@@ -82,13 +88,22 @@ public class ChatMessageService {
         ChatMessage message = new ChatMessage(room, sender, content, dto.getMessageType(), dto.getFileId());
         messageRepository.save(message);
 
-        // 인박스 갱신 (상대방)
-        if (otherParticipant.isPresent()) {
-            User recipient = otherParticipant.get().getUser();
+        // 파일 URL 조회 (이미지 메시지인 경우)
+        String fileUrl = resolveFileUrl(dto.getFileId());
+
+        // 인박스 갱신 + SSE 실시간 알림 (상대방)
+        if (!otherParticipants.isEmpty()) {
+            User recipient = otherParticipants.get(0).getUser();
             inboxService.createOrUpdateChatInboxItem(recipient, sender, room.getId(), previewContent);
+
+            // SSE로 상대방에게 실시간 알림 push
+            long unreadCount = inboxService.getUnreadCount(recipient.getUsername());
+            sseEmitterService.pushNotification(recipient.getId(), "chat",
+                    Map.of("type", "NEW_CHAT", "senderName", sender.getUsername(),
+                            "roomId", room.getId(), "unreadCount", unreadCount));
         }
 
-        return ChatMessageResponseDTO.from(message);
+        return ChatMessageResponseDTO.from(message, fileUrl);
     }
 
     @Transactional
@@ -127,7 +142,7 @@ public class ChatMessageService {
 
         // 역순 정렬 (오래된 것부터)
         List<ChatMessageResponseDTO> dtos = messages.stream()
-                .map(ChatMessageResponseDTO::from)
+                .map(m -> ChatMessageResponseDTO.from(m, resolveFileUrl(m.getFileId())))
                 .toList();
 
         List<ChatMessageResponseDTO> reversed = new java.util.ArrayList<>(dtos);
@@ -146,8 +161,15 @@ public class ChatMessageService {
         Long startId = Math.max(1, messageId - contextSize);
         Long endId = messageId + contextSize;
         return messageRepository.findMessagesInRange(roomId, startId, endId).stream()
-                .map(ChatMessageResponseDTO::from)
+                .map(m -> ChatMessageResponseDTO.from(m, resolveFileUrl(m.getFileId())))
                 .toList();
+    }
+
+    private String resolveFileUrl(Long fileId) {
+        if (fileId == null) return null;
+        return fileRepository.findById(fileId)
+                .map(file -> "/api/files/download/" + file.getStoredName())
+                .orElse(null);
     }
 
     private User findUserByUsername(String username) {

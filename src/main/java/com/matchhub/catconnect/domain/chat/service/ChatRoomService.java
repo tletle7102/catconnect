@@ -146,18 +146,10 @@ public class ChatRoomService {
     }
 
     private ChatRoomResponseDTO buildRoomResponse(ChatRoom room, User currentUser) {
-        var otherParticipant = participantRepository.findOtherParticipant(room.getId(), currentUser.getId());
+        var otherParticipants = participantRepository.findOtherParticipants(room.getId(), currentUser.getId());
         var latestMessages = messageRepository.findTopByRoomId(room.getId(), PageRequest.of(0, 1));
 
-        ChatRoomResponseDTO.OtherUserDTO otherUserDTO = otherParticipant.map(p -> {
-            User other = p.getUser();
-            return ChatRoomResponseDTO.OtherUserDTO.builder()
-                    .id(other.getId())
-                    .username(other.isDeleted() ? "탈퇴한 사용자" : other.getUsername())
-                    .profileImageUrl(other.getProfileImageUrl())
-                    .deleted(other.isDeleted())
-                    .build();
-        }).orElse(null);
+        ChatRoomResponseDTO.OtherUserDTO otherUserDTO = otherParticipants.isEmpty() ? null : buildOtherUserDTO(otherParticipants.get(0));
 
         String lastMessage = latestMessages.isEmpty() ? null : latestMessages.get(0).getContent();
 
@@ -172,19 +164,11 @@ public class ChatRoomService {
     }
 
     private ChatRoomResponseDTO buildRoomResponseWithUnread(ChatRoom room, User currentUser, ChatRoomParticipant myPart) {
-        var otherParticipant = participantRepository.findOtherParticipant(room.getId(), currentUser.getId());
+        var otherParticipants = participantRepository.findOtherParticipants(room.getId(), currentUser.getId());
         var latestMessages = messageRepository.findTopByRoomId(room.getId(), PageRequest.of(0, 1));
         long unreadCount = messageRepository.countUnreadMessages(room.getId(), myPart.getLastReadMessageId());
 
-        ChatRoomResponseDTO.OtherUserDTO otherUserDTO = otherParticipant.map(p -> {
-            User other = p.getUser();
-            return ChatRoomResponseDTO.OtherUserDTO.builder()
-                    .id(other.getId())
-                    .username(other.isDeleted() ? "탈퇴한 사용자" : other.getUsername())
-                    .profileImageUrl(other.getProfileImageUrl())
-                    .deleted(other.isDeleted())
-                    .build();
-        }).orElse(null);
+        ChatRoomResponseDTO.OtherUserDTO otherUserDTO = otherParticipants.isEmpty() ? null : buildOtherUserDTO(otherParticipants.get(0));
 
         String lastMessage = latestMessages.isEmpty() ? null : latestMessages.get(0).getContent();
 
@@ -195,6 +179,16 @@ public class ChatRoomService {
                 .lastMessage(lastMessage)
                 .unreadCount(unreadCount)
                 .updatedAt(room.getUpdatedDttm())
+                .build();
+    }
+
+    private ChatRoomResponseDTO.OtherUserDTO buildOtherUserDTO(ChatRoomParticipant participant) {
+        User other = participant.getUser();
+        return ChatRoomResponseDTO.OtherUserDTO.builder()
+                .id(other.getId())
+                .username(other.isDeleted() ? "탈퇴한 사용자" : other.getUsername())
+                .profileImageUrl(other.getProfileImageUrl())
+                .deleted(other.isDeleted())
                 .build();
     }
 

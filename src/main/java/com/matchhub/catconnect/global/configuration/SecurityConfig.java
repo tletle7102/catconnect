@@ -83,6 +83,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/chat/**").authenticated() // 채팅 API는 인증 필요
                 .requestMatchers("/api/blocks/**").authenticated() // 차단 API는 인증 필요
                 .requestMatchers("/api/inbox/**").authenticated() // 인박스 API는 인증 필요
+                .requestMatchers("/api/sse/**").authenticated() // SSE 알림 스트림은 인증 필요
                 .requestMatchers("/users").hasRole("ADMIN")    // 사용자 목록은 ADMIN 권한만 접근 가능
                 .requestMatchers("/boards/new", "/boards/*/edit").authenticated() // 게시판 생성 및 수정은 인증 필요
                 .requestMatchers("/api/likes/**", "/api/comments/**", "/api/profile/**").authenticated() // 좋아요, 댓글, 프로필은 인증 필요

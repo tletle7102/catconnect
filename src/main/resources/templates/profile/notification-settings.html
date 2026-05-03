@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title>알림 설정</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="container py-4" style="max-width: 520px;">
+        <div class="d-flex align-items-center mb-4">
+            <a href="/profile" class="text-decoration-none me-3" style="font-size: 20px; color: #333;">&larr;</a>
+            <h4 class="mb-0">알림 설정</h4>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <p class="text-muted mb-4" style="font-size: 13px;">
+                    각 알림 유형별로 실시간 알림 표시 여부를 설정합니다.<br>
+                    알림을 끄더라도 인박스에서는 확인할 수 있습니다.
+                </p>
+
+                <!-- 채팅 알림 -->
+                <div class="notification-setting-item">
+                    <div class="notification-setting-info">
+                        <div class="notification-setting-icon">💬</div>
+                        <div>
+                            <div class="notification-setting-title">채팅 메시지</div>
+                            <div class="notification-setting-desc">새로운 채팅 메시지가 도착하면 알림을 표시합니다</div>
+                        </div>
+                    </div>
+                    <label class="notification-toggle">
+                        <input type="checkbox" id="toggle-chat" data-type="chat">
+                        <span class="notification-toggle-slider"></span>
+                    </label>
+                </div>
+
+                <!-- 댓글 알림 (향후 확장) -->
+                <div class="notification-setting-item">
+                    <div class="notification-setting-info">
+                        <div class="notification-setting-icon">📝</div>
+                        <div>
+                            <div class="notification-setting-title">댓글</div>
+                            <div class="notification-setting-desc">내 게시글에 새 댓글이 달리면 알림을 표시합니다</div>
+                        </div>
+                    </div>
+                    <label class="notification-toggle">
+                        <input type="checkbox" id="toggle-comment" data-type="comment">
+                        <span class="notification-toggle-slider"></span>
+                    </label>
+                </div>
+
+                <!-- 좋아요 알림 (향후 확장) -->
+                <div class="notification-setting-item">
+                    <div class="notification-setting-info">
+                        <div class="notification-setting-icon">❤️</div>
+                        <div>
+                            <div class="notification-setting-title">좋아요</div>
+                            <div class="notification-setting-desc">내 게시글에 좋아요가 눌리면 알림을 표시합니다</div>
+                        </div>
+                    </div>
+                    <label class="notification-toggle">
+                        <input type="checkbox" id="toggle-like" data-type="like">
+                        <span class="notification-toggle-slider"></span>
+                    </label>
+                </div>
+
+                <!-- 공지/시스템 알림 (향후 확장) -->
+                <div class="notification-setting-item">
+                    <div class="notification-setting-info">
+                        <div class="notification-setting-icon">📢</div>
+                        <div>
+                            <div class="notification-setting-title">공지사항</div>
+                            <div class="notification-setting-desc">시스템 공지나 운영 알림을 표시합니다</div>
+                        </div>
+                    </div>
+                    <label class="notification-toggle">
+                        <input type="checkbox" id="toggle-system" data-type="system">
+                        <span class="notification-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .notification-setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .notification-setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-setting-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-setting-icon {
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8faf6;
+            border-radius: 8px;
+        }
+
+        .notification-setting-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .notification-setting-desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        /* 토글 스위치 */
+        .notification-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .notification-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .notification-toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .notification-toggle input:checked + .notification-toggle-slider {
+            background-color: #10ba8c;
+        }
+
+        .notification-toggle input:checked + .notification-toggle-slider::before {
+            transform: translateX(20px);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toggles = document.querySelectorAll('.notification-toggle input');
+
+            // 저장된 설정 로드
+            toggles.forEach(function (toggle) {
+                var type = toggle.dataset.type;
+                var enabled = NotificationSettings.isEnabled(type);
+                toggle.checked = enabled;
+            });
+
+            // 토글 변경 시 저장
+            toggles.forEach(function (toggle) {
+                toggle.addEventListener('change', function () {
+                    var type = this.dataset.type;
+                    NotificationSettings.set(type, this.checked);
+                });
+            });
+        });
+    </script>
+</section>
+</body>
+</html>
