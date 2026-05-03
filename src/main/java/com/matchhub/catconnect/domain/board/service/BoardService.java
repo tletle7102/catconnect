@@ -3,6 +3,7 @@ package com.matchhub.catconnect.domain.board.service;
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
@@ -58,11 +59,17 @@ public class BoardService {
     @Transactional(readOnly = true)
     public Page<BoardResponseDTO> getAllBoards(int page, int size) {
         log.debug("페이지네이션 게시글 조회 요청: page={}, size={}", page, size);
-        // 페이지네이션 설정 (최신 게시글부터 정렬)
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
-        // DB에서 페이지네이션 적용하여 게시글 조회
         Page<Board> boardPage = boardRepository.findAll(pageable);
-        // Entity Page를 DTO Page로 변환
+        return boardPage.map(this::toResponseDTO);
+    }
+
+    // 카테고리별 게시글 조회 (페이지네이션)
+    @Transactional(readOnly = true)
+    public Page<BoardResponseDTO> getBoardsByCategory(BoardCategory category, int page, int size) {
+        log.debug("카테고리별 게시글 조회 요청: category={}, page={}, size={}", category, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
+        Page<Board> boardPage = boardRepository.findByCategory(category, pageable);
         return boardPage.map(this::toResponseDTO);
     }
 
@@ -98,7 +105,8 @@ public class BoardService {
         // HTML 콘텐츠 XSS 방어를 위한 sanitize
         String sanitizedContent = htmlSanitizer.sanitize(requestDTO.getContent());
         // 게시글 엔티티 생성 및 저장
-        Board board = new Board(requestDTO.getTitle(), sanitizedContent, author);
+        BoardCategory category = requestDTO.getCategory() != null ? requestDTO.getCategory() : BoardCategory.FREE;
+        Board board = new Board(requestDTO.getTitle(), sanitizedContent, author, category);
         // 엔티티 유효성 검증
         Set<ConstraintViolation<Board>> violations = validator.validate(board);
         if (!violations.isEmpty()) {
@@ -237,6 +245,8 @@ public class BoardService {
         dto.setTitle(board.getTitle());
         dto.setContent(board.getContent());
         dto.setAuthor(board.getAuthor());
+        dto.setCategory(board.getCategory());
+        dto.setCategoryDisplayName(board.getCategory().getDisplayName());
         dto.setCreatedDttm(board.getCreatedDttm());
         dto.setUpdatedDttm(board.getUpdatedDttm());
         dto.setViewCount(board.getViewCount());

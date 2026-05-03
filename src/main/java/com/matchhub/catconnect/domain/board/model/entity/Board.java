@@ -1,6 +1,7 @@
 package com.matchhub.catconnect.domain.board.model.entity;
 
 import com.matchhub.catconnect.common.model.entity.BaseEntity;
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.like.model.entity.Like;
@@ -40,6 +41,10 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private String author;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BoardCategory category = BoardCategory.FREE;
+
     @Column(nullable = false)
     private int viewCount = 0;
 
@@ -67,6 +72,13 @@ public class Board extends BaseEntity {
         this.title = title;
         this.content = content;
         this.author = author;
+    }
+
+    public Board(String title, String content, String author, BoardCategory category) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
+        this.category = category;
     }
 
     public void update(String title, String content) {

@@ -101,8 +101,9 @@
     <input type="hidden" id="isAuthenticated" th:value="${#authorization.expression('isAuthenticated()')}" />
     <div class="card">
         <div class="card-body">
-            <h1 class="card-title">게시판 목록</h1>
-            <a href="/boards/new" class="btn btn-primary mb-3" sec:authorize="isAuthenticated()">새 게시글 추가</a>
+            <h1 class="card-title" th:text="${categoryDisplayName != null ? categoryDisplayName : '전체 게시글'}">게시판 목록</h1>
+            <a th:href="${currentCategory != null ? '/boards/new?category=' + currentCategory : '/boards/new'}"
+               class="btn btn-primary mb-3" sec:authorize="isAuthenticated()">새 게시글 추가</a>
             <a href="/admin/boards" class="btn btn-secondary mb-3" sec:authorize="hasRole('ADMIN')">관리자 보기</a>
 
             <!-- Board list container -->
@@ -125,17 +126,15 @@
         // 현재 페이지 상태
         let currentPage = 0;
         const pageSize = 10;
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentCategory = urlParams.get('category') || null;
         // 인증 상태 (Thymeleaf에서 전달)
         let isAuthenticated = false;
         document.addEventListener('DOMContentLoaded', function () {
             console.log("boards.html: DOM 로드 완료");
-            // 인증 상태 확인
             const authElement = document.getElementById('isAuthenticated');
             isAuthenticated = authElement && authElement.value === 'true';
-            console.log("boards.html: 인증 상태=" + isAuthenticated);
 
-            // URL에서 page 파라미터 추출
-            const urlParams = new URLSearchParams(window.location.search);
             currentPage = parseInt(urlParams.get('page')) || 0;
             loadBoards(currentPage);
         });
@@ -178,9 +177,11 @@
 
         // 게시글 목록 조회
         function loadBoards(page) {
-            console.log("boards.html: 게시글 목록 조회, page=" + page);
+            console.log("boards.html: 게시글 목록 조회, page=" + page + ", category=" + currentCategory);
+            var params = { page: page, size: pageSize };
+            if (currentCategory) params.category = currentCategory;
             axios.get('/api/boards', {
-                params: { page: page, size: pageSize },
+                params: params,
                 withCredentials: true
             })
                 .then(response => {
@@ -324,6 +325,7 @@
             loadBoards(page);
             const url = new URL(window.location);
             url.searchParams.set('page', page);
+            if (currentCategory) url.searchParams.set('category', currentCategory);
             window.history.pushState({}, '', url);
         }
 

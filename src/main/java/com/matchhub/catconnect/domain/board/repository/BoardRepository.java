@@ -1,6 +1,7 @@
 package com.matchhub.catconnect.domain.board.repository;
 
 import com.matchhub.catconnect.domain.board.model.entity.Board;
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -53,6 +54,16 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     Page<Board> findByAuthor(String author, Pageable pageable);
+
+    Page<Board> findByCategory(BoardCategory category, Pageable pageable);
+
+    @Query("SELECT b FROM Board b WHERE b.category = :category AND " +
+            "(LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(b.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Board> searchByCategoryAndKeyword(@Param("category") BoardCategory category,
+                                           @Param("keyword") String keyword,
+                                           Pageable pageable);
 
     @Modifying
     @Query("UPDATE Board b SET b.author = :newAuthor WHERE b.author = :oldAuthor")

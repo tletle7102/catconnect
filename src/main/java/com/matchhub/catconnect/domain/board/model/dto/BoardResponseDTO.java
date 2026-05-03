@@ -1,5 +1,6 @@
 package com.matchhub.catconnect.domain.board.model.dto;
 
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
@@ -18,6 +19,8 @@ public class BoardResponseDTO {
     private String author;
     private LocalDateTime createdDttm;
     private LocalDateTime updatedDttm;
+    private BoardCategory category;
+    private String categoryDisplayName;
     private int viewCount;
     private int likeCount;
     private boolean blinded;
