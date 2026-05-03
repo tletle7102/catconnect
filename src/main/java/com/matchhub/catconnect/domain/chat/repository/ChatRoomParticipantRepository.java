@@ -25,6 +25,6 @@ public interface ChatRoomParticipantRepository extends JpaRepository<ChatRoomPar
     @Query("SELECT p FROM ChatRoomParticipant p " +
             "JOIN FETCH p.user " +
             "WHERE p.chatRoom.id = :roomId AND p.user.id != :userId AND p.leftAt IS NULL")
-    Optional<ChatRoomParticipant> findOtherParticipant(@Param("roomId") Long roomId,
-                                                       @Param("userId") Long userId);
+    List<ChatRoomParticipant> findOtherParticipants(@Param("roomId") Long roomId,
+                                                    @Param("userId") Long userId);
 }

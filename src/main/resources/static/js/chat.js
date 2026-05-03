@@ -105,6 +105,11 @@
     }
 
     function connectWebSocket() {
+        // 중복 연결 방지
+        if (stompClient && stompClient.connected) {
+            return;
+        }
+
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         stompClient.debug = null; // 디버그 로그 끄기
@@ -127,6 +132,7 @@
                 }
             });
         }, function () {
+            stompClient = null;
             // 연결 실패 시 3초 후 재연결
             setTimeout(connectWebSocket, 3000);
         });
@@ -148,10 +154,13 @@
         }
     }
 
+    var isSending = false;
+
     function sendMessage() {
         var content = inputEl.value.trim();
-        if (!content || !stompClient || !stompClient.connected) return;
+        if (!content || !stompClient || !stompClient.connected || isSending) return;
 
+        isSending = true;
         stompClient.send('/app/chat/send', {}, JSON.stringify({
             roomId: parseInt(roomId),
             content: content,
@@ -160,6 +169,7 @@
         }));
 
         inputEl.value = '';
+        setTimeout(function () { isSending = false; }, 300);
     }
 
     function sendImageMessage(fileId) {
