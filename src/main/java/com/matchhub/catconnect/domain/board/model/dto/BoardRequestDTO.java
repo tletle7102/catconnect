@@ -1,5 +1,6 @@
 package com.matchhub.catconnect.domain.board.model.dto;
 
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -14,4 +15,6 @@ public class BoardRequestDTO {
 
     @NotBlank(message = "내용은 필수입니다.")
     private String content;
+
+    private BoardCategory category = BoardCategory.FREE;
 }

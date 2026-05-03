@@ -2,6 +2,7 @@ package com.matchhub.catconnect.domain.board.controller;
 
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import com.matchhub.catconnect.domain.board.service.BoardService;
 import com.matchhub.catconnect.domain.report.service.ReportService;
 import com.matchhub.catconnect.global.exception.Response;
@@ -39,14 +40,20 @@ public class BoardRestController {
         this.reportService = reportService;
     }
 
-    // 게시글 전체 조회 (페이지네이션)
-    @Operation(summary = "전체 게시글 조회", description = "모든 게시글 목록을 페이지네이션하여 조회합니다.")
+    // 게시글 조회 (페이지네이션, 카테고리 필터 지원)
+    @Operation(summary = "게시글 조회", description = "게시글 목록을 페이지네이션하여 조회합니다. category 파라미터로 필터링 가능.")
     @GetMapping
-    public ResponseEntity<Response<Page<BoardResponseDTO>>> getAllBoards(
+    public ResponseEntity<Response<Page<BoardResponseDTO>>> getBoards(
+            @Parameter(description = "게시판 카테고리") @RequestParam(required = false) BoardCategory category,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
-        log.debug("GET /api/boards 요청: page={}, size={}", page, size);
-        Page<BoardResponseDTO> boards = boardService.getAllBoards(page, size);
+        log.debug("GET /api/boards 요청: category={}, page={}, size={}", category, page, size);
+        Page<BoardResponseDTO> boards;
+        if (category != null) {
+            boards = boardService.getBoardsByCategory(category, page, size);
+        } else {
+            boards = boardService.getAllBoards(page, size);
+        }
         return ResponseEntity.ok(Response.success(boards, "게시글 목록 조회 성공"));
     }
 

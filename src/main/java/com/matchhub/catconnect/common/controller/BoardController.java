@@ -1,11 +1,13 @@
 package com.matchhub.catconnect.common.controller;
 
+import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 // HTTP 요청을 받아 해당하는 View 반환
 @Controller // 이 클래스가 Spring MVC의 HTML 뷰를 반환하는 컨트롤러임을 스프링에게 알려주는 어노테이션
@@ -14,11 +16,21 @@ public class BoardController {
     private static final Logger log = LoggerFactory.getLogger(BoardController.class);
 
     // 게시글 목록 페이지 요청 처리
-    @GetMapping("/boards") // HTTP GET 방식으로 "/boards" URL에 접근했을 때 이 메서드 실행
-    public String listBoards(Model model) {
-        log.debug("GET /boards 요청, 게시글 목록 뷰 렌더링");
-        model.addAttribute("currentPage", "boards"); // 현재 페이지 정보를 모델에 담아 View에 전달
-        return "board/boards"; // 렌더링할 대상 html 뷰(templates/board/boards.html)
+    @GetMapping("/boards")
+    public String listBoards(@RequestParam(required = false) String category, Model model) {
+        log.debug("GET /boards 요청: category={}", category);
+        model.addAttribute("currentPage", "boards");
+        model.addAttribute("currentCategory", category);
+        if (category != null) {
+            try {
+                BoardCategory boardCategory = BoardCategory.valueOf(category);
+                model.addAttribute("categoryDisplayName", boardCategory.getDisplayName());
+            } catch (IllegalArgumentException e) {
+                // 잘못된 카테고리는 무시
+            }
+        }
+        model.addAttribute("categories", BoardCategory.values());
+        return "board/boards";
     }
 
     // 특정 게시글 상세 페이지 요청 처리
@@ -35,10 +47,12 @@ public class BoardController {
 
     // 게시글 생성 폼 페이지 요청 처리
     @GetMapping("/boards/new")
-    public String newBoardForm(Model model) {
-        log.debug("GET /boards/new 요청, 게시글 생성 폼 뷰 렌더링");
-        model.addAttribute("currentPage", "boards"); // 현재 페이지 정보 전달
-        return "board/board-form"; // 게시글 작성 폼 뷰 (templates/board/board-form.html)
+    public String newBoardForm(@RequestParam(required = false) String category, Model model) {
+        log.debug("GET /boards/new 요청: category={}", category);
+        model.addAttribute("currentPage", "boards");
+        model.addAttribute("currentCategory", category);
+        model.addAttribute("categories", BoardCategory.values());
+        return "board/board-form";
     }
 
     // 게시글 수정 폼 페이지 요청 처리

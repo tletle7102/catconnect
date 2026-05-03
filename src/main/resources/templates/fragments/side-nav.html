@@ -4,12 +4,104 @@
   <meta charset="UTF-8">
 </head>
 <body>
-<div th:fragment="side-nav" class="list-group" style="padding: 1rem; background-color: #edeeea; border-radius: 8px;">
-  <a href="/users" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'users' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">사용자</a>
-  <a href="/boards" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'boards' ? 'active' : ''}">게시판</a>
-  <a href="/admin/comments" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-comments' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">댓글</a>
-  <a href="/admin/likes" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-likes' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">좋아요</a>
-  <a href="/admin/reports" class="list-group-item list-group-item-action" th:classappend="${currentPage == 'admin-reports' ? 'active' : ''}" sec:authorize="hasRole('ADMIN')">신고 관리</a>
+<div th:fragment="side-nav" class="side-nav-container" style="border-radius: 10px;">
+
+  <!-- 게시판 카테고리 -->
+  <div class="side-nav-group">
+    <div class="side-nav-group-title">📢 운영</div>
+    <a href="/boards?category=NOTICE" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'NOTICE' ? 'active' : ''}">공지사항</a>
+    <a href="/boards?category=GREETING" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'GREETING' ? 'active' : ''}">가입인사</a>
+  </div>
+
+  <div class="side-nav-group">
+    <div class="side-nav-group-title">💬 소통</div>
+    <a href="/boards?category=CAT_SHOW" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'CAT_SHOW' ? 'active' : ''}">고양이 자랑</a>
+    <a href="/boards?category=FREE" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'FREE' ? 'active' : ''}">자유게시판</a>
+    <a href="/boards?category=STRAY_CAT" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'STRAY_CAT' ? 'active' : ''}">길고양이 이야기</a>
+  </div>
+
+  <div class="side-nav-group">
+    <div class="side-nav-group-title">📚 정보</div>
+    <a href="/boards?category=QNA" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'QNA' ? 'active' : ''}">질문과 답변</a>
+    <a href="/boards?category=HEALTH" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'HEALTH' ? 'active' : ''}">건강·의료 정보</a>
+    <a href="/boards?category=REVIEW" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'REVIEW' ? 'active' : ''}">용품 후기</a>
+  </div>
+
+  <div class="side-nav-group">
+    <div class="side-nav-group-title">🐱 나눔</div>
+    <a href="/boards?category=RESCUE" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'RESCUE' ? 'active' : ''}">임시보호·구조</a>
+    <a href="/boards?category=FREE_SHARE" class="list-group-item list-group-item-action"
+       th:classappend="${currentCategory == 'FREE_SHARE' ? 'active' : ''}">무료나눔</a>
+  </div>
+
+  <!-- 관리자 메뉴 -->
+  <div class="side-nav-group" sec:authorize="hasRole('ADMIN')">
+    <div class="side-nav-group-title">⚙️ 관리</div>
+    <a href="/users" class="list-group-item list-group-item-action"
+       th:classappend="${currentPage == 'users' ? 'active' : ''}">사용자</a>
+    <a href="/admin/comments" class="list-group-item list-group-item-action"
+       th:classappend="${currentPage == 'admin-comments' ? 'active' : ''}">댓글</a>
+    <a href="/admin/likes" class="list-group-item list-group-item-action"
+       th:classappend="${currentPage == 'admin-likes' ? 'active' : ''}">좋아요</a>
+    <a href="/admin/reports" class="list-group-item list-group-item-action"
+       th:classappend="${currentPage == 'admin-reports' ? 'active' : ''}">신고 관리</a>
+  </div>
+
+  <style>
+    .side-nav-container {
+      background: #ffffff !important;
+      border: 1px solid #e8e8e8;
+      padding: 20px 16px !important;
+    }
+    .side-nav-group {
+      margin-bottom: 20px;
+    }
+    .side-nav-group:last-child {
+      margin-bottom: 0;
+    }
+    .side-nav-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #999;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 0 14px 6px;
+      margin-bottom: 4px;
+    }
+    .side-nav-container .list-group-item {
+      font-size: 14.5px;
+      font-weight: 500;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: #444;
+      border-radius: 6px;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
+      margin-bottom: 1px;
+    }
+    .side-nav-container .list-group-item:hover {
+      background: #f4faf8;
+      color: #10ba8c;
+      border-left-color: #10ba8c;
+    }
+    .side-nav-container .list-group-item.active {
+      background: linear-gradient(135deg, #10ba8c 0%, #0ea87d 100%);
+      color: #fff;
+      border-left-color: transparent;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(16, 186, 140, 0.25);
+    }
+  </style>
 </div>
 </body>
 </html>
