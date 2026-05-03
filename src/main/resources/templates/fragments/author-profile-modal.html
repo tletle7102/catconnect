@@ -11,6 +11,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- 액션 버튼 -->
+                    <div class="d-flex gap-2 mb-3" id="authorProfileActions">
+                        <button class="btn btn-sm btn-outline-success" id="btnStartChat" onclick="startChatWithAuthor()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                <path d="M2.678 11.894a1 1 0 0 1 .287.801 11 11 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8 8 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894"/>
+                            </svg>채팅하기
+                        </button>
+                    </div>
                     <!-- Tabs -->
                     <ul class="nav nav-tabs" id="authorProfileTabs" role="tablist">
                         <li class="nav-item" role="presentation">

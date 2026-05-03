@@ -1,4 +1,5 @@
 var currentProfileUsername = null;
+var currentProfileUserId = null;
 
 // 탭 이벤트 리스너 바인딩 (DOMContentLoaded 후)
 document.addEventListener('DOMContentLoaded', function () {
@@ -64,7 +65,19 @@ function showAuthorProfile(username) {
     }
 
     currentProfileUsername = username;
+    currentProfileUserId = null;
     var modal = new bootstrap.Modal(document.getElementById('authorProfileModal'));
+
+    // 채팅 버튼 표시/숨김 (본인이면 숨김)
+    var chatBtn = document.getElementById('btnStartChat');
+    var actionsEl = document.getElementById('authorProfileActions');
+    if (chatBtn && actionsEl) {
+        if (typeof currentUsername !== 'undefined' && currentUsername === username) {
+            actionsEl.style.display = 'none';
+        } else {
+            actionsEl.style.display = 'flex';
+        }
+    }
 
     // Reset content
     document.getElementById('authorProfileModalLabel').textContent = username;
@@ -88,6 +101,7 @@ function showAuthorProfile(username) {
         .then(function (response) {
             var profile = response.data.data || response.data;
             document.getElementById('authorProfileModalLabel').textContent = profile.username || username;
+            currentProfileUserId = profile.id || null;
         })
         .catch(function (error) {
             console.error("프로필 조회 실패", error);
@@ -248,4 +262,31 @@ function renderAuthorPagination(container, pageData, onPageClick) {
 
     nav.appendChild(ul);
     container.appendChild(nav);
+}
+
+/**
+ * 프로필 모달에서 채팅하기 버튼 클릭 시
+ */
+function startChatWithAuthor() {
+    if (!currentProfileUserId) {
+        if (typeof UI !== 'undefined') UI.error('사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+        return;
+    }
+
+    axios.post('/api/chat/rooms', {
+        targetUserId: currentProfileUserId,
+        roomType: 'DIRECT'
+    }, { withCredentials: true })
+        .then(function (res) {
+            var room = res.data.data;
+            // 모달 닫기
+            var modal = bootstrap.Modal.getInstance(document.getElementById('authorProfileModal'));
+            if (modal) modal.hide();
+            // 채팅방으로 이동
+            window.location.href = '/chat/' + room.roomId;
+        })
+        .catch(function (err) {
+            var msg = (err.response && err.response.data && err.response.data.message) || '채팅방 생성에 실패했습니다.';
+            if (typeof UI !== 'undefined') UI.error(msg);
+        });
 }

@@ -51,6 +51,12 @@ public enum ErrorCode {
     SMS_CODE_INVALID(HttpStatus.BAD_REQUEST, "SMS_004", "인증번호가 일치하지 않습니다."),
     SMS_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "SMS_005", "휴대폰 인증이 완료되지 않았습니다."),
 
+    // 채팅 관련 에러 (CHAT)
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT_001", "채팅방을 찾을 수 없습니다."),
+    CHAT_NOT_PARTICIPANT(HttpStatus.FORBIDDEN, "CHAT_002", "채팅방 참여자가 아닙니다."),
+    CHAT_CANNOT_SEND(HttpStatus.BAD_REQUEST, "CHAT_003", "메시지를 보낼 수 없습니다."),
+    CHAT_BLOCKED(HttpStatus.BAD_REQUEST, "CHAT_004", "대화할 수 없는 사용자입니다."),
+
     // 일반 에러
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GLOBAL_001", "서버 내부 오류가 발생했습니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "GLOBAL_002", "잘못된 요청입니다.");

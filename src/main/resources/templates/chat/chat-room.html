@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <title>채팅</title>
+    <link th:href="@{/css/chat.css}" rel="stylesheet">
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="chat-container" id="chatContainer">
+        <!-- 채팅 헤더 -->
+        <div class="chat-header">
+            <a href="/inbox" class="chat-back-btn">&larr;</a>
+            <span class="chat-partner-name" id="chatPartnerName">로딩 중...</span>
+            <div class="chat-header-actions">
+                <button class="btn btn-sm btn-outline-secondary" id="chatMenuBtn" title="더보기">&#8942;</button>
+            </div>
+        </div>
+
+        <!-- 메시지 영역 -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-loading" id="chatLoading" style="display:none;">
+                <span>이전 메시지 로딩 중...</span>
+            </div>
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="chat-input-area">
+            <label for="chatFileInput" class="chat-attach-btn" title="이미지 첨부">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/>
+                </svg>
+            </label>
+            <input type="file" id="chatFileInput" accept="image/*" style="display:none;">
+            <input type="text" id="chatMessageInput" class="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+            <button id="chatSendBtn" class="chat-send-btn" title="전송">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 더보기 메뉴 (드롭다운) -->
+        <div class="chat-dropdown-menu" id="chatDropdownMenu" style="display:none;">
+            <button class="chat-dropdown-item" id="btnReportUser">신고하기</button>
+            <button class="chat-dropdown-item" id="btnBlockUser">차단하기</button>
+            <button class="chat-dropdown-item chat-dropdown-danger" id="btnLeaveRoom">나가기</button>
+        </div>
+    </div>
+
+    <input type="hidden" id="roomId" th:value="${roomId}">
+    <input type="hidden" id="currentUsername" th:value="${currentUser != null ? currentUser.username : ''}">
+    <input type="hidden" id="currentUserId" th:value="${currentUser != null ? currentUser.id : ''}">
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script th:src="@{/js/chat.js}"></script>
+</section>
+</body>
+</html>
