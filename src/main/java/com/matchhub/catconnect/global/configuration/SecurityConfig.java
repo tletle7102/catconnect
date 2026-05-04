@@ -46,7 +46,10 @@ public class SecurityConfig {
             "/api/auth/**",    // 인증 REST API ((로그인/로그아웃/인증상태확인/이메일인증)
             "/api/sms/**",     // SMS 인증 REST API
             "/favicon.ico",    // favicon
-            "/ws/**"           // WebSocket 엔드포인트
+            "/ws/**",          // WebSocket 엔드포인트
+            "/api/site-settings/**", // 사이트 설정 공개 조회
+            "/api/board-categories",  // 게시판 카테고리 공개 조회
+            "/api/board-permissions/readable" // 게시판 권한 공개 조회
     };
 
     // 생성자에서 의존성 주입
@@ -79,11 +82,13 @@ public class SecurityConfig {
                 .requestMatchers(WHITELIST).permitAll()        // 화이트리스트는 인증없이 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN") // /admin/** 경로는 ADMIN 권한만 접근 가능
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") // /api/admin/** 경로는 ADMIN 권한만 접근 가능
+                .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN") // 매니저+관리자
                 .requestMatchers("/api/reports/**").authenticated() // 신고 API는 인증 필요
                 .requestMatchers("/api/chat/**").authenticated() // 채팅 API는 인증 필요
                 .requestMatchers("/api/blocks/**").authenticated() // 차단 API는 인증 필요
                 .requestMatchers("/api/inbox/**").authenticated() // 인박스 API는 인증 필요
                 .requestMatchers("/api/sse/**").authenticated() // SSE 알림 스트림은 인증 필요
+                .requestMatchers("/api/me/**").authenticated() // 내 정보 API는 인증 필요
                 .requestMatchers("/users").hasRole("ADMIN")    // 사용자 목록은 ADMIN 권한만 접근 가능
                 .requestMatchers("/boards/new", "/boards/*/edit").authenticated() // 게시판 생성 및 수정은 인증 필요
                 .requestMatchers("/api/likes/**", "/api/comments/**", "/api/profile/**").authenticated() // 좋아요, 댓글, 프로필은 인증 필요
