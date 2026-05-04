@@ -63,6 +63,9 @@ file:
   upload-dir: ${user.home}/catconnect-uploads
   max-size: 10MB
 
+app.hero:
+  image-dir: ${file.upload-dir}/hero-images
+
 spring.servlet.multipart:
   enabled: true
   max-file-size: 10MB
