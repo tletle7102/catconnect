@@ -29,6 +29,9 @@ public class LoginResponseDTO {
 	@Schema(description = "Refresh Token (JWT)", nullable = true)
 	private String refreshToken;
 
+	@Schema(description = "프로필 이미지 URL", nullable = true)
+	private String profileImageUrl;
+
 	@Schema(description = "인증 여부", example = "true")
 	private boolean authenticated;
 
@@ -110,6 +113,14 @@ public class LoginResponseDTO {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public String getProfileImageUrl() {
+		return profileImageUrl;
+	}
+
+	public void setProfileImageUrl(String profileImageUrl) {
+		this.profileImageUrl = profileImageUrl;
 	}
 
 	public boolean isAuthenticated() {
