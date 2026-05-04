@@ -78,11 +78,35 @@ public class User extends BaseEntity {
     @Column
     private LocalDateTime deletedAt;
 
+    @Column
+    private LocalDateTime suspendedUntil;
+
+    @Column(length = 200)
+    private String suspensionReason;
+
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
     }
 
     public boolean isDeleted() {
         return this.deletedAt != null;
+    }
+
+    public void suspend(LocalDateTime until, String reason) {
+        this.suspendedUntil = until;
+        this.suspensionReason = reason;
+    }
+
+    public void unsuspend() {
+        this.suspendedUntil = null;
+        this.suspensionReason = null;
+    }
+
+    public boolean isSuspended() {
+        return this.suspendedUntil != null && LocalDateTime.now().isBefore(this.suspendedUntil);
+    }
+
+    public void changeRole(Role role) {
+        this.role = role;
     }
 }
