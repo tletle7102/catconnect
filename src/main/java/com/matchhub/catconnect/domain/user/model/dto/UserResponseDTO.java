@@ -15,4 +15,8 @@ public class UserResponseDTO {
     private String profileImageUrl;
     private String role;
     private LocalDateTime createdDttm;
+    private LocalDateTime suspendedUntil;
+    private String suspensionReason;
+    private boolean suspended;
+    private boolean deleted;
 }
