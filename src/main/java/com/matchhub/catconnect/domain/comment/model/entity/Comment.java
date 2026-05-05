@@ -66,4 +66,8 @@ public class Comment extends BaseEntity {
     public void blind() {
         this.blinded = true;
     }
+
+    public void setBlinded(boolean blinded) {
+        this.blinded = blinded;
+    }
 }
