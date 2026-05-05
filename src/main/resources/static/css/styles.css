@@ -1,3 +1,7 @@
+.font-jua {
+    font-family: 'Jua', sans-serif;
+}
+
 :root {
     --max-width: 85vw;
     --primary: #006c4f;
