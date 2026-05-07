@@ -1,13 +1,13 @@
-package com.matchhub.catconnect.domain.auth.service;
+package com.matchhub.nyangvil.domain.auth.service;
 
-import com.matchhub.catconnect.domain.auth.model.entity.RefreshToken;
-import com.matchhub.catconnect.domain.auth.repository.RefreshTokenRepository;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
-import com.matchhub.catconnect.global.util.auth.JwtProvider;
+import com.matchhub.nyangvil.domain.auth.model.entity.RefreshToken;
+import com.matchhub.nyangvil.domain.auth.repository.RefreshTokenRepository;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
+import com.matchhub.nyangvil.global.util.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

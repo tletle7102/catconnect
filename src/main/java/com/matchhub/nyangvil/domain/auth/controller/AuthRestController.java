@@ -1,17 +1,17 @@
-package com.matchhub.catconnect.domain.auth.controller;
+package com.matchhub.nyangvil.domain.auth.controller;
 
-import com.matchhub.catconnect.domain.auth.model.dto.LoginRequestDTO;
-import com.matchhub.catconnect.domain.auth.model.dto.LoginResponseDTO;
-import com.matchhub.catconnect.domain.auth.model.dto.TokenRefreshRequestDTO;
-import com.matchhub.catconnect.domain.auth.model.dto.TokenRefreshResponseDTO;
-import com.matchhub.catconnect.domain.auth.model.entity.RefreshToken;
-import com.matchhub.catconnect.domain.auth.service.AuthService;
-import com.matchhub.catconnect.domain.auth.service.RefreshTokenService;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
-import com.matchhub.catconnect.global.exception.Response;
-import com.matchhub.catconnect.global.util.auth.JwtProvider;
+import com.matchhub.nyangvil.domain.auth.model.dto.LoginRequestDTO;
+import com.matchhub.nyangvil.domain.auth.model.dto.LoginResponseDTO;
+import com.matchhub.nyangvil.domain.auth.model.dto.TokenRefreshRequestDTO;
+import com.matchhub.nyangvil.domain.auth.model.dto.TokenRefreshResponseDTO;
+import com.matchhub.nyangvil.domain.auth.model.entity.RefreshToken;
+import com.matchhub.nyangvil.domain.auth.service.AuthService;
+import com.matchhub.nyangvil.domain.auth.service.RefreshTokenService;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
+import com.matchhub.nyangvil.global.exception.Response;
+import com.matchhub.nyangvil.global.util.auth.JwtProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
 
 /**
  * 인증 관련 REST API 컨트롤러

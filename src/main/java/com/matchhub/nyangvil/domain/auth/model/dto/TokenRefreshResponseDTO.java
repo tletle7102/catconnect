@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.auth.model.dto;
+package com.matchhub.nyangvil.domain.auth.model.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

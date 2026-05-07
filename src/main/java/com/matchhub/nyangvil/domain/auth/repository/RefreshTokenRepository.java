@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.auth.repository;
+package com.matchhub.nyangvil.domain.auth.repository;
 
-import com.matchhub.catconnect.domain.auth.model.entity.RefreshToken;
-import com.matchhub.catconnect.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.auth.model.entity.RefreshToken;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
