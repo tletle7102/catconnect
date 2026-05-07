@@ -125,7 +125,7 @@ export default function BoardDetailPage() {
 
   const deleteBoardMutation = useMutation({
     mutationFn: () => boardsApi.deleteBoard(Number(id)),
-    onSuccess: () => { toast.show('삭제되었습니다.'); navigate('/app/boards'); },
+    onSuccess: () => { toast.show('삭제되었습니다.'); navigate('/boards'); },
   });
 
   const reportMutation = useMutation({
@@ -260,7 +260,7 @@ export default function BoardDetailPage() {
             )}
             {isAuthor && (
               <>
-                <Button startIcon={<Edit />} onClick={() => navigate(`/app/boards/${id}/edit`)}>수정</Button>
+                <Button startIcon={<Edit />} onClick={() => navigate(`/boards/${id}/edit`)}>수정</Button>
                 <Button startIcon={<Delete />} color="error" onClick={() => deleteBoardMutation.mutate()}>삭제</Button>
               </>
             )}

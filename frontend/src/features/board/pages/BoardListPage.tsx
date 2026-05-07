@@ -88,7 +88,7 @@ export default function BoardListPage() {
         {isAuthenticated && category && canWrite && (
           <Button
             variant="contained"
-            onClick={() => navigate(`/app/boards/new?category=${category}`)}
+            onClick={() => navigate(`/boards/new?category=${category}`)}
           >
             새 게시글
           </Button>
@@ -118,7 +118,7 @@ export default function BoardListPage() {
                   cursor: 'pointer',
                   '&:hover': { bgcolor: '#f8f9fa' },
                 }}
-                onClick={() => navigate(`/app/boards/${board.id}`)}
+                onClick={() => navigate(`/boards/${board.id}`)}
               >
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   {board.blinded ? (
@@ -129,7 +129,7 @@ export default function BoardListPage() {
                         {!category && board.categoryDisplayName && (
                           <Typography
                             component="span"
-                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(`/app/boards?category=${board.category}`); }}
+                            onClick={(e: React.MouseEvent) => { e.stopPropagation(); navigate(`/boards?category=${board.category}`); }}
                             sx={{ fontSize: '0.75rem', color: '#999', cursor: 'pointer', flexShrink: 0, '&:hover': { color: '#10ba8c' } }}
                           >
                             [{board.categoryDisplayName}]

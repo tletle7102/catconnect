@@ -14,7 +14,7 @@ export default function AdminRoute() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/app/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (user?.role !== 'ADMIN') {

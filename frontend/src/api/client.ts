@@ -19,7 +19,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         // Refresh 실패 시 로그인 페이지로 리다이렉트
-        window.location.href = '/app/login';
+        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }

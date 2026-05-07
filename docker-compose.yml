@@ -1,7 +1,7 @@
 services:
-  catconnect:
+  catconnect-backend:
     build: .
-    image: catconnect
+    image: catconnect-backend
     container_name: catconnect-container
     restart: unless-stopped
     ports:
@@ -27,16 +27,43 @@ services:
       - infra-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.catconnect.rule=Host(`catconnect.matchhub.co.kr`)"
-      - "traefik.http.routers.catconnect.entrypoints=websecure"
-      - "traefik.http.routers.catconnect.tls.certresolver=letsencrypt"
-      - "traefik.http.services.catconnect.loadbalancer.server.port=${CATCONNECT_TOMCAT_PORT:-8099}"
+      - "traefik.http.routers.catconnect-backend.rule=Host(`catconnect.matchhub.co.kr`) && (PathPrefix(`/api`) || PathPrefix(`/ws`) || PathPrefix(`/uploads`) || PathPrefix(`/actuator`))"
+      - "traefik.http.routers.catconnect-backend.entrypoints=websecure"
+      - "traefik.http.routers.catconnect-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.catconnect-backend.priority=100"
+      - "traefik.http.services.catconnect-backend.loadbalancer.server.port=${CATCONNECT_TOMCAT_PORT:-8099}"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:${CATCONNECT_TOMCAT_PORT:-8099}/actuator/health/liveness"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 180s
+
+  catconnect-frontend:
+    build: ./frontend
+    image: catconnect-frontend
+    container_name: catconnect-frontend
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Seoul
+    networks:
+      - infra-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.catconnect-frontend.rule=Host(`catconnect.matchhub.co.kr`)"
+      - "traefik.http.routers.catconnect-frontend.entrypoints=websecure"
+      - "traefik.http.routers.catconnect-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.catconnect-frontend.priority=10"
+      - "traefik.http.services.catconnect-frontend.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      catconnect-backend:
+        condition: service_healthy
 
 networks:
   infra-net:

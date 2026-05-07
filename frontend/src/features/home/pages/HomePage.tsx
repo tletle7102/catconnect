@@ -178,7 +178,7 @@ export default function HomePage() {
       <Card sx={{ mb: 3 }}>
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           <Box sx={{ px: 3, pt: 3, pb: 1 }}>
-            <SectionHeader title="최근 게시글" linkText="전체보기" onLinkClick={() => navigate('/app/boards')} />
+            <SectionHeader title="최근 게시글" linkText="전체보기" onLinkClick={() => navigate('/boards')} />
           </Box>
           {recentLoading ? (
             <SkeletonRows />
@@ -189,7 +189,7 @@ export default function HomePage() {
             </Box>
           ) : (
             recentBoards.map((board: Board) => (
-              <BoardRow key={board.id} board={board} onAuthorClick={(u) => setProfileUser(u)} onClick={() => navigate(`/app/boards/${board.id}`)} />
+              <BoardRow key={board.id} board={board} onAuthorClick={(u) => setProfileUser(u)} onClick={() => navigate(`/boards/${board.id}`)} />
             ))
           )}
         </CardContent>
@@ -199,7 +199,7 @@ export default function HomePage() {
       <Card>
         <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
           <Box sx={{ px: 3, pt: 3, pb: 1 }}>
-            <SectionHeader title="최근 인기글" linkText="전체보기" onLinkClick={() => navigate('/app/popular')} />
+            <SectionHeader title="최근 인기글" linkText="전체보기" onLinkClick={() => navigate('/popular')} />
           </Box>
           {popularLoading ? (
             <SkeletonRows />
@@ -210,7 +210,7 @@ export default function HomePage() {
             </Box>
           ) : (
             popularBoards.map((board: Board) => (
-              <BoardRow key={board.id} board={board} onAuthorClick={(u) => setProfileUser(u)} onClick={() => navigate(`/app/boards/${board.id}`)} />
+              <BoardRow key={board.id} board={board} onAuthorClick={(u) => setProfileUser(u)} onClick={() => navigate(`/boards/${board.id}`)} />
             ))
           )}
         </CardContent>

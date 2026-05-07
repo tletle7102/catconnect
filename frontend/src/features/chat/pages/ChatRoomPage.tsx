@@ -153,7 +153,7 @@ export default function ChatRoomPage() {
   };
 
   const handleLeave = async () => {
-    try { await api.post(`/chat/rooms/${roomId}/leave`); navigate('/app/inbox'); }
+    try { await api.post(`/chat/rooms/${roomId}/leave`); navigate('/inbox'); }
     catch (err: any) { toast.show(err.response?.data?.message || '나가기 실패', 'error'); }
   };
 
@@ -183,7 +183,7 @@ export default function ChatRoomPage() {
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)', maxWidth: 520, mx: 'auto', border: '1px solid #e0e0e0', borderRadius: 3, overflow: 'hidden', bgcolor: 'white' }}>
       {/* 헤더 */}
       <Box sx={{ display: 'flex', alignItems: 'center', p: 1.5, borderBottom: '1px solid #e0e0e0', bgcolor: '#fafafa' }}>
-        <IconButton onClick={() => navigate('/app/inbox')}><ArrowBack /></IconButton>
+        <IconButton onClick={() => navigate('/inbox')}><ArrowBack /></IconButton>
         <Typography sx={{ flex: 1, fontWeight: 600 }}>{otherUser?.username || '채팅'}</Typography>
         <Box sx={{ position: 'relative' }}>
           <IconButton onClick={(e) => setMenuAnchor(e.currentTarget)}><MoreVert /></IconButton>

@@ -81,14 +81,14 @@ export default function LoginPage() {
           </form>
 
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
-            <Link href="/app/find-username" underline="hover" variant="body2">아이디 찾기</Link>
-            <Link href="/app/find-password" underline="hover" variant="body2">비밀번호 찾기</Link>
+            <Link href="/find-username" underline="hover" variant="body2">아이디 찾기</Link>
+            <Link href="/find-password" underline="hover" variant="body2">비밀번호 찾기</Link>
           </Box>
 
           <Button
             fullWidth
             variant="outlined"
-            onClick={() => navigate('/app/signup')}
+            onClick={() => navigate('/signup')}
           >
             회원가입
           </Button>

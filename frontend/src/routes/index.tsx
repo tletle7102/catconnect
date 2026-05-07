@@ -29,7 +29,7 @@ import PopularBoardsPage from '../features/board/pages/PopularBoardsPage';
 
 export const router = createBrowserRouter([
   {
-    path: '/app',
+    path: '/',
     element: <AppShell />,
     children: [
       { index: true, element: <HomePage /> },

@@ -21,11 +21,6 @@ spring:
     show-sql: true
     open-in-view: false
 
-  thymeleaf:
-    cache: false
-    prefix: classpath:/templates/
-    suffix: .html
-
   mail:
     host: smtp.gmail.com
     port: 587
@@ -62,6 +57,9 @@ app:
 file:
   upload-dir: ${user.home}/catconnect-uploads
   max-size: 10MB
+
+app.hero:
+  image-dir: ${file.upload-dir}/hero-images
 
 spring.servlet.multipart:
   enabled: true

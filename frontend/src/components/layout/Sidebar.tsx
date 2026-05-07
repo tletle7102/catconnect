@@ -9,19 +9,19 @@ import type { ReadablePermission } from '../../api/boardPermissions';
 
 // 매니저 + 관리자 공통 메뉴
 const managerItems = [
-  { label: '신고 관리', path: '/app/admin/reports' },
+  { label: '신고 관리', path: '/admin/reports' },
 ];
 
 // 관리자 전용 메뉴
 const adminItems = [
-  { label: '게시글 관리', path: '/app/admin/boards' },
-  { label: '댓글 관리', path: '/app/admin/comments' },
-  { label: '좋아요 관리', path: '/app/admin/likes' },
-  { label: '사용자 관리', path: '/app/admin/users' },
-  { label: '게시판 설정', path: '/app/admin/board-settings' },
-  { label: '게시판 관리', path: '/app/admin/board-categories' },
-  { label: '홈 설정', path: '/app/admin/home-settings' },
-  { label: '히어로 이미지', path: '/app/admin/hero-image' },
+  { label: '게시글 관리', path: '/admin/boards' },
+  { label: '댓글 관리', path: '/admin/comments' },
+  { label: '좋아요 관리', path: '/admin/likes' },
+  { label: '사용자 관리', path: '/admin/users' },
+  { label: '게시판 설정', path: '/admin/board-settings' },
+  { label: '게시판 관리', path: '/admin/board-categories' },
+  { label: '홈 설정', path: '/admin/home-settings' },
+  { label: '히어로 이미지', path: '/admin/hero-image' },
 ];
 
 export default function Sidebar() {
@@ -105,7 +105,7 @@ export default function Sidebar() {
           {renderGroupTitle(group.icon, group.label)}
           {group.items
             .filter((item) => item.active && (!permLoaded || readableSet.has(item.categoryCode)))
-            .map((item) => renderNavItem(item.label, `/app/boards?category=${item.categoryCode}`))}
+            .map((item) => renderNavItem(item.label, `/boards?category=${item.categoryCode}`))}
         </Box>
       ))}
 

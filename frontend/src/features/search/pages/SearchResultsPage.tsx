@@ -51,7 +51,7 @@ export default function SearchResultsPage() {
                   cursor: 'pointer',
                   '&:hover': { bgcolor: '#f8f9fa' },
                 }}
-                onClick={() => navigate(`/app/boards/${item.id}`)}
+                onClick={() => navigate(`/boards/${item.id}`)}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography sx={{ fontWeight: 500 }}>{item.title}</Typography>

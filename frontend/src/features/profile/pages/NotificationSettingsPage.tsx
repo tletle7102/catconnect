@@ -47,7 +47,7 @@ export default function NotificationSettingsPage() {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <Typography
           sx={{ fontSize: 20, cursor: 'pointer', mr: 2 }}
-          onClick={() => navigate('/app/profile')}
+          onClick={() => navigate('/profile')}
         >
           &larr;
         </Typography>

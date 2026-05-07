@@ -48,6 +48,7 @@ pipeline {
             steps {
                 sh 'docker compose down || true'
                 sh 'docker rm -f ${DOCKER_CONTAINER_NAME} || true'
+                sh 'docker rm -f catconnect-frontend || true'
                 sh 'docker compose up -d --build'
             }
         }
@@ -56,17 +57,27 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        echo "${DOCKER_CONTAINER_NAME} healthy 대기 (최대 4분)..."
+                        echo "backend healthy 대기 (최대 4분)..."
                         for i in $(seq 1 24); do
                             status=$(docker inspect ${DOCKER_CONTAINER_NAME} --format='{{.State.Health.Status}}' 2>/dev/null || echo "missing")
                             echo "  [$i/24] ${DOCKER_CONTAINER_NAME}: $status"
-                            if [ "$status" = "healthy" ]; then
-                                echo "healthy 도달"
-                                break
-                            fi
+                            if [ "$status" = "healthy" ]; then break; fi
                             if [ "$i" -eq 24 ]; then
-                                echo "타임아웃: healthy 미도달"
+                                echo "타임아웃: backend healthy 미도달"
                                 docker logs ${DOCKER_CONTAINER_NAME} --tail 50
+                                exit 1
+                            fi
+                            sleep 10
+                        done
+
+                        echo "frontend healthy 대기 (최대 1분)..."
+                        for i in $(seq 1 6); do
+                            status=$(docker inspect catconnect-frontend --format='{{.State.Health.Status}}' 2>/dev/null || echo "missing")
+                            echo "  [$i/6] catconnect-frontend: $status"
+                            if [ "$status" = "healthy" ]; then break; fi
+                            if [ "$i" -eq 6 ]; then
+                                echo "타임아웃: frontend healthy 미도달"
+                                docker logs catconnect-frontend --tail 50
                                 exit 1
                             fi
                             sleep 10
@@ -74,12 +85,17 @@ pipeline {
                     '''
                     sh '''
                         echo "외부 HTTPS 응답 검증..."
-                        code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 https://${SUBDOMAIN}/ || echo "000")
-                        if [ "$code" != "200" ] && [ "$code" != "302" ] && [ "$code" != "401" ]; then
-                            echo "HTTPS 비정상: HTTP $code"
-                            exit 1
+                        code_root=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 https://${SUBDOMAIN}/ || echo "000")
+                        code_api=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 15 https://${SUBDOMAIN}/api/board-categories || echo "000")
+                        echo "  / -> $code_root"
+                        echo "  /api/board-categories -> $code_api"
+                        if [ "$code_root" != "200" ]; then
+                            echo "frontend 라우팅 비정상"; exit 1
                         fi
-                        echo "https://${SUBDOMAIN} 정상 (HTTP $code)"
+                        if [ "$code_api" != "200" ] && [ "$code_api" != "401" ] && [ "$code_api" != "403" ]; then
+                            echo "backend 라우팅 비정상"; exit 1
+                        fi
+                        echo "라우팅 분리 정상"
                     '''
                 }
             }

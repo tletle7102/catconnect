@@ -50,13 +50,13 @@ export default function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (keyword.trim()) {
-      navigate(`/app/search?keyword=${encodeURIComponent(keyword)}&type=${searchType}`);
+      navigate(`/search?keyword=${encodeURIComponent(keyword)}&type=${searchType}`);
     }
   };
 
   const handleLogout = async () => {
     await logout();
-    navigate('/app/login');
+    navigate('/login');
   };
 
   const handleInboxItemClick = async (item: any) => {
@@ -67,9 +67,9 @@ export default function Header() {
     }
     setInboxOpen(false);
     if (item.itemType === 'CHAT' && item.referenceId) {
-      navigate(`/app/chat/${item.referenceId}`);
+      navigate(`/chat/${item.referenceId}`);
     } else if (item.linkUrl) {
-      navigate(item.linkUrl.replace(/^\//, '/app/'));
+      navigate(item.linkUrl.replace(/^\//, '/'));
     }
   };
 
@@ -87,7 +87,7 @@ export default function Header() {
         {/* 로고 */}
         <Typography
           variant="h6"
-          onClick={() => navigate('/app/')}
+          onClick={() => navigate('/')}
           sx={{ fontFamily: "'Jua', sans-serif", fontWeight: 700, color: 'primary.main', cursor: 'pointer', mr: 2 }}
         >
           CatConnect
@@ -186,7 +186,7 @@ export default function Header() {
                       </Box>
                       <Box sx={{ p: '8px 16px' }}>
                         <Box
-                          onClick={() => { setInboxOpen(false); navigate('/app/chat/support'); }}
+                          onClick={() => { setInboxOpen(false); navigate('/chat/support'); }}
                           sx={{
                             display: 'flex', justifyContent: 'space-between', p: '10px 14px',
                             border: '1px solid', borderColor: 'primary.main', borderRadius: 2, color: 'primary.main',
@@ -221,7 +221,7 @@ export default function Header() {
                         )}
                       </Box>
                       <Box sx={{ p: 1, textAlign: 'center', borderTop: '1px solid', borderTopColor: 'divider' }}>
-                        <Button size="small" onClick={() => { setInboxOpen(false); navigate('/app/inbox'); }} sx={{ color: 'primary.main' }}>
+                        <Button size="small" onClick={() => { setInboxOpen(false); navigate('/inbox'); }} sx={{ color: 'primary.main' }}>
                           전체 보기 &rarr;
                         </Button>
                       </Box>
@@ -231,7 +231,7 @@ export default function Header() {
               </Box>
 
               {/* 프로필 아이콘 */}
-              <IconButton size="small" onClick={() => navigate('/app/profile')} title="프로필 설정">
+              <IconButton size="small" onClick={() => navigate('/profile')} title="프로필 설정">
                 <Avatar
                   src={user?.profileImageUrl || undefined}
                   sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
@@ -249,8 +249,8 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Button size="small" onClick={() => navigate('/app/login')} sx={{ color: 'text.secondary' }}>로그인</Button>
-              <Button size="small" onClick={() => navigate('/app/signup')} sx={{ color: 'text.secondary' }}>회원가입</Button>
+              <Button size="small" onClick={() => navigate('/login')} sx={{ color: 'text.secondary' }}>로그인</Button>
+              <Button size="small" onClick={() => navigate('/signup')} sx={{ color: 'text.secondary' }}>회원가입</Button>
             </>
           )}
         </Box>
@@ -265,14 +265,14 @@ export default function Header() {
           </Box>
           {isAuthenticated ? (
             <>
-              <Button fullWidth onClick={() => { navigate('/app/inbox'); setMobileMenuOpen(false); }}>인박스</Button>
-              <Button fullWidth onClick={() => { navigate('/app/profile'); setMobileMenuOpen(false); }}>프로필</Button>
+              <Button fullWidth onClick={() => { navigate('/inbox'); setMobileMenuOpen(false); }}>인박스</Button>
+              <Button fullWidth onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }}>프로필</Button>
               <Button fullWidth onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>로그아웃</Button>
             </>
           ) : (
             <>
-              <Button fullWidth onClick={() => { navigate('/app/login'); setMobileMenuOpen(false); }}>로그인</Button>
-              <Button fullWidth onClick={() => { navigate('/app/signup'); setMobileMenuOpen(false); }}>회원가입</Button>
+              <Button fullWidth onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}>로그인</Button>
+              <Button fullWidth onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }}>회원가입</Button>
             </>
           )}
         </Box>

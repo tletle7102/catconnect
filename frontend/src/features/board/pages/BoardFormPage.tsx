@@ -123,11 +123,11 @@ export default function BoardFormPage() {
       if (isEdit) {
         await boardsApi.updateBoard(Number(id), { title, content, category, prefix } as any);
         toast.show('수정되었습니다.');
-        navigate(`/app/boards/${id}`);
+        navigate(`/boards/${id}`);
       } else {
         await boardsApi.createBoard({ title, content, category, prefix } as any);
         toast.show('작성되었습니다.');
-        navigate(`/app/boards?category=${category}`);
+        navigate(`/boards?category=${category}`);
       }
     } catch (err: any) {
       toast.show(err.response?.data?.message || '저장 실패', 'error');

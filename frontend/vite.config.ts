@@ -4,7 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/app',
+  base: '/',
   define: {
     global: 'globalThis',
   },
@@ -34,7 +34,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../src/main/resources/static/app',
+    outDir: 'dist',
     emptyOutDir: true,
   },
 });

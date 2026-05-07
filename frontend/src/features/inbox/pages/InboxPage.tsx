@@ -63,9 +63,9 @@ export default function InboxPage() {
       queryClient.invalidateQueries({ queryKey: ['inbox'] });
     }
     if (item.itemType === 'CHAT' && item.referenceId) {
-      navigate(`/app/chat/${item.referenceId}`);
+      navigate(`/chat/${item.referenceId}`);
     } else if (item.linkUrl) {
-      navigate(item.linkUrl.replace(/^\//, '/app/'));
+      navigate(item.linkUrl.replace(/^\//, '/'));
     }
   };
 

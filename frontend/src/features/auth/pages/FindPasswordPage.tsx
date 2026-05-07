@@ -41,7 +41,7 @@ export default function FindPasswordPage() {
     try {
       await api.post('/auth/password/reset', { email, code, newPassword: password });
       toast.show('비밀번호가 변경되었습니다.');
-      navigate('/app/login');
+      navigate('/login');
     } catch (err: any) {
       toast.show(err.response?.data?.message || '변경 실패', 'error');
     }
@@ -73,7 +73,7 @@ export default function FindPasswordPage() {
             </>
           )}
 
-          <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate('/app/login')}>로그인으로 돌아가기</Button>
+          <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate('/login')}>로그인으로 돌아가기</Button>
         </CardContent>
       </Card>
     </Box>
