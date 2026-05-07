@@ -134,7 +134,7 @@ export default function PopularBoardsPage() {
                 return (
                   <Box
                     key={board.id}
-                    onClick={() => navigate(`/app/boards/${board.id}`)}
+                    onClick={() => navigate(`/boards/${board.id}`)}
                     sx={{
                       display: 'flex', alignItems: 'center', py: 1.5, px: 2, cursor: 'pointer',
                       borderBottom: '1px solid', borderColor: 'divider',
