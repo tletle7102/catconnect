@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.common.model.entity;
+package com.matchhub.nyangvil.common.model.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

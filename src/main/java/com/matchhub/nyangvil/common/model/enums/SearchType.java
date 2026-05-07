@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.common.model.enums;
+package com.matchhub.nyangvil.common.model.enums;
 
 /**
  * 검색 타입을 정의하는 Enum

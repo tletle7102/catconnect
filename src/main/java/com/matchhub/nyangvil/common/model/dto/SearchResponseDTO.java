@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.common.model.dto;
+package com.matchhub.nyangvil.common.model.dto;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
-import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.nyangvil.domain.user.model.dto.UserResponseDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Page;

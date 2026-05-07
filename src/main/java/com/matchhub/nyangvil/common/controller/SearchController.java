@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.common.controller;
+package com.matchhub.nyangvil.common.controller;
 
-import com.matchhub.catconnect.common.model.dto.SearchResponseDTO;
-import com.matchhub.catconnect.common.model.enums.SearchType;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
-import com.matchhub.catconnect.domain.comment.service.CommentService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.common.model.dto.SearchResponseDTO;
+import com.matchhub.nyangvil.common.model.enums.SearchType;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.nyangvil.domain.comment.service.CommentService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
