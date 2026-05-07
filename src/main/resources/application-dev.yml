@@ -1,11 +1,11 @@
 server:
-  port: ${CATCONNECT_TOMCAT_PORT:8099}
+  port: ${NYANGVIL_TOMCAT_PORT:8099}
 
 spring:
   datasource:
-    url: ${CATCONNECT_DEV_DB_URL}/${CATCONNECT_DEV_DB_NAME}
-    username: ${CATCONNECT_DEV_DB_USERNAME}
-    password: ${CATCONNECT_DEV_DB_PASSWORD}
+    url: ${NYANGVIL_DEV_DB_URL}/${NYANGVIL_DEV_DB_NAME}
+    username: ${NYANGVIL_DEV_DB_USERNAME}
+    password: ${NYANGVIL_DEV_DB_PASSWORD}
     driver-class-name:
       org.postgresql.Driver
     hikari:
@@ -50,12 +50,12 @@ app:
     sender-phone: ${SOLAPI_SENDER_PHONE:01012345678}
     api-url: https://api.solapi.com/messages/v4/send-many/detail
   jwt:
-    secret: ${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
-    expiration: ${CATCONNECT_SPRING_SECURITY_EXPIRATION:3600000}
+    secret: ${NYANGVIL_SPRING_SECURITY_JWT_SECRET}
+    expiration: ${NYANGVIL_SPRING_SECURITY_EXPIRATION:3600000}
     extended-expiration: 604800000
 
 file:
-  upload-dir: ${user.home}/catconnect-uploads
+  upload-dir: ${user.home}/nyangvil-uploads
   max-size: 10MB
 
 app.hero:
@@ -68,7 +68,7 @@ spring.servlet.multipart:
 
 logging:
   level:
-    com.matchhub.catconnect: DEBUG
-    com.matchhub.catconnect.global.util.auth: DEBUG
-    com.matchhub.catconnect.global.configuration: DEBUG
+    com.matchhub.nyangvil: DEBUG
+    com.matchhub.nyangvil.global.util.auth: DEBUG
+    com.matchhub.nyangvil.global.configuration: DEBUG
     org.springframework.security: DEBUG
