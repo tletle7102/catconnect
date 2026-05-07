@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import AppShell from '../components/layout/AppShell';
 import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoute';
+import ErrorPage from '../features/error/pages/ErrorPage';
 
 import HomePage from '../features/home/pages/HomePage';
 import LoginPage from '../features/auth/pages/LoginPage';
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <AppShell />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <HomePage /> },
       { path: 'boards', element: <BoardListPage /> },
