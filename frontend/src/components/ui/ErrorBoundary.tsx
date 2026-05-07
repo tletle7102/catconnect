@@ -29,7 +29,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           <Typography color="text.secondary" sx={{ mb: 3 }}>
             {this.state.error?.message || '알 수 없는 오류가 발생했습니다.'}
           </Typography>
-          <Button variant="contained" onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = '/app/'; }}>
+          <Button variant="contained" onClick={() => { this.setState({ hasError: false, error: null }); window.location.href = '/'; }}>
             홈으로 돌아가기
           </Button>
         </Box>
