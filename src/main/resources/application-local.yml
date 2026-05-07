@@ -1,5 +1,5 @@
 server:
-  port: ${CATCONNECT_TOMCAT_PORT:8080}
+  port: ${NYANGVIL_TOMCAT_PORT:8080}
 
 spring:
   datasource:
@@ -55,7 +55,7 @@ app:
     extended-expiration: 604800000
 
 file:
-  upload-dir: ${user.home}/catconnect-uploads
+  upload-dir: ${user.home}/nyangvil-uploads
   max-size: 10MB
 
 app.hero:
@@ -68,7 +68,7 @@ spring.servlet.multipart:
 
 logging:
   level:
-    com.matchhub.catconnect: DEBUG
-    com.matchhub.catconnect.global.util.auth: DEBUG
-    com.matchhub.catconnect.global.configuration: DEBUG
+    com.matchhub.nyangvil: DEBUG
+    com.matchhub.nyangvil.global.util.auth: DEBUG
+    com.matchhub.nyangvil.global.configuration: DEBUG
     org.springframework.security: DEBUG
