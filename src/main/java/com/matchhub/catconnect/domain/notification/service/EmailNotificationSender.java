@@ -9,15 +9,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
  * 이메일 알림 발송 구현체
- * Thymeleaf 템플릿을 사용한 HTML 이메일 발송 지원
+ * 순수 HTML 문자열 기반 이메일 발송
  */
 @Component
 public class EmailNotificationSender implements NotificationSender {
@@ -25,7 +23,6 @@ public class EmailNotificationSender implements NotificationSender {
     private static final Logger log = LoggerFactory.getLogger(EmailNotificationSender.class);
 
     private final JavaMailSender mailSender;
-    private final TemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -33,9 +30,8 @@ public class EmailNotificationSender implements NotificationSender {
     @Value("${app.mail.from-name}")
     private String fromName;
 
-    public EmailNotificationSender(JavaMailSender mailSender, TemplateEngine templateEngine) {
+    public EmailNotificationSender(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-        this.templateEngine = templateEngine;
     }
 
     @Override
@@ -51,26 +47,72 @@ public class EmailNotificationSender implements NotificationSender {
     @Override
     public void send(String recipient, String message) {
         log.debug("이메일 발송: to={}", recipient);
-        sendHtmlEmail(recipient, "[CatConnect] 알림", wrqpSimpleMessage(message));
+        sendHtmlEmail(recipient, "[CatConnect] 알림", wrapSimpleMessage(message));
     }
 
     @Override
     public void sendWithTemplate(String recipient, String templateName, Map<String, Object> variables) {
         log.debug("템플릿 이메일 발송: to={}, template={}", recipient, templateName);
 
-        Context context = new Context();
-        variables.forEach(context ::setVariable);
-
         String subject = extractSubject(templateName, variables);
-        String templatePath = "email/" + templateName;
-        String content = templateEngine.process(templatePath, context);
+        String content = buildTemplateContent(templateName, variables);
 
         sendHtmlEmail(recipient, subject, content);
     }
 
-    /**
-     * 템플릿 이름에 따른 제목 추출
-     */
+    private String buildTemplateContent(String templateName, Map<String, Object> variables) {
+        return switch (templateName) {
+            case "signup-verification" -> buildSignupVerificationEmail(variables);
+            case "signup-code" -> buildSignupCodeEmail(variables);
+            case "password-reset" -> buildPasswordResetEmail(variables);
+            default -> wrapSimpleMessage(String.valueOf(variables.getOrDefault("message", "")));
+        };
+    }
+
+    private String buildSignupVerificationEmail(Map<String, Object> variables) {
+        String verificationUrl = String.valueOf(variables.getOrDefault("verificationUrl", ""));
+        return wrapHtml("""
+            <h2 style="color: #10ba8c;">CatConnect 회원가입 인증</h2>
+            <p>아래 링크를 클릭하여 이메일 인증을 완료해주세요.</p>
+            <p><a href="%s" style="display: inline-block; padding: 12px 24px; background-color: #10ba8c; color: white; text-decoration: none; border-radius: 8px;">이메일 인증하기</a></p>
+            <p style="color: #999; font-size: 12px;">본인이 요청하지 않은 경우 이 메일을 무시해주세요.</p>
+            """.formatted(verificationUrl));
+    }
+
+    private String buildSignupCodeEmail(Map<String, Object> variables) {
+        String code = String.valueOf(variables.getOrDefault("code", ""));
+        int expiryMinutes = (int) variables.getOrDefault("expiryMinutes", 10);
+        return wrapHtml("""
+            <h2 style="color: #10ba8c;">CatConnect 이메일 인증번호</h2>
+            <p>아래 인증번호를 입력해주세요.</p>
+            <p style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #10ba8c;">%s</p>
+            <p style="color: #999;">인증번호는 %d분간 유효합니다.</p>
+            """.formatted(code, expiryMinutes));
+    }
+
+    private String buildPasswordResetEmail(Map<String, Object> variables) {
+        String code = String.valueOf(variables.getOrDefault("code", ""));
+        int expiryMinutes = (int) variables.getOrDefault("expiryMinutes", 5);
+        return wrapHtml("""
+            <h2 style="color: #10ba8c;">CatConnect 비밀번호 재설정</h2>
+            <p>아래 인증번호를 입력해주세요.</p>
+            <p style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #10ba8c;">%s</p>
+            <p style="color: #999;">인증번호는 %d분간 유효합니다.</p>
+            """.formatted(code, expiryMinutes));
+    }
+
+    private String wrapHtml(String body) {
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head><meta charset="UTF-8"></head>
+            <body style="font-family: 'Pretendard', sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+                %s
+            </body>
+            </html>
+            """.formatted(body);
+    }
+
     private String extractSubject(String templateName, Map<String, Object> variables) {
         return switch (templateName) {
             case "signup-verification" -> "[CatConnect] 회원가입 이메일 인증";
@@ -80,24 +122,10 @@ public class EmailNotificationSender implements NotificationSender {
         };
     }
 
-    /**
-     * 단순 메시지를 HTML로 래핑
-     */
-    private String wrqpSimpleMessage(String message) {
-        return """
-				<!DOCTYPE html>
-				<html>
-				<head><meta charset="UTF-8"></head>
-				<body style="font-family: sans-serif; padding: 20px;">
-					<p>%s</p>
-				</body>
-				</html>
-				""".formatted(message.replace("\n", "<br>"));
+    private String wrapSimpleMessage(String message) {
+        return wrapHtml("<p>%s</p>".formatted(message.replace("\n", "<br>")));
     }
 
-    /**
-     * HTML 이메일 발송
-     */
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
