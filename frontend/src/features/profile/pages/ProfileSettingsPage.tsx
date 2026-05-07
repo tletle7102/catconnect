@@ -163,7 +163,7 @@ export default function ProfileSettingsPage() {
             </Box>
             <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
               <Button variant="contained" onClick={() => setPasswordModal(true)}>정보 수정</Button>
-              <Button variant="outlined" onClick={() => navigate('/app/profile/notification-settings')}>알림 설정</Button>
+              <Button variant="outlined" onClick={() => navigate('/profile/notification-settings')}>알림 설정</Button>
               <Button variant="outlined" color="error" onClick={loadBlockList}>차단 목록</Button>
             </Box>
           </CardContent>
