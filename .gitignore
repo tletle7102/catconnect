@@ -48,4 +48,4 @@ CLAUDE.md
 DEMO_SCENARIO.md
 
 ### React 빌드 산출물 ###
-src/main/resources/static/app/
+frontend/dist/
