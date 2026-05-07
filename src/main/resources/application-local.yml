@@ -15,11 +15,6 @@ spring:
         webAllowOthers: true
       path: /h2-console
 
-  thymeleaf:
-    cache: false
-    prefix: classpath:/templates/
-    suffix: .html
-
   jpa:
     hibernate:
       ddl-auto: create
