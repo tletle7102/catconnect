@@ -77,7 +77,7 @@ export default function AuthorProfileModal({ open, username, onClose }: AuthorPr
     try {
       const res = await api.post('/chat/rooms', { targetUserId: profileUserId, roomType: 'DIRECT' });
       onClose();
-      navigate(`/app/chat/${res.data.data.roomId}`);
+      navigate(`/chat/${res.data.data.roomId}`);
     } catch (err: any) {
       toast.show(err.response?.data?.message || '채팅방 생성 실패', 'error');
     }
@@ -114,7 +114,7 @@ export default function AuthorProfileModal({ open, username, onClose }: AuthorPr
                 <Typography sx={{ p: 2, textAlign: 'center', color: '#999' }}>작성한 게시글이 없습니다.</Typography>
               ) : (
                 boards.content.map((board: any) => (
-                  <ListItemButton key={board.id} onClick={() => { onClose(); navigate(`/app/boards/${board.id}`); }} sx={{ borderBottom: '1px solid #f0f0f0' }}>
+                  <ListItemButton key={board.id} onClick={() => { onClose(); navigate(`/boards/${board.id}`); }} sx={{ borderBottom: '1px solid #f0f0f0' }}>
                     <ListItemText
                       primary={board.title}
                       secondary={`${formatDate(board.createdDttm)} | 조회 ${board.viewCount || 0}`}
@@ -139,7 +139,7 @@ export default function AuthorProfileModal({ open, username, onClose }: AuthorPr
                 <Typography sx={{ p: 2, textAlign: 'center', color: '#999' }}>댓글단 글이 없습니다.</Typography>
               ) : (
                 comments.content.map((item: any) => (
-                  <ListItemButton key={item.id} onClick={() => { onClose(); navigate(`/app/boards/${item.boardId}`); }} sx={{ borderBottom: '1px solid #f0f0f0' }}>
+                  <ListItemButton key={item.id} onClick={() => { onClose(); navigate(`/boards/${item.boardId}`); }} sx={{ borderBottom: '1px solid #f0f0f0' }}>
                     <ListItemText
                       primary={item.boardTitle || '(제목 없음)'}
                       secondary={`${(item.content || '').substring(0, 50)}${(item.content || '').length > 50 ? '...' : ''} | ${formatDate(item.createdDttm)}`}
