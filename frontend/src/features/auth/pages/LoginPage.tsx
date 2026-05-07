@@ -28,7 +28,7 @@ export default function LoginPage() {
       await authApi.login({ username, password, stayLoggedIn });
       await checkAuth();
       toast.show('로그인 성공', 'success');
-      const redirect = searchParams.get('redirect') || '/app';
+      const redirect = searchParams.get('redirect') || '/';
       navigate(redirect);
     } catch (err: any) {
       const message = err.response?.data?.message || '로그인에 실패했습니다.';
