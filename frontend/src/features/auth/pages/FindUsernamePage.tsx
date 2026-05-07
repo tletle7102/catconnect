@@ -31,7 +31,7 @@ export default function FindUsernamePage() {
             <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>찾기</Button>
           </form>
           {result && <Typography sx={{ mt: 2, textAlign: 'center', fontWeight: 600 }}>{result}</Typography>}
-          <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate('/app/login')}>로그인으로 돌아가기</Button>
+          <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate('/login')}>로그인으로 돌아가기</Button>
         </CardContent>
       </Card>
     </Box>
