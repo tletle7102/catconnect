@@ -80,7 +80,7 @@ export default function SignupPage() {
     try {
       await api.post('/auth/signup/complete', { username, email, phoneNumber: phone, password });
       toast.show('회원가입이 완료되었습니다!');
-      navigate('/app/login');
+      navigate('/login');
     } catch (err: any) {
       toast.show(err.response?.data?.message || '회원가입 실패', 'error');
     } finally {
@@ -131,7 +131,7 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <Button fullWidth sx={{ mt: 1 }} onClick={() => navigate('/app/login')}>이미 계정이 있으신가요? 로그인</Button>
+          <Button fullWidth sx={{ mt: 1 }} onClick={() => navigate('/login')}>이미 계정이 있으신가요? 로그인</Button>
         </CardContent>
       </Card>
     </Box>
