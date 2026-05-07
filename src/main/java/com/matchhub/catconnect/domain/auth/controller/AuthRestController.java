@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 
 /**
  * 인증 관련 REST API 컨트롤러
@@ -44,15 +45,18 @@ public class AuthRestController {
     private final AuthService authService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     public AuthRestController(AuthenticationManager authenticationManager,
                               AuthService authService,
                               RefreshTokenService refreshTokenService,
-                              JwtProvider jwtProvider) {
+                              JwtProvider jwtProvider,
+                              UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.authService = authService;
         this.refreshTokenService = refreshTokenService;
         this.jwtProvider = jwtProvider;
+        this.userRepository = userRepository;
     }
 
     @Operation(summary = "로그인", description = "사용자 인증 후 Access Token과 Refresh Token을 발급합니다")
@@ -187,6 +191,11 @@ public class AuthRestController {
                     jwtToken,
                     refreshToken,
                     true
+            );
+
+            // 프로필 이미지 URL 세팅
+            userRepository.findByUsername(authentication.getName()).ifPresent(user ->
+                responseDTO.setProfileImageUrl(user.getProfileImageUrl())
             );
 
             return ResponseEntity.ok(Response.success(responseDTO, "인증됨"));

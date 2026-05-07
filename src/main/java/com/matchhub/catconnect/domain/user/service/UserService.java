@@ -160,6 +160,10 @@ public class UserService {
         dto.setProfileImageUrl(user.getProfileImageUrl());
         dto.setRole(user.getRole().name());
         dto.setCreatedDttm(user.getCreatedDttm());
+        dto.setSuspendedUntil(user.getSuspendedUntil());
+        dto.setSuspensionReason(user.getSuspensionReason());
+        dto.setSuspended(user.isSuspended());
+        dto.setDeleted(user.isDeleted());
         return dto;
     }
 }

@@ -1,7 +1,9 @@
 package com.matchhub.catconnect.domain.chat.service;
 
 import com.matchhub.catconnect.domain.block.service.BlockService;
+import com.matchhub.catconnect.domain.chat.model.dto.ChatMessageResponseDTO;
 import com.matchhub.catconnect.domain.chat.model.dto.ChatRoomResponseDTO;
+import com.matchhub.catconnect.domain.chat.model.dto.ChatWebSocketMessage;
 import com.matchhub.catconnect.domain.chat.model.entity.ChatMessage;
 import com.matchhub.catconnect.domain.chat.model.entity.ChatRoom;
 import com.matchhub.catconnect.domain.chat.model.entity.ChatRoomParticipant;
@@ -16,6 +18,7 @@ import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ public class ChatRoomService {
     private final ChatMessageRepository messageRepository;
     private final UserRepository userRepository;
     private final BlockService blockService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     @Transactional
     public ChatRoomResponseDTO createOrGetRoom(String username, Long targetUserId, RoomType roomType) {
@@ -134,6 +138,12 @@ public class ChatRoomService {
                 .orElseThrow(() -> new AppException(Domain.NONE, ErrorCode.INVALID_REQUEST));
         ChatMessage systemMsg = ChatMessage.systemMessage(room, user.getUsername() + "님이 나갔습니다.");
         messageRepository.save(systemMsg);
+
+        // 남아있는 사람에게 실시간 전달
+        messagingTemplate.convertAndSend(
+                "/topic/chat/" + roomId,
+                ChatWebSocketMessage.message(ChatMessageResponseDTO.from(systemMsg, null))
+        );
     }
 
     public void validateParticipant(Long roomId, String username) {

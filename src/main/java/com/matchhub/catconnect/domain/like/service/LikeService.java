@@ -5,6 +5,8 @@ import com.matchhub.catconnect.domain.board.repository.BoardRepository;
 import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
 import com.matchhub.catconnect.domain.like.model.entity.Like;
 import com.matchhub.catconnect.domain.like.repository.LikeRepository;
+import com.matchhub.catconnect.domain.notification.sse.SseEmitterService;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
@@ -27,11 +29,15 @@ public class LikeService {
     private static final Logger log = LoggerFactory.getLogger(LikeService.class);
     private final LikeRepository likeRepository;
     private final BoardRepository boardRepository;
+    private final SseEmitterService sseEmitterService;
+    private final UserRepository userRepository;
 
-    // 생성자를 통한 의존성 주입
-    public LikeService(LikeRepository likeRepository, BoardRepository boardRepository) {
+    public LikeService(LikeRepository likeRepository, BoardRepository boardRepository,
+                       SseEmitterService sseEmitterService, UserRepository userRepository) {
         this.likeRepository = likeRepository;
         this.boardRepository = boardRepository;
+        this.sseEmitterService = sseEmitterService;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -76,6 +82,17 @@ public class LikeService {
         Like like = new Like(username, board);
         likeRepository.save(like);
         log.debug("좋아요 추가 완료: boardId={}, username={}", boardId, username);
+
+        // 게시글 작성자에게 SSE 알림 (본인 좋아요는 제외)
+        String boardAuthor = board.getAuthor();
+        if (!boardAuthor.equals(username)) {
+            userRepository.findByUsername(boardAuthor).ifPresent(recipient ->
+                sseEmitterService.pushNotification(recipient.getId(), "like",
+                        java.util.Map.of("type", "NEW_LIKE", "boardId", boardId,
+                                "likerName", username))
+            );
+        }
+
         return true;
     }
 

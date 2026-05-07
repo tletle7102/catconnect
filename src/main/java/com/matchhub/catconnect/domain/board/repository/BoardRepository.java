@@ -1,7 +1,6 @@
 package com.matchhub.catconnect.domain.board.repository;
 
 import com.matchhub.catconnect.domain.board.model.entity.Board;
-import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -55,15 +54,25 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Page<Board> findByAuthor(String author, Pageable pageable);
 
-    Page<Board> findByCategory(BoardCategory category, Pageable pageable);
+    Page<Board> findByCategory(String category, Pageable pageable);
 
     @Query("SELECT b FROM Board b WHERE b.category = :category AND " +
             "(LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(b.content) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    Page<Board> searchByCategoryAndKeyword(@Param("category") BoardCategory category,
+    Page<Board> searchByCategoryAndKeyword(@Param("category") String category,
                                            @Param("keyword") String keyword,
                                            Pageable pageable);
+
+    @Query("SELECT b FROM Board b LEFT JOIN b.likes l " +
+            "WHERE b.createdDttm >= :since AND b.blinded = false " +
+            "GROUP BY b.id ORDER BY COUNT(l) DESC, b.createdDttm DESC")
+    Page<Board> findPopularByLikes(@Param("since") java.time.LocalDateTime since, Pageable pageable);
+
+    @Query("SELECT b FROM Board b LEFT JOIN b.comments c " +
+            "WHERE b.createdDttm >= :since AND b.blinded = false " +
+            "GROUP BY b.id ORDER BY COUNT(c) DESC, b.createdDttm DESC")
+    Page<Board> findPopularByComments(@Param("since") java.time.LocalDateTime since, Pageable pageable);
 
     @Modifying
     @Query("UPDATE Board b SET b.author = :newAuthor WHERE b.author = :oldAuthor")

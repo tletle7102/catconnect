@@ -6,6 +6,9 @@ import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.comment.model.entity.Comment;
 import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
+import com.matchhub.catconnect.domain.notification.sse.SseEmitterService;
+import com.matchhub.catconnect.domain.user.model.entity.User;
+import com.matchhub.catconnect.domain.user.repository.UserRepository;
 import com.matchhub.catconnect.global.exception.AppException;
 import com.matchhub.catconnect.global.exception.Domain;
 import com.matchhub.catconnect.global.exception.ErrorCode;
@@ -32,12 +35,16 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
     private final Validator validator;
+    private final SseEmitterService sseEmitterService;
+    private final UserRepository userRepository;
 
-    // 생성자를 통한 의존성 주입
-    public CommentService(CommentRepository commentRepository, BoardRepository boardRepository, Validator validator) {
+    public CommentService(CommentRepository commentRepository, BoardRepository boardRepository,
+                          Validator validator, SseEmitterService sseEmitterService, UserRepository userRepository) {
         this.commentRepository = commentRepository;
         this.boardRepository = boardRepository;
         this.validator = validator;
+        this.sseEmitterService = sseEmitterService;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -101,6 +108,16 @@ public class CommentService {
         }
         commentRepository.save(comment);
         log.debug("댓글 추가 완료: boardId={}, commentId={}", boardId, comment.getId());
+
+        // 게시글 작성자에게 SSE 알림 (본인 댓글은 제외)
+        String boardAuthor = board.getAuthor();
+        if (!boardAuthor.equals(author)) {
+            userRepository.findByUsername(boardAuthor).ifPresent(recipient ->
+                sseEmitterService.pushNotification(recipient.getId(), "comment",
+                        java.util.Map.of("type", "NEW_COMMENT", "boardId", boardId,
+                                "commenterName", author))
+            );
+        }
     }
 
     @Transactional

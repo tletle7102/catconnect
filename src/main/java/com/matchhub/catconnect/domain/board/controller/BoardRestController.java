@@ -2,9 +2,12 @@ package com.matchhub.catconnect.domain.board.controller;
 
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
+import com.matchhub.catconnect.domain.board.model.entity.BoardCategorySetting;
+import com.matchhub.catconnect.domain.board.service.BoardCategorySettingService;
 import com.matchhub.catconnect.domain.board.service.BoardService;
+import com.matchhub.catconnect.domain.boardcategory.service.BoardPermissionService;
 import com.matchhub.catconnect.domain.report.service.ReportService;
+import com.matchhub.catconnect.domain.user.model.enums.Role;
 import com.matchhub.catconnect.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,21 +36,37 @@ public class BoardRestController {
     private static final Logger log = LoggerFactory.getLogger(BoardRestController.class);
     private final BoardService boardService;
     private final ReportService reportService;
+    private final BoardCategorySettingService categorySettingService;
+    private final BoardPermissionService permissionService;
 
-    // 생성자를 통한 의존성 주입 (Service 사용을 위해)
-    public BoardRestController(BoardService boardService, ReportService reportService) {
+    public BoardRestController(BoardService boardService, ReportService reportService,
+                               BoardCategorySettingService categorySettingService,
+                               BoardPermissionService permissionService) {
         this.boardService = boardService;
         this.reportService = reportService;
+        this.categorySettingService = categorySettingService;
+        this.permissionService = permissionService;
     }
 
     // 게시글 조회 (페이지네이션, 카테고리 필터 지원)
     @Operation(summary = "게시글 조회", description = "게시글 목록을 페이지네이션하여 조회합니다. category 파라미터로 필터링 가능.")
     @GetMapping
-    public ResponseEntity<Response<Page<BoardResponseDTO>>> getBoards(
-            @Parameter(description = "게시판 카테고리") @RequestParam(required = false) BoardCategory category,
+    public ResponseEntity<?> getBoards(
+            @Parameter(description = "게시판 카테고리") @RequestParam(required = false) String category,
             @Parameter(description = "페이지 번호 (0부터 시작)") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size) {
+            @Parameter(description = "페이지 크기") @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
         log.debug("GET /api/boards 요청: category={}, page={}, size={}", category, page, size);
+
+        // 카테고리 지정 시 읽기 권한 확인
+        if (category != null) {
+            Role role = resolveRole(authentication);
+            if (!permissionService.canRead(category, role)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Response.error("이 게시판의 읽기 권한이 없습니다.", HttpStatus.FORBIDDEN));
+            }
+        }
+
         Page<BoardResponseDTO> boards;
         if (category != null) {
             boards = boardService.getBoardsByCategory(category, page, size);
@@ -57,12 +76,41 @@ public class BoardRestController {
         return ResponseEntity.ok(Response.success(boards, "게시글 목록 조회 성공"));
     }
 
+    // 인기글 조회
+    @GetMapping("/popular")
+    public ResponseEntity<Response<Page<BoardResponseDTO>>> getPopularBoards(
+            @RequestParam(defaultValue = "LIKE") String type,
+            @RequestParam(defaultValue = "7") int days,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page > 9) page = 9;
+        Page<BoardResponseDTO> boards = boardService.getPopularBoards(type, days, page, size);
+        return ResponseEntity.ok(Response.success(boards));
+    }
+
+    // 카테고리 설정 공개 조회 (말머리 목록 등)
+    @GetMapping("/category-settings/{category}")
+    public ResponseEntity<Response<BoardCategorySetting>> getCategorySetting(
+            @PathVariable String category) {
+        return ResponseEntity.ok(Response.success(categorySettingService.getSetting(category)));
+    }
+
     // 게시글 상세 조회 (댓글 포함)
     @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
     @GetMapping("/{id}") // 경로에 ID 포함
-    public ResponseEntity<Response<BoardResponseDTO>> getBoardById(@Parameter(description = "조회할 게시글 ID", required = true) @PathVariable Long id) {
+    public ResponseEntity<?> getBoardById(
+            @Parameter(description = "조회할 게시글 ID", required = true) @PathVariable Long id,
+            Authentication authentication) {
         log.debug("GET /api/boards/{} 요청", id);
-        BoardResponseDTO board = boardService.getBoardByIdWithViewCount(id); // ID로 게시글 조회 (조회수 증가)
+        BoardResponseDTO board = boardService.getBoardByIdWithViewCount(id);
+
+        // 해당 게시글 카테고리의 읽기 권한 확인
+        Role role = resolveRole(authentication);
+        if (!permissionService.canRead(board.getCategory(), role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Response.error("이 게시판의 읽기 권한이 없습니다.", HttpStatus.FORBIDDEN));
+        }
+
         return ResponseEntity.ok(Response.success(board, "게시글 상세 조회 성공"));
     }
 
@@ -77,6 +125,13 @@ public class BoardRestController {
 
         // 현재 로그인된 사용자 이름(author) 추출
         String author = authentication.getName();
+
+        // 게시판 쓰기 권한 확인
+        Role role = resolveRole(authentication);
+        if (!permissionService.canWrite(requestDTO.getCategory(), role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Response.error("이 게시판에는 글을 작성할 권한이 없습니다.", HttpStatus.FORBIDDEN));
+        }
 
         // 게시글 작성 제한 여부 확인
         if (reportService.isUserPostBanned(author)) {
@@ -119,6 +174,16 @@ public class BoardRestController {
         List<Long> ids = request.get("ids"); // 요청에서 ID 리스트 추출
         boardService.deleteBoards(ids); // 삭제 수행
         return ResponseEntity.ok(Response.success(null, "게시글 삭제 성공"));
+    }
+
+    // 인증 정보에서 Role 추출 (비로그인 시 USER 기본)
+    private Role resolveRole(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
+            return Role.USER;
+        }
+        String authority = authentication.getAuthorities().iterator().next().getAuthority();
+        return Role.valueOf(authority.replace("ROLE_", ""));
     }
 
     @Operation(summary = "게시글 단일 삭제", description = "특정 게시글을 삭제합니다. 작성자 본인만 삭제 가능합니다.")

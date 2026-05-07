@@ -3,9 +3,9 @@ package com.matchhub.catconnect.domain.board.service;
 import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
 import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
 import com.matchhub.catconnect.domain.board.model.entity.Board;
-import com.matchhub.catconnect.domain.board.model.enums.BoardCategory;
 import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
 import com.matchhub.catconnect.domain.board.repository.BoardRepository;
+import com.matchhub.catconnect.domain.boardcategory.service.BoardCategoryService;
 import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
 import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
 import com.matchhub.catconnect.global.exception.AppException;
@@ -35,12 +35,13 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final Validator validator;
     private final HtmlSanitizer htmlSanitizer;
+    private final BoardCategoryService boardCategoryService;
 
-    // 생성자 주입 방식 (Spring이 의존 객체를 자동으로 넣어줌)
-    public BoardService(BoardRepository boardRepository, Validator validator, HtmlSanitizer htmlSanitizer) {
+    public BoardService(BoardRepository boardRepository, Validator validator, HtmlSanitizer htmlSanitizer, BoardCategoryService boardCategoryService) {
         this.boardRepository = boardRepository;
         this.validator = validator;
         this.htmlSanitizer = htmlSanitizer;
+        this.boardCategoryService = boardCategoryService;
     }
 
     // 전체 게시글 조회
@@ -64,9 +65,24 @@ public class BoardService {
         return boardPage.map(this::toResponseDTO);
     }
 
+    // 인기글 조회 (좋아요 또는 댓글 수 기준)
+    @Transactional(readOnly = true)
+    public Page<BoardResponseDTO> getPopularBoards(String type, int days, int page, int size) {
+        log.debug("인기글 조회 요청: type={}, days={}, page={}, size={}", type, days, page, size);
+        java.time.LocalDateTime since = java.time.LocalDateTime.now().minusDays(days);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Board> boardPage;
+        if ("COMMENT".equalsIgnoreCase(type)) {
+            boardPage = boardRepository.findPopularByComments(since, pageable);
+        } else {
+            boardPage = boardRepository.findPopularByLikes(since, pageable);
+        }
+        return boardPage.map(this::toResponseDTO);
+    }
+
     // 카테고리별 게시글 조회 (페이지네이션)
     @Transactional(readOnly = true)
-    public Page<BoardResponseDTO> getBoardsByCategory(BoardCategory category, int page, int size) {
+    public Page<BoardResponseDTO> getBoardsByCategory(String category, int page, int size) {
         log.debug("카테고리별 게시글 조회 요청: category={}, page={}, size={}", category, page, size);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDttm").descending());
         Page<Board> boardPage = boardRepository.findByCategory(category, pageable);
@@ -105,8 +121,11 @@ public class BoardService {
         // HTML 콘텐츠 XSS 방어를 위한 sanitize
         String sanitizedContent = htmlSanitizer.sanitize(requestDTO.getContent());
         // 게시글 엔티티 생성 및 저장
-        BoardCategory category = requestDTO.getCategory() != null ? requestDTO.getCategory() : BoardCategory.FREE;
+        String category = requestDTO.getCategory() != null ? requestDTO.getCategory() : "FREE";
         Board board = new Board(requestDTO.getTitle(), sanitizedContent, author, category);
+        if (requestDTO.getPrefix() != null && !requestDTO.getPrefix().isBlank()) {
+            board.setPrefix(requestDTO.getPrefix());
+        }
         // 엔티티 유효성 검증
         Set<ConstraintViolation<Board>> violations = validator.validate(board);
         if (!violations.isEmpty()) {
@@ -246,7 +265,8 @@ public class BoardService {
         dto.setContent(board.getContent());
         dto.setAuthor(board.getAuthor());
         dto.setCategory(board.getCategory());
-        dto.setCategoryDisplayName(board.getCategory().getDisplayName());
+        dto.setCategoryDisplayName(boardCategoryService.getLabelByCategoryCode(board.getCategory()));
+        dto.setPrefix(board.getPrefix());
         dto.setCreatedDttm(board.getCreatedDttm());
         dto.setUpdatedDttm(board.getUpdatedDttm());
         dto.setViewCount(board.getViewCount());
