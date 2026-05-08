@@ -1,10 +1,10 @@
-package com.matchhub.catconnect;
+package com.matchhub.nyangvil;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CatconnectApplicationTests {
+class NyangvilApplicationTests {
 
 	@Test
 	void contextLoads() {
