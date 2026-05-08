@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.report.model.dto;
+package com.matchhub.nyangvil.domain.report.model.dto;
 
-import com.matchhub.catconnect.domain.report.model.enums.ReportReason;
-import com.matchhub.catconnect.domain.report.model.enums.ReportTargetType;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportReason;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportTargetType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;

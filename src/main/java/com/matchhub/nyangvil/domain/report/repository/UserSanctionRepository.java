@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.report.repository;
+package com.matchhub.nyangvil.domain.report.repository;
 
-import com.matchhub.catconnect.domain.report.model.entity.UserSanction;
+import com.matchhub.nyangvil.domain.report.model.entity.UserSanction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

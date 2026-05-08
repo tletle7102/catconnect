@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.report.model.enums;
+package com.matchhub.nyangvil.domain.report.model.enums;
 
 public enum SanctionType {
     WARNING,              // 1단계: 경고

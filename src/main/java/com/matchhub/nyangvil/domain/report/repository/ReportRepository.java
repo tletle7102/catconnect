@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.report.repository;
+package com.matchhub.nyangvil.domain.report.repository;
 
-import com.matchhub.catconnect.domain.report.model.entity.Report;
-import com.matchhub.catconnect.domain.report.model.enums.ReportStatus;
-import com.matchhub.catconnect.domain.report.model.enums.ReportTargetType;
+import com.matchhub.nyangvil.domain.report.model.entity.Report;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportStatus;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportTargetType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

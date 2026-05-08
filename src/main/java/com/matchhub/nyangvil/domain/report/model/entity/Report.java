@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.report.model.entity;
+package com.matchhub.nyangvil.domain.report.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.report.model.enums.ReportReason;
-import com.matchhub.catconnect.domain.report.model.enums.ReportStatus;
-import com.matchhub.catconnect.domain.report.model.enums.ReportTargetType;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportReason;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportStatus;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportTargetType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,11 +1,11 @@
-package com.matchhub.catconnect.domain.report.controller;
+package com.matchhub.nyangvil.domain.report.controller;
 
-import com.matchhub.catconnect.domain.report.model.dto.ReportResolveRequestDTO;
-import com.matchhub.catconnect.domain.report.model.dto.ReportResponseDTO;
-import com.matchhub.catconnect.domain.report.model.dto.SanctionRequestDTO;
-import com.matchhub.catconnect.domain.report.model.enums.ReportStatus;
-import com.matchhub.catconnect.domain.report.service.ReportService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.report.model.dto.ReportResolveRequestDTO;
+import com.matchhub.nyangvil.domain.report.model.dto.ReportResponseDTO;
+import com.matchhub.nyangvil.domain.report.model.dto.SanctionRequestDTO;
+import com.matchhub.nyangvil.domain.report.model.enums.ReportStatus;
+import com.matchhub.nyangvil.domain.report.service.ReportService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
