@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.email.model.enums;
+package com.matchhub.nyangvil.domain.email.model.enums;
 
 /**
  * 이메일 인증 토큰 타입

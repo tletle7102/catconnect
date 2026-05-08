@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.email.controller;
+package com.matchhub.nyangvil.domain.email.controller;
 
-import com.matchhub.catconnect.domain.email.model.dto.*;
-import com.matchhub.catconnect.domain.email.service.EmailVerificationService;
+import com.matchhub.nyangvil.domain.email.model.dto.*;
+import com.matchhub.nyangvil.domain.email.service.EmailVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

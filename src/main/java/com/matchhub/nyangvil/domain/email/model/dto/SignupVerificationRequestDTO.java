@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.email.model.dto;
+package com.matchhub.nyangvil.domain.email.model.dto;
 
-import com.matchhub.catconnect.global.validation.ValidEmailDomain;
-import com.matchhub.catconnect.global.validation.ValidUsername;
+import com.matchhub.nyangvil.global.validation.ValidEmailDomain;
+import com.matchhub.nyangvil.global.validation.ValidUsername;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.email.model.entity;
+package com.matchhub.nyangvil.domain.email.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.email.model.enums.TokenType;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.email.model.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.Getter;
 

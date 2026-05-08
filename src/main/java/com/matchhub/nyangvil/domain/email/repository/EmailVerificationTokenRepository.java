@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.email.repository;
+package com.matchhub.nyangvil.domain.email.repository;
 
-import com.matchhub.catconnect.domain.email.model.entity.EmailVerificationToken;
-import com.matchhub.catconnect.domain.email.model.enums.TokenType;
+import com.matchhub.nyangvil.domain.email.model.entity.EmailVerificationToken;
+import com.matchhub.nyangvil.domain.email.model.enums.TokenType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
