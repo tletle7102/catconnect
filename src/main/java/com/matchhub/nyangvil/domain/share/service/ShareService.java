@@ -1,11 +1,11 @@
-package com.matchhub.catconnect.domain.share.service;
+package com.matchhub.nyangvil.domain.share.service;
 
-import com.matchhub.catconnect.domain.share.model.dto.ShareRequestDTO;
-import com.matchhub.catconnect.domain.share.model.dto.ShareResponseDTO;
-import com.matchhub.catconnect.domain.share.model.enums.ShareChannelType;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.share.model.dto.ShareRequestDTO;
+import com.matchhub.nyangvil.domain.share.model.dto.ShareResponseDTO;
+import com.matchhub.nyangvil.domain.share.model.enums.ShareChannelType;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

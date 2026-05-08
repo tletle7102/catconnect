@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.share.model.enums;
+package com.matchhub.nyangvil.domain.share.model.enums;
 
 /**
  * 게시글 공유 채널 타입

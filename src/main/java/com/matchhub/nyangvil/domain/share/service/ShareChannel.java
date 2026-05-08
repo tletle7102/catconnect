@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.share.service;
+package com.matchhub.nyangvil.domain.share.service;
 
-import com.matchhub.catconnect.domain.share.model.dto.ShareRequestDTO;
-import com.matchhub.catconnect.domain.share.model.dto.ShareResponseDTO;
-import com.matchhub.catconnect.domain.share.model.enums.ShareChannelType;
+import com.matchhub.nyangvil.domain.share.model.dto.ShareRequestDTO;
+import com.matchhub.nyangvil.domain.share.model.dto.ShareResponseDTO;
+import com.matchhub.nyangvil.domain.share.model.enums.ShareChannelType;
 
 /**
  * 게시글 공유 채널 인터페이스 (Strategy 패턴)

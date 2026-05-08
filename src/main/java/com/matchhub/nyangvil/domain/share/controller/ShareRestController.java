@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.share.controller;
+package com.matchhub.nyangvil.domain.share.controller;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.share.model.dto.ShareRequestDTO;
-import com.matchhub.catconnect.domain.share.model.dto.ShareResponseDTO;
-import com.matchhub.catconnect.domain.share.model.enums.ShareChannelType;
-import com.matchhub.catconnect.domain.share.service.ShareService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.share.model.dto.ShareRequestDTO;
+import com.matchhub.nyangvil.domain.share.model.dto.ShareResponseDTO;
+import com.matchhub.nyangvil.domain.share.model.enums.ShareChannelType;
+import com.matchhub.nyangvil.domain.share.service.ShareService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

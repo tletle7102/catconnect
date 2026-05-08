@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.share.model.entity;
+package com.matchhub.nyangvil.domain.share.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
