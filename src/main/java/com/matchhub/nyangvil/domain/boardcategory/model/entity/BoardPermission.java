@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.boardcategory.model.entity;
+package com.matchhub.nyangvil.domain.boardcategory.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

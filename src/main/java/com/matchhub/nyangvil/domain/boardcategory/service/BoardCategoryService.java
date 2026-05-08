@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.boardcategory.service;
+package com.matchhub.nyangvil.domain.boardcategory.service;
 
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardCategoryGroup;
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardCategoryItem;
-import com.matchhub.catconnect.domain.boardcategory.repository.BoardCategoryGroupRepository;
-import com.matchhub.catconnect.domain.boardcategory.repository.BoardCategoryItemRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardCategoryGroup;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardCategoryItem;
+import com.matchhub.nyangvil.domain.boardcategory.repository.BoardCategoryGroupRepository;
+import com.matchhub.nyangvil.domain.boardcategory.repository.BoardCategoryItemRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

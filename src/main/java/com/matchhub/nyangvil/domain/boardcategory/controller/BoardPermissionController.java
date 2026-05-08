@@ -1,10 +1,10 @@
-package com.matchhub.catconnect.domain.boardcategory.controller;
+package com.matchhub.nyangvil.domain.boardcategory.controller;
 
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardPermission;
-import com.matchhub.catconnect.domain.boardcategory.service.BoardPermissionService;
-import com.matchhub.catconnect.domain.boardcategory.service.BoardCategoryService;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardPermission;
+import com.matchhub.nyangvil.domain.boardcategory.service.BoardPermissionService;
+import com.matchhub.nyangvil.domain.boardcategory.service.BoardCategoryService;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.global.exception.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

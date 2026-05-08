@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.boardcategory.service;
+package com.matchhub.nyangvil.domain.boardcategory.service;
 
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardPermission;
-import com.matchhub.catconnect.domain.boardcategory.repository.BoardPermissionRepository;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardPermission;
+import com.matchhub.nyangvil.domain.boardcategory.repository.BoardPermissionRepository;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.boardcategory.repository;
+package com.matchhub.nyangvil.domain.boardcategory.repository;
 
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardCategoryItem;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardCategoryItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
