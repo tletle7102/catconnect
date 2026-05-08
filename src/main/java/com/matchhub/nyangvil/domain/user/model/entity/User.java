@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.user.model.entity;
+package com.matchhub.nyangvil.domain.user.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.global.validation.ValidEmailDomain;
-import com.matchhub.catconnect.global.validation.ValidUsername;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.global.validation.ValidEmailDomain;
+import com.matchhub.nyangvil.global.validation.ValidUsername;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

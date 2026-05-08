@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.user.model.dto;
+package com.matchhub.nyangvil.domain.user.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;

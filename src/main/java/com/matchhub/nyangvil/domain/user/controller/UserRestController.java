@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.user.controller;
+package com.matchhub.nyangvil.domain.user.controller;
 
-import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
-import com.matchhub.catconnect.domain.user.model.dto.UserUpdateRequestDTO;
-import com.matchhub.catconnect.domain.user.service.UserService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.nyangvil.domain.user.model.dto.UserUpdateRequestDTO;
+import com.matchhub.nyangvil.domain.user.service.UserService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

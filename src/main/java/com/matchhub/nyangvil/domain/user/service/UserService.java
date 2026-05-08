@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.user.service;
+package com.matchhub.nyangvil.domain.user.service;
 
-import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
-import com.matchhub.catconnect.domain.user.model.dto.UserUpdateRequestDTO;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.nyangvil.domain.user.model.dto.UserUpdateRequestDTO;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
