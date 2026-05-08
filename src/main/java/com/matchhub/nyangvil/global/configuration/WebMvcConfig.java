@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

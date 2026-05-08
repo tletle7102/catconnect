@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
-import com.matchhub.catconnect.domain.chat.websocket.ChatStompInterceptor;
-import com.matchhub.catconnect.domain.chat.websocket.WebSocketHandshakeInterceptor;
+import com.matchhub.nyangvil.domain.chat.websocket.ChatStompInterceptor;
+import com.matchhub.nyangvil.domain.chat.websocket.WebSocketHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;

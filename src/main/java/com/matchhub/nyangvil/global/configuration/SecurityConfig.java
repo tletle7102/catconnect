@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
-import com.matchhub.catconnect.global.exception.CustomAccessDeniedHandler;
-import com.matchhub.catconnect.global.exception.CustomAuthenticationEntryPoint;
-import com.matchhub.catconnect.global.util.auth.JwtAuthenticationFilter;
+import com.matchhub.nyangvil.global.exception.CustomAccessDeniedHandler;
+import com.matchhub.nyangvil.global.exception.CustomAuthenticationEntryPoint;
+import com.matchhub.nyangvil.global.util.auth.JwtAuthenticationFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;

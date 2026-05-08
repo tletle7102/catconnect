@@ -1,16 +1,16 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
-import com.matchhub.catconnect.domain.board.model.entity.Board;
-import com.matchhub.catconnect.domain.board.repository.BoardRepository;
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardPermission;
-import com.matchhub.catconnect.domain.boardcategory.repository.BoardPermissionRepository;
-import com.matchhub.catconnect.domain.comment.model.entity.Comment;
-import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
-import com.matchhub.catconnect.domain.like.model.entity.Like;
-import com.matchhub.catconnect.domain.like.repository.LikeRepository;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.domain.board.model.entity.Board;
+import com.matchhub.nyangvil.domain.board.repository.BoardRepository;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardPermission;
+import com.matchhub.nyangvil.domain.boardcategory.repository.BoardPermissionRepository;
+import com.matchhub.nyangvil.domain.comment.model.entity.Comment;
+import com.matchhub.nyangvil.domain.comment.repository.CommentRepository;
+import com.matchhub.nyangvil.domain.like.model.entity.Like;
+import com.matchhub.nyangvil.domain.like.repository.LikeRepository;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -101,11 +101,11 @@ public class DemoDataSeeder implements CommandLineRunner {
         boards.add(createBoard("가입인사 드립니다!", "<p>길고양이 급식 봉사를 하고 있는 냥이파파입니다.</p>", "catdad", "GREETING", null));
 
         // 고양이 자랑 (CAT_SHOW)
-        boards.add(createBoard("우리 집 막내 치즈태비 소개합니다", "<p>3개월 된 치즈태비예요. 너무 귀엽지 않나요? 이름은 '치즈'입니다.</p>", "catmom", "CAT_SHOW", null));
-        boards.add(createBoard("오늘 찍은 우리 고양이 사진!", "<p>아침에 창가에서 일광욕하는 모습이에요. 너무 평화롭죠?</p>", "meowlover", "CAT_SHOW", null));
-        boards.add(createBoard("턱시도 고양이 자랑합니다", "<p>턱시도 패턴이 너무 예쁜 우리 '턱시'입니다. 3살이에요!</p>", "whiskers", "CAT_SHOW", null));
-        boards.add(createBoard("삼색이 냥이 보러오세요~", "<p>삼색이 고양이 '무지개'예요. 성격이 정말 좋아요.</p>", "furrball", "CAT_SHOW", null));
-        boards.add(createBoard("스코티시폴드 집사입니다", "<p>접힌 귀가 매력 포인트! 우리 '쿠키'를 소개합니다.</p>", "pawfriend", "CAT_SHOW", null));
+        boards.add(createBoard("우리 집 막내 치즈태비 소개합니다", "<p>3개월 된 치즈태비예요. 너무 귀엽지 않나요? 이름은 '치즈'입니다.</p><img src=\"/cats/cheese-tabby.jpg\" alt=\"치즈태비\" style=\"max-width:100%;border-radius:8px;\">", "catmom", "CAT_SHOW", null));
+        boards.add(createBoard("오늘 찍은 우리 고양이 사진!", "<p>아침에 창가에서 일광욕하는 모습이에요. 너무 평화롭죠?</p><img src=\"/cats/sunbathing.jpg\" alt=\"일광욕 고양이\" style=\"max-width:100%;border-radius:8px;\">", "meowlover", "CAT_SHOW", null));
+        boards.add(createBoard("턱시도 고양이 자랑합니다", "<p>턱시도 패턴이 너무 예쁜 우리 '턱시'입니다. 3살이에요!</p><img src=\"/cats/tuxedo.jpg\" alt=\"턱시도 고양이\" style=\"max-width:100%;border-radius:8px;\">", "whiskers", "CAT_SHOW", null));
+        boards.add(createBoard("삼색이 냥이 보러오세요~", "<p>삼색이 고양이 '무지개'예요. 성격이 정말 좋아요.</p><img src=\"/cats/calico.jpg\" alt=\"삼색이 고양이\" style=\"max-width:100%;border-radius:8px;\">", "furrball", "CAT_SHOW", null));
+        boards.add(createBoard("스코티시폴드 집사입니다", "<p>접힌 귀가 매력 포인트! 우리 '쿠키'를 소개합니다.</p><img src=\"/cats/scottish-fold.jpg\" alt=\"스코티시폴드\" style=\"max-width:100%;border-radius:8px;\">", "pawfriend", "CAT_SHOW", null));
 
         // 자유게시판 (FREE)
         boards.add(createBoard("고양이 이름 추천해주세요!", "<p>새로 입양한 아이 이름을 못 정했어요. 회색 러시안블루 수컷입니다. 추천 부탁드려요!</p>", "nyanmaster", "FREE", null));

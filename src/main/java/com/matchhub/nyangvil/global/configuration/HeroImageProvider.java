@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;

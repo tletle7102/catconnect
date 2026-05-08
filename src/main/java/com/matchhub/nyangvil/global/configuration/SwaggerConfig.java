@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -22,19 +22,19 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                                .title("CatConnect API")
+                                .title("Nyangvil API")
                                 .version("1.0.0")
-                                .description("CatConnect Application을 위한 API 명세용 문서 \n\n![logo](https://picsum.photos/300/300)")
+                                .description("Nyangvil Application을 위한 API 명세용 문서 \n\n![logo](https://picsum.photos/300/300)")
 
                                 .contact(new Contact()
-                                        .name("CatConnect")
-                                        .email("catconnect@matchhub.com")
-                                        .url("https://catconnect.matchhub.com"))
+                                        .name("Nyangvil")
+                                        .email("nyangvil@matchhub.com")
+                                        .url("https://nyang.matchhub.co.kr"))
 
                         // 아래는 필요시 사용
 
                         // 서비스 이용 약관 링크
-                        // .termsOfService("https://catconnect.matchhub.com/terms")
+                        // .termsOfService("https://nyang.matchhub.co.kr/terms")
 
                         // 라이선스 정보
                         // .license(new License()

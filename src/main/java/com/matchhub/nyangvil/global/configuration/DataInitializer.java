@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardCategoryGroup;
-import com.matchhub.catconnect.domain.boardcategory.model.entity.BoardCategoryItem;
-import com.matchhub.catconnect.domain.boardcategory.repository.BoardCategoryGroupRepository;
-import com.matchhub.catconnect.domain.boardcategory.repository.BoardCategoryItemRepository;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardCategoryGroup;
+import com.matchhub.nyangvil.domain.boardcategory.model.entity.BoardCategoryItem;
+import com.matchhub.nyangvil.domain.boardcategory.repository.BoardCategoryGroupRepository;
+import com.matchhub.nyangvil.domain.boardcategory.repository.BoardCategoryItemRepository;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
