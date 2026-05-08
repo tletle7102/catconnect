@@ -1,13 +1,13 @@
-package com.matchhub.catconnect.domain.profile.service;
+package com.matchhub.nyangvil.domain.profile.service;
 
-import com.matchhub.catconnect.domain.file.model.dto.FileResponseDTO;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
-import com.matchhub.catconnect.domain.file.service.FileService;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.file.model.dto.FileResponseDTO;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.domain.file.service.FileService;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
