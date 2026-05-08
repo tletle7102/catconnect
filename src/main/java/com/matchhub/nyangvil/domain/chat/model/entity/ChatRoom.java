@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.chat.model.entity;
+package com.matchhub.nyangvil.domain.chat.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.chat.model.enums.RoomType;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.chat.model.enums.RoomType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

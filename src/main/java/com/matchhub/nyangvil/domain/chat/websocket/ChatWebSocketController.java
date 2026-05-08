@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.chat.websocket;
+package com.matchhub.nyangvil.domain.chat.websocket;
 
-import com.matchhub.catconnect.domain.chat.model.dto.ChatMessageResponseDTO;
-import com.matchhub.catconnect.domain.chat.model.dto.ChatWebSocketMessage;
-import com.matchhub.catconnect.domain.chat.model.dto.ReadReceiptDTO;
-import com.matchhub.catconnect.domain.chat.model.dto.SendMessageDTO;
-import com.matchhub.catconnect.domain.chat.service.ChatMessageService;
-import com.matchhub.catconnect.domain.chat.service.ChatRoomService;
-import com.matchhub.catconnect.global.exception.AppException;
+import com.matchhub.nyangvil.domain.chat.model.dto.ChatMessageResponseDTO;
+import com.matchhub.nyangvil.domain.chat.model.dto.ChatWebSocketMessage;
+import com.matchhub.nyangvil.domain.chat.model.dto.ReadReceiptDTO;
+import com.matchhub.nyangvil.domain.chat.model.dto.SendMessageDTO;
+import com.matchhub.nyangvil.domain.chat.service.ChatMessageService;
+import com.matchhub.nyangvil.domain.chat.service.ChatRoomService;
+import com.matchhub.nyangvil.global.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

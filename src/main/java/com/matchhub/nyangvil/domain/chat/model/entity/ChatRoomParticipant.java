@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.chat.model.entity;
+package com.matchhub.nyangvil.domain.chat.model.entity;
 
-import com.matchhub.catconnect.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.chat.repository;
+package com.matchhub.nyangvil.domain.chat.repository;
 
-import com.matchhub.catconnect.domain.chat.model.entity.ChatMessage;
+import com.matchhub.nyangvil.domain.chat.model.entity.ChatMessage;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

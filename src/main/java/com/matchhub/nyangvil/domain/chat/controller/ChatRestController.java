@@ -1,11 +1,11 @@
-package com.matchhub.catconnect.domain.chat.controller;
+package com.matchhub.nyangvil.domain.chat.controller;
 
-import com.matchhub.catconnect.domain.chat.model.dto.ChatHistoryResponseDTO;
-import com.matchhub.catconnect.domain.chat.model.dto.ChatRoomResponseDTO;
-import com.matchhub.catconnect.domain.chat.model.dto.CreateRoomRequestDTO;
-import com.matchhub.catconnect.domain.chat.service.ChatMessageService;
-import com.matchhub.catconnect.domain.chat.service.ChatRoomService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.chat.model.dto.ChatHistoryResponseDTO;
+import com.matchhub.nyangvil.domain.chat.model.dto.ChatRoomResponseDTO;
+import com.matchhub.nyangvil.domain.chat.model.dto.CreateRoomRequestDTO;
+import com.matchhub.nyangvil.domain.chat.service.ChatMessageService;
+import com.matchhub.nyangvil.domain.chat.service.ChatRoomService;
+import com.matchhub.nyangvil.global.exception.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

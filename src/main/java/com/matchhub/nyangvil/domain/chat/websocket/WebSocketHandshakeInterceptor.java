@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.chat.websocket;
+package com.matchhub.nyangvil.domain.chat.websocket;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

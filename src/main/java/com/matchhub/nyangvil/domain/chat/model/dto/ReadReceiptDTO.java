@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.chat.model.dto;
+package com.matchhub.nyangvil.domain.chat.model.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

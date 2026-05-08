@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.chat.model.dto;
+package com.matchhub.nyangvil.domain.chat.model.dto;
 
-import com.matchhub.catconnect.domain.chat.model.enums.RoomType;
+import com.matchhub.nyangvil.domain.chat.model.enums.RoomType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

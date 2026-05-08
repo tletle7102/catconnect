@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.chat.model.dto;
+package com.matchhub.nyangvil.domain.chat.model.dto;
 
-import com.matchhub.catconnect.domain.chat.model.entity.ChatMessage;
-import com.matchhub.catconnect.domain.chat.model.enums.MessageType;
+import com.matchhub.nyangvil.domain.chat.model.entity.ChatMessage;
+import com.matchhub.nyangvil.domain.chat.model.enums.MessageType;
 import lombok.Builder;
 import lombok.Getter;
 

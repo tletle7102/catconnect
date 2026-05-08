@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.chat.websocket;
+package com.matchhub.nyangvil.domain.chat.websocket;
 
-import com.matchhub.catconnect.global.util.auth.JwtProvider;
+import com.matchhub.nyangvil.global.util.auth.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
