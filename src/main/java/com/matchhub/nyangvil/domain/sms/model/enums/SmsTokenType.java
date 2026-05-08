@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.sms.model.enums;
+package com.matchhub.nyangvil.domain.sms.model.enums;
 
 /**
  * SMS 인증 토큰 용도 구분

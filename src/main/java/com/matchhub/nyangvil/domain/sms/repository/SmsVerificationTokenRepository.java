@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.sms.repository;
+package com.matchhub.nyangvil.domain.sms.repository;
 
-import com.matchhub.catconnect.domain.sms.model.entity.SmsVerificationToken;
-import com.matchhub.catconnect.domain.sms.model.enums.SmsTokenType;
+import com.matchhub.nyangvil.domain.sms.model.entity.SmsVerificationToken;
+import com.matchhub.nyangvil.domain.sms.model.enums.SmsTokenType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,14 +1,14 @@
-package com.matchhub.catconnect.domain.sms.service;
+package com.matchhub.nyangvil.domain.sms.service;
 
-import com.matchhub.catconnect.domain.notification.model.enums.NotificationChannel;
-import com.matchhub.catconnect.domain.notification.service.NotificationService;
-import com.matchhub.catconnect.domain.sms.model.dto.SmsResponseDTO;
-import com.matchhub.catconnect.domain.sms.model.entity.SmsVerificationToken;
-import com.matchhub.catconnect.domain.sms.model.enums.SmsTokenType;
-import com.matchhub.catconnect.domain.sms.repository.SmsVerificationTokenRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.notification.model.enums.NotificationChannel;
+import com.matchhub.nyangvil.domain.notification.service.NotificationService;
+import com.matchhub.nyangvil.domain.sms.model.dto.SmsResponseDTO;
+import com.matchhub.nyangvil.domain.sms.model.entity.SmsVerificationToken;
+import com.matchhub.nyangvil.domain.sms.model.enums.SmsTokenType;
+import com.matchhub.nyangvil.domain.sms.repository.SmsVerificationTokenRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +64,7 @@ public class SmsVerificationService {
         tokenRepository.save(token);
 
         // SMS 발송
-        String message = "[CatConnect] 인증번호: " + code + " (3분간 유효)";
+        String message = "[Nyangvil] 인증번호: " + code + " (3분간 유효)";
         try {
             notificationService.send(phoneNumber, NotificationChannel.SMS, message);
         } catch (Exception e) {

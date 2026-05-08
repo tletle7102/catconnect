@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.sms.model.entity;
+package com.matchhub.nyangvil.domain.sms.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.sms.model.enums.SmsTokenType;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.sms.model.enums.SmsTokenType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

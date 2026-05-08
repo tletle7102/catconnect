@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.sms.controller;
+package com.matchhub.nyangvil.domain.sms.controller;
 
-import com.matchhub.catconnect.domain.sms.model.dto.SendSmsCodeRequestDTO;
-import com.matchhub.catconnect.domain.sms.model.dto.SmsResponseDTO;
-import com.matchhub.catconnect.domain.sms.model.dto.VerifySmsCodeRequestDTO;
-import com.matchhub.catconnect.domain.sms.service.SmsVerificationService;
+import com.matchhub.nyangvil.domain.sms.model.dto.SendSmsCodeRequestDTO;
+import com.matchhub.nyangvil.domain.sms.model.dto.SmsResponseDTO;
+import com.matchhub.nyangvil.domain.sms.model.dto.VerifySmsCodeRequestDTO;
+import com.matchhub.nyangvil.domain.sms.service.SmsVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
