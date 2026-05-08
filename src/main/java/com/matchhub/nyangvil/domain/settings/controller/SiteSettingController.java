@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.settings.controller;
+package com.matchhub.nyangvil.domain.settings.controller;
 
-import com.matchhub.catconnect.domain.settings.service.SiteSettingService;
-import com.matchhub.catconnect.global.configuration.HeroImageProvider;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.settings.service.SiteSettingService;
+import com.matchhub.nyangvil.global.configuration.HeroImageProvider;
+import com.matchhub.nyangvil.global.exception.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

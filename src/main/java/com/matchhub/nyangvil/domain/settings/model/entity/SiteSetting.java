@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.settings.model.entity;
+package com.matchhub.nyangvil.domain.settings.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

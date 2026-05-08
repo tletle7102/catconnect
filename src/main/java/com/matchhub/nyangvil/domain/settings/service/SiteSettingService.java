@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.settings.service;
+package com.matchhub.nyangvil.domain.settings.service;
 
-import com.matchhub.catconnect.domain.settings.model.entity.SiteSetting;
-import com.matchhub.catconnect.domain.settings.repository.SiteSettingRepository;
+import com.matchhub.nyangvil.domain.settings.model.entity.SiteSetting;
+import com.matchhub.nyangvil.domain.settings.repository.SiteSettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
