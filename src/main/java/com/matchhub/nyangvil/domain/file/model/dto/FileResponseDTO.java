@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.file.model.dto;
+package com.matchhub.nyangvil.domain.file.model.dto;
 
-import com.matchhub.catconnect.domain.file.model.entity.FileEntity;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.domain.file.model.entity.FileEntity;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.apache.catalina.webresources.FileResource;

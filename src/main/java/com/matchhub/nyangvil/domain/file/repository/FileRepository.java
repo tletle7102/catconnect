@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.file.repository;
+package com.matchhub.nyangvil.domain.file.repository;
 
-import com.matchhub.catconnect.domain.file.model.entity.FileEntity;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.domain.file.model.entity.FileEntity;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.file.model.enums;
+package com.matchhub.nyangvil.domain.file.model.enums;
 
 /**
  * 파일 타입 열거형

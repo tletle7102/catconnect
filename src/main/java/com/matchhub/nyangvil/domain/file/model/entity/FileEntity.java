@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.file.model.entity;
+package com.matchhub.nyangvil.domain.file.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

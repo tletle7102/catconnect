@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.file.service;
+package com.matchhub.nyangvil.domain.file.service;
 
-import com.matchhub.catconnect.domain.file.model.dto.FileResponseDTO;
-import com.matchhub.catconnect.domain.file.model.entity.FileEntity;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
-import com.matchhub.catconnect.domain.file.repository.FileRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.file.model.dto.FileResponseDTO;
+import com.matchhub.nyangvil.domain.file.model.entity.FileEntity;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.domain.file.repository.FileRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +52,7 @@ public class FileService {
     private final Path uploadPath;
 
     public FileService(FileRepository fileRepository,
-                       @Value("${file.upload-dir:${user.home}/catconnect-uploads}") String uploadDir) {
+                       @Value("${file.upload-dir:${user.home}/nyangvil-uploads}") String uploadDir) {
         this.fileRepository = fileRepository;
         this.uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
         createUploadDirectory();

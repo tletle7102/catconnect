@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.file.controller;
+package com.matchhub.nyangvil.domain.file.controller;
 
-import com.matchhub.catconnect.domain.file.model.dto.FileResponseDTO;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
-import com.matchhub.catconnect.domain.file.service.FileService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.file.model.dto.FileResponseDTO;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.domain.file.service.FileService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
