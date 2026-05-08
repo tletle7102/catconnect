@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.util;
+package com.matchhub.nyangvil.global.util;
 
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;

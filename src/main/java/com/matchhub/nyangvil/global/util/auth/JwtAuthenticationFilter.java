@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.util.auth;
+package com.matchhub.nyangvil.global.util.auth;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
