@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.auth.controller;
+package com.matchhub.nyangvil.domain.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matchhub.catconnect.domain.auth.model.dto.LoginRequestDTO;
-import com.matchhub.catconnect.domain.auth.model.dto.TokenRefreshRequestDTO;
-import com.matchhub.catconnect.domain.auth.repository.RefreshTokenRepository;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.domain.auth.model.dto.LoginRequestDTO;
+import com.matchhub.nyangvil.domain.auth.model.dto.TokenRefreshRequestDTO;
+import com.matchhub.nyangvil.domain.auth.repository.RefreshTokenRepository;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
