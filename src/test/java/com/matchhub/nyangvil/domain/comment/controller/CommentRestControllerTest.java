@@ -1,10 +1,10 @@
-package com.matchhub.catconnect.domain.comment.controller;
+package com.matchhub.nyangvil.domain.comment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentRequestDTO;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

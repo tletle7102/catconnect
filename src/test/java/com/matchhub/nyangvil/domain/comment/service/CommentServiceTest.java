@@ -1,14 +1,14 @@
-package com.matchhub.catconnect.domain.comment.service;
+package com.matchhub.nyangvil.domain.comment.service;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
-import com.matchhub.catconnect.domain.comment.model.entity.Comment;
-import com.matchhub.catconnect.domain.comment.repository.CommentRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentRequestDTO;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.nyangvil.domain.comment.model.entity.Comment;
+import com.matchhub.nyangvil.domain.comment.repository.CommentRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
