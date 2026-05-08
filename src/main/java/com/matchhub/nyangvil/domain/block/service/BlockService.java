@@ -1,13 +1,13 @@
-package com.matchhub.catconnect.domain.block.service;
+package com.matchhub.nyangvil.domain.block.service;
 
-import com.matchhub.catconnect.domain.block.model.dto.BlockResponseDTO;
-import com.matchhub.catconnect.domain.block.model.entity.UserBlock;
-import com.matchhub.catconnect.domain.block.repository.BlockRepository;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.block.model.dto.BlockResponseDTO;
+import com.matchhub.nyangvil.domain.block.model.entity.UserBlock;
+import com.matchhub.nyangvil.domain.block.repository.BlockRepository;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

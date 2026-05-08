@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.block.controller;
+package com.matchhub.nyangvil.domain.block.controller;
 
-import com.matchhub.catconnect.domain.block.model.dto.BlockResponseDTO;
-import com.matchhub.catconnect.domain.block.service.BlockService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.block.model.dto.BlockResponseDTO;
+import com.matchhub.nyangvil.domain.block.service.BlockService;
+import com.matchhub.nyangvil.global.exception.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

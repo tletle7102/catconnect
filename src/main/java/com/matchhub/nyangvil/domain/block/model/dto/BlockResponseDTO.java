@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.block.model.dto;
+package com.matchhub.nyangvil.domain.block.model.dto;
 
-import com.matchhub.catconnect.domain.block.model.entity.UserBlock;
+import com.matchhub.nyangvil.domain.block.model.entity.UserBlock;
 import lombok.Builder;
 import lombok.Getter;
 
