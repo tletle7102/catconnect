@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.comment.model.dto;
+package com.matchhub.nyangvil.domain.comment.model.dto;
 
-import com.matchhub.catconnect.global.validation.RestrictedString;
+import com.matchhub.nyangvil.global.validation.RestrictedString;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;

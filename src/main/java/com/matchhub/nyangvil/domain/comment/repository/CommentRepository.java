@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.comment.repository;
+package com.matchhub.nyangvil.domain.comment.repository;
 
-import com.matchhub.catconnect.domain.comment.model.entity.Comment;
+import com.matchhub.nyangvil.domain.comment.model.entity.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;

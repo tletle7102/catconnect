@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.comment.controller;
+package com.matchhub.nyangvil.domain.comment.controller;
 
-import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
-import com.matchhub.catconnect.domain.comment.service.CommentService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentRequestDTO;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.nyangvil.domain.comment.service.CommentService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
