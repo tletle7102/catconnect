@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.board.model.enums;
+package com.matchhub.nyangvil.domain.board.model.enums;
 
 public enum PrefixMode {
     NONE,

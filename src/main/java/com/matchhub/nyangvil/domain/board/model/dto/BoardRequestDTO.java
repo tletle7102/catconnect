@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.board.model.dto;
+package com.matchhub.nyangvil.domain.board.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.board.controller;
+package com.matchhub.nyangvil.domain.board.controller;
 
-import com.matchhub.catconnect.domain.board.model.entity.BoardCategorySetting;
-import com.matchhub.catconnect.domain.board.model.enums.PrefixMode;
-import com.matchhub.catconnect.domain.board.service.BoardCategorySettingService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.board.model.entity.BoardCategorySetting;
+import com.matchhub.nyangvil.domain.board.model.enums.PrefixMode;
+import com.matchhub.nyangvil.domain.board.service.BoardCategorySettingService;
+import com.matchhub.nyangvil.global.exception.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

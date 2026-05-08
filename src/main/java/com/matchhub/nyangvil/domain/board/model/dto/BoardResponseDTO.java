@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.board.model.dto;
+package com.matchhub.nyangvil.domain.board.model.dto;
 
-import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentResponseDTO;
-import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
+import com.matchhub.nyangvil.domain.board.model.enums.BoardPermissionLevel;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentResponseDTO;
+import com.matchhub.nyangvil.domain.like.model.dto.LikeResponseDTO;
 import lombok.Getter;
 import lombok.Setter;
 

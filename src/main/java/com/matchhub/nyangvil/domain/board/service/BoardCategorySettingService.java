@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.board.service;
+package com.matchhub.nyangvil.domain.board.service;
 
-import com.matchhub.catconnect.domain.board.model.entity.BoardCategorySetting;
-import com.matchhub.catconnect.domain.board.model.enums.PrefixMode;
-import com.matchhub.catconnect.domain.board.repository.BoardCategorySettingRepository;
+import com.matchhub.nyangvil.domain.board.model.entity.BoardCategorySetting;
+import com.matchhub.nyangvil.domain.board.model.enums.PrefixMode;
+import com.matchhub.nyangvil.domain.board.repository.BoardCategorySettingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

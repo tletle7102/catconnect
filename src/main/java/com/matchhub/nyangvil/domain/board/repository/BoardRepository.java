@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.board.repository;
+package com.matchhub.nyangvil.domain.board.repository;
 
-import com.matchhub.catconnect.domain.board.model.entity.Board;
+import com.matchhub.nyangvil.domain.board.model.entity.Board;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

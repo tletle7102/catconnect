@@ -1,14 +1,14 @@
-package com.matchhub.catconnect.domain.board.controller;
+package com.matchhub.nyangvil.domain.board.controller;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.model.entity.BoardCategorySetting;
-import com.matchhub.catconnect.domain.board.service.BoardCategorySettingService;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.boardcategory.service.BoardPermissionService;
-import com.matchhub.catconnect.domain.report.service.ReportService;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.model.entity.BoardCategorySetting;
+import com.matchhub.nyangvil.domain.board.service.BoardCategorySettingService;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.boardcategory.service.BoardPermissionService;
+import com.matchhub.nyangvil.domain.report.service.ReportService;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

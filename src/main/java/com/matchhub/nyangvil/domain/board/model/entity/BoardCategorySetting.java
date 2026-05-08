@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.board.model.entity;
+package com.matchhub.nyangvil.domain.board.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.board.model.enums.PrefixMode;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.board.model.enums.PrefixMode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

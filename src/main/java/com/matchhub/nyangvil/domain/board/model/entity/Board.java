@@ -1,10 +1,10 @@
-package com.matchhub.catconnect.domain.board.model.entity;
+package com.matchhub.nyangvil.domain.board.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.board.model.enums.BoardPermissionLevel;
-import com.matchhub.catconnect.domain.comment.model.entity.Comment;
-import com.matchhub.catconnect.domain.like.model.entity.Like;
-import com.matchhub.catconnect.global.validation.RestrictedString;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.board.model.enums.BoardPermissionLevel;
+import com.matchhub.nyangvil.domain.comment.model.entity.Comment;
+import com.matchhub.nyangvil.domain.like.model.entity.Like;
+import com.matchhub.nyangvil.global.validation.RestrictedString;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

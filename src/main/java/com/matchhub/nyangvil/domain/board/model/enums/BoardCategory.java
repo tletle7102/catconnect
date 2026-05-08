@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.board.model.enums;
+package com.matchhub.nyangvil.domain.board.model.enums;
 
 public enum BoardCategory {
     NOTICE("공지사항", "운영", 1),
