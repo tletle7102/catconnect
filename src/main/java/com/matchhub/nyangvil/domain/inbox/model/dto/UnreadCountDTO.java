@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.inbox.model.dto;
+package com.matchhub.nyangvil.domain.inbox.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

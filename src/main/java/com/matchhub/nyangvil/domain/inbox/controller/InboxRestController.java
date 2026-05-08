@@ -1,10 +1,10 @@
-package com.matchhub.catconnect.domain.inbox.controller;
+package com.matchhub.nyangvil.domain.inbox.controller;
 
-import com.matchhub.catconnect.domain.inbox.model.dto.InboxItemResponseDTO;
-import com.matchhub.catconnect.domain.inbox.model.dto.UnreadCountDTO;
-import com.matchhub.catconnect.domain.inbox.model.enums.InboxItemType;
-import com.matchhub.catconnect.domain.inbox.service.InboxService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.inbox.model.dto.InboxItemResponseDTO;
+import com.matchhub.nyangvil.domain.inbox.model.dto.UnreadCountDTO;
+import com.matchhub.nyangvil.domain.inbox.model.enums.InboxItemType;
+import com.matchhub.nyangvil.domain.inbox.service.InboxService;
+import com.matchhub.nyangvil.global.exception.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

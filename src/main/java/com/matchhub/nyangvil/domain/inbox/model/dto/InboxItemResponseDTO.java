@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.inbox.model.dto;
+package com.matchhub.nyangvil.domain.inbox.model.dto;
 
-import com.matchhub.catconnect.domain.inbox.model.entity.InboxItem;
-import com.matchhub.catconnect.domain.inbox.model.enums.InboxItemType;
+import com.matchhub.nyangvil.domain.inbox.model.entity.InboxItem;
+import com.matchhub.nyangvil.domain.inbox.model.enums.InboxItemType;
 import lombok.Builder;
 import lombok.Getter;
 

@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.inbox.repository;
+package com.matchhub.nyangvil.domain.inbox.repository;
 
-import com.matchhub.catconnect.domain.inbox.model.entity.InboxItem;
-import com.matchhub.catconnect.domain.inbox.model.enums.InboxItemType;
+import com.matchhub.nyangvil.domain.inbox.model.entity.InboxItem;
+import com.matchhub.nyangvil.domain.inbox.model.enums.InboxItemType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

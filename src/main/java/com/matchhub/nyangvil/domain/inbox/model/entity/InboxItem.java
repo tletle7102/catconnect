@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.inbox.model.entity;
+package com.matchhub.nyangvil.domain.inbox.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.inbox.model.enums.InboxItemType;
-import com.matchhub.catconnect.domain.user.model.entity.User;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.inbox.model.enums.InboxItemType;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

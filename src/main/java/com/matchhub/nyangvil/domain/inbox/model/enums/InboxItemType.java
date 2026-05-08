@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.inbox.model.enums;
+package com.matchhub.nyangvil.domain.inbox.model.enums;
 
 public enum InboxItemType {
     CHAT,

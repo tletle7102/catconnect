@@ -1,14 +1,14 @@
-package com.matchhub.catconnect.domain.inbox.service;
+package com.matchhub.nyangvil.domain.inbox.service;
 
-import com.matchhub.catconnect.domain.inbox.model.dto.InboxItemResponseDTO;
-import com.matchhub.catconnect.domain.inbox.model.entity.InboxItem;
-import com.matchhub.catconnect.domain.inbox.model.enums.InboxItemType;
-import com.matchhub.catconnect.domain.inbox.repository.InboxItemRepository;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.inbox.model.dto.InboxItemResponseDTO;
+import com.matchhub.nyangvil.domain.inbox.model.entity.InboxItem;
+import com.matchhub.nyangvil.domain.inbox.model.enums.InboxItemType;
+import com.matchhub.nyangvil.domain.inbox.repository.InboxItemRepository;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
