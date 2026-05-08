@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.global.exception;
+package com.matchhub.nyangvil.global.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matchhub.catconnect.global.util.auth.JwtAuthenticationFilter;
+import com.matchhub.nyangvil.global.util.auth.JwtAuthenticationFilter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

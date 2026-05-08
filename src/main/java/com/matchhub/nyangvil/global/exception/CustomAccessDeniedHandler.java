@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.exception;
+package com.matchhub.nyangvil.global.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

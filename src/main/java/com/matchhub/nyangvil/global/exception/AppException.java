@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.exception;
+package com.matchhub.nyangvil.global.exception;
 
 // 커스텀 예외 클래스. 런타임 시 발생할 수 있는 예외를 표현하며, 도메인과 에러 코드 포함
 public class AppException extends RuntimeException {
