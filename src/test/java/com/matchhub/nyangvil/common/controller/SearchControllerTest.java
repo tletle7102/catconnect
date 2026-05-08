@@ -1,15 +1,15 @@
-package com.matchhub.catconnect.common.controller;
+package com.matchhub.nyangvil.common.controller;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.comment.model.dto.CommentRequestDTO;
-import com.matchhub.catconnect.domain.comment.service.CommentService;
-import com.matchhub.catconnect.domain.user.model.dto.UserResponseDTO;
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.model.enums.Role;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.domain.user.service.UserService;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.comment.model.dto.CommentRequestDTO;
+import com.matchhub.nyangvil.domain.comment.service.CommentService;
+import com.matchhub.nyangvil.domain.user.model.dto.UserResponseDTO;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.model.enums.Role;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.domain.user.service.UserService;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
