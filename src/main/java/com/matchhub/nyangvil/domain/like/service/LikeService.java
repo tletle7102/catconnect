@@ -1,15 +1,15 @@
-package com.matchhub.catconnect.domain.like.service;
+package com.matchhub.nyangvil.domain.like.service;
 
-import com.matchhub.catconnect.domain.board.model.entity.Board;
-import com.matchhub.catconnect.domain.board.repository.BoardRepository;
-import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
-import com.matchhub.catconnect.domain.like.model.entity.Like;
-import com.matchhub.catconnect.domain.like.repository.LikeRepository;
-import com.matchhub.catconnect.domain.notification.sse.SseEmitterService;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.board.model.entity.Board;
+import com.matchhub.nyangvil.domain.board.repository.BoardRepository;
+import com.matchhub.nyangvil.domain.like.model.dto.LikeResponseDTO;
+import com.matchhub.nyangvil.domain.like.model.entity.Like;
+import com.matchhub.nyangvil.domain.like.repository.LikeRepository;
+import com.matchhub.nyangvil.domain.notification.sse.SseEmitterService;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

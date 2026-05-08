@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.like.repository;
+package com.matchhub.nyangvil.domain.like.repository;
 
-import com.matchhub.catconnect.domain.like.model.entity.Like;
+import com.matchhub.nyangvil.domain.like.model.entity.Like;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

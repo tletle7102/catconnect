@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.like.model.entity;
+package com.matchhub.nyangvil.domain.like.model.entity;
 
-import com.matchhub.catconnect.common.model.entity.BaseEntity;
-import com.matchhub.catconnect.domain.board.model.entity.Board;
+import com.matchhub.nyangvil.common.model.entity.BaseEntity;
+import com.matchhub.nyangvil.domain.board.model.entity.Board;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

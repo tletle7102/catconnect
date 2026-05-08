@@ -1,8 +1,8 @@
-package com.matchhub.catconnect.domain.like.controller;
+package com.matchhub.nyangvil.domain.like.controller;
 
-import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
-import com.matchhub.catconnect.domain.like.service.LikeService;
-import com.matchhub.catconnect.global.exception.Response;
+import com.matchhub.nyangvil.domain.like.model.dto.LikeResponseDTO;
+import com.matchhub.nyangvil.domain.like.service.LikeService;
+import com.matchhub.nyangvil.global.exception.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
