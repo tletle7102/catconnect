@@ -1,10 +1,10 @@
-package com.matchhub.catconnect.domain.notification.sse;
+package com.matchhub.nyangvil.domain.notification.sse;
 
-import com.matchhub.catconnect.domain.user.model.entity.User;
-import com.matchhub.catconnect.domain.user.repository.UserRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.Domain;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.user.model.entity.User;
+import com.matchhub.nyangvil.domain.user.repository.UserRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.Domain;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;

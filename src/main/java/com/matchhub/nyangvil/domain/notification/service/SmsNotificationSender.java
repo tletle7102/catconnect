@@ -1,7 +1,7 @@
-package com.matchhub.catconnect.domain.notification.service;
+package com.matchhub.nyangvil.domain.notification.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.matchhub.catconnect.domain.notification.model.enums.NotificationChannel;
+import com.matchhub.nyangvil.domain.notification.model.enums.NotificationChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

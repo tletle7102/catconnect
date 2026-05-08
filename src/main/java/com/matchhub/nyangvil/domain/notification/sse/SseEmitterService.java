@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.notification.sse;
+package com.matchhub.nyangvil.domain.notification.sse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.domain.notification.model.enums;
+package com.matchhub.nyangvil.domain.notification.model.enums;
 
 /**
  * 알림 발송 채널
