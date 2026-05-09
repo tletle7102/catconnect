@@ -1,20 +1,20 @@
 services:
-  catconnect-backend:
+  nyangvil-backend:
     build: .
-    image: catconnect-backend
-    container_name: catconnect-container
+    image: nyangvil-backend
+    container_name: nyangvil-container
     restart: unless-stopped
     ports:
-      - "${CATCONNECT_TOMCAT_PORT:-8099}:${CATCONNECT_TOMCAT_PORT:-8099}"
+      - "${NYANGVIL_TOMCAT_PORT:-8099}:${NYANGVIL_TOMCAT_PORT:-8099}"
     environment:
-      - CATCONNECT_SPRING_PROFILE_ACTIVE=${CATCONNECT_SPRING_PROFILE_ACTIVE}
-      - CATCONNECT_TOMCAT_PORT=${CATCONNECT_TOMCAT_PORT}
-      - CATCONNECT_SPRING_SECURITY_JWT_SECRET=${CATCONNECT_SPRING_SECURITY_JWT_SECRET}
-      - CATCONNECT_SPRING_SECURITY_EXPIRATION=${CATCONNECT_SPRING_SECURITY_EXPIRATION}
-      - CATCONNECT_DEV_DB_URL=${CATCONNECT_DEV_DB_URL}
-      - CATCONNECT_DEV_DB_USERNAME=${CATCONNECT_DEV_DB_USERNAME}
-      - CATCONNECT_DEV_DB_PASSWORD=${CATCONNECT_DEV_DB_PASSWORD}
-      - CATCONNECT_DEV_DB_NAME=${CATCONNECT_DEV_DB_NAME}
+      - NYANGVIL_SPRING_PROFILE_ACTIVE=${NYANGVIL_SPRING_PROFILE_ACTIVE}
+      - NYANGVIL_TOMCAT_PORT=${NYANGVIL_TOMCAT_PORT}
+      - NYANGVIL_SPRING_SECURITY_JWT_SECRET=${NYANGVIL_SPRING_SECURITY_JWT_SECRET}
+      - NYANGVIL_SPRING_SECURITY_EXPIRATION=${NYANGVIL_SPRING_SECURITY_EXPIRATION}
+      - NYANGVIL_DEV_DB_URL=${NYANGVIL_DEV_DB_URL}
+      - NYANGVIL_DEV_DB_USERNAME=${NYANGVIL_DEV_DB_USERNAME}
+      - NYANGVIL_DEV_DB_PASSWORD=${NYANGVIL_DEV_DB_PASSWORD}
+      - NYANGVIL_DEV_DB_NAME=${NYANGVIL_DEV_DB_NAME}
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - SOLAPI_API_KEY=${SOLAPI_API_KEY}
@@ -27,22 +27,22 @@ services:
       - infra-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.catconnect-backend.rule=Host(`catconnect.matchhub.co.kr`) && (PathPrefix(`/api`) || PathPrefix(`/ws`) || PathPrefix(`/uploads`) || PathPrefix(`/actuator`))"
-      - "traefik.http.routers.catconnect-backend.entrypoints=websecure"
-      - "traefik.http.routers.catconnect-backend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.catconnect-backend.priority=100"
-      - "traefik.http.services.catconnect-backend.loadbalancer.server.port=${CATCONNECT_TOMCAT_PORT:-8099}"
+      - "traefik.http.routers.nyangvil-backend.rule=Host(`nyang.matchhub.co.kr`) && (PathPrefix(`/api`) || PathPrefix(`/ws`) || PathPrefix(`/uploads`) || PathPrefix(`/actuator`))"
+      - "traefik.http.routers.nyangvil-backend.entrypoints=websecure"
+      - "traefik.http.routers.nyangvil-backend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nyangvil-backend.priority=100"
+      - "traefik.http.services.nyangvil-backend.loadbalancer.server.port=${NYANGVIL_TOMCAT_PORT:-8099}"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:${CATCONNECT_TOMCAT_PORT:-8099}/actuator/health/liveness"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:${NYANGVIL_TOMCAT_PORT:-8099}/actuator/health/liveness"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 180s
 
-  catconnect-frontend:
+  nyangvil-frontend:
     build: ./frontend
-    image: catconnect-frontend
-    container_name: catconnect-frontend
+    image: nyangvil-frontend
+    container_name: nyangvil-frontend
     restart: unless-stopped
     environment:
       - TZ=Asia/Seoul
@@ -50,11 +50,11 @@ services:
       - infra-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.catconnect-frontend.rule=Host(`catconnect.matchhub.co.kr`)"
-      - "traefik.http.routers.catconnect-frontend.entrypoints=websecure"
-      - "traefik.http.routers.catconnect-frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.catconnect-frontend.priority=10"
-      - "traefik.http.services.catconnect-frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.nyangvil-frontend.rule=Host(`nyang.matchhub.co.kr`)"
+      - "traefik.http.routers.nyangvil-frontend.entrypoints=websecure"
+      - "traefik.http.routers.nyangvil-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.nyangvil-frontend.priority=10"
+      - "traefik.http.services.nyangvil-frontend.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/"]
       interval: 30s
@@ -62,7 +62,7 @@ services:
       retries: 3
       start_period: 10s
     depends_on:
-      catconnect-backend:
+      nyangvil-backend:
         condition: service_healthy
 
 networks:
