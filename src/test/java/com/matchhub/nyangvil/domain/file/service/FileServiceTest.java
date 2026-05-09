@@ -1,10 +1,10 @@
-package com.matchhub.catconnect.domain.file.service;
+package com.matchhub.nyangvil.domain.file.service;
 
-import com.matchhub.catconnect.domain.file.model.dto.FileResponseDTO;
-import com.matchhub.catconnect.domain.file.model.enums.FileType;
-import com.matchhub.catconnect.domain.file.repository.FileRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.file.model.dto.FileResponseDTO;
+import com.matchhub.nyangvil.domain.file.model.enums.FileType;
+import com.matchhub.nyangvil.domain.file.repository.FileRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
