@@ -13,7 +13,7 @@
 ```
 src 
 ├── main
-│   ├── java/com.matchhub.catconnect
+│   ├── java/com.matchhub.nyangvil
 │   │   ├── common
 │   │   │   ├── controller
 │   │   │   ├── enums                 # ErrorCode 정의
@@ -38,7 +38,7 @@ src
 │   │   │   ├── util
 │   │   │   │   ├── auth
 │   │   │   │   ├── mail
-│   │   ├── CatconnectApplication          # SpringBootApplication 진입점
+│   │   ├── NyangvilApplication          # SpringBootApplication 진입점
 │   ├── resources
 │   │   ├── static
 │   │   ├── templates
@@ -62,30 +62,30 @@ src
 터미널을 실행하고, 아래 명령어를 실행
 
 ```sh
-git clone https://github.com/tletle7102/catconnect.git
-cd catconnect
+git clone https://github.com/tletle7102/nyangvil.git
+cd nyangvil
 ```
 
-- `git clone https://github.com/tletle7102/catconnect.git` 은 해당 깃허브 리포지토리(이하 origin)를 복제하여 터미널에 위치한 디렉토리에 설치하여 로컬 리포지토리를 생성하는 명령어
-- `cd catconnect` 는 위 명령어를 실행시킨 디렉토리에서 로컬 리포지토리에 생성된 리포지토리 디렉토리로 이동하는 명령어
+- `git clone https://github.com/tletle7102/nyangvil.git` 은 해당 깃허브 리포지토리(이하 origin)를 복제하여 터미널에 위치한 디렉토리에 설치하여 로컬 리포지토리를 생성하는 명령어
+- `cd nyangvil` 는 위 명령어를 실행시킨 디렉토리에서 로컬 리포지토리에 생성된 리포지토리 디렉토리로 이동하는 명령어
 
 ### 2️⃣ 환경변수 설정
 프로젝트 루트 디렉토리에 `.env` 파일을 생성하고, 아래 내용을 입력
 아래 내용에서 값이 없는 부분은 노출에 민감하기 때문에 사용 시, 채워 넣어야 함
 
 ```env
-CATCONNECT_SPRING_PROFILE_ACTIVE= 
-CATCONNECT_TOMCAT_PORT= 
-CATCONNECT_SPRING_SECURITY_JWT_SECRET=
-CATCONNECT_SPRING_SECURITY_EXPIRATION= 
-CATCONNECT_LOCAL_DB_URL= 
-CATCONNECT_LOCAL_DB_USERNAME= 
-CATCONNECT_LOCAL_DB_PASSWORD= 
-CATCONNECT_LOCAL_DB_NAME= 
-CATCONNECT_DEV_DB_URL= 
-CATCONNECT_DEV_DB_USERNAME= 
-CATCONNECT_DEV_DB_PASSWORD= 
-CATCONNECT_DEV_DB_NAME= 
+NYANGVIL_SPRING_PROFILE_ACTIVE= 
+NYANGVIL_TOMCAT_PORT= 
+NYANGVIL_SPRING_SECURITY_JWT_SECRET=
+NYANGVIL_SPRING_SECURITY_EXPIRATION= 
+NYANGVIL_LOCAL_DB_URL= 
+NYANGVIL_LOCAL_DB_USERNAME= 
+NYANGVIL_LOCAL_DB_PASSWORD= 
+NYANGVIL_LOCAL_DB_NAME= 
+NYANGVIL_DEV_DB_URL= 
+NYANGVIL_DEV_DB_USERNAME= 
+NYANGVIL_DEV_DB_PASSWORD= 
+NYANGVIL_DEV_DB_NAME= 
 
 ```
 
