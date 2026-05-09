@@ -1,5 +1,5 @@
 server:
-  port: ${NYANGVIL_TOMCAT_PORT:8099}
+  port: ${NYANGVIL_DEV_TOMCAT_PORT:8099}
 
 spring:
   datasource:
@@ -24,8 +24,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:test@example.com}
-    password: ${MAIL_PASSWORD:test-password}
+    username: ${NYANGVIL_DEV_MAIL_USERNAME:test@example.com}
+    password: ${NYANGVIL_DEV_MAIL_PASSWORD:test-password}
     properties:
       mail:
         smtp:
@@ -45,13 +45,13 @@ app:
   sms:
     verification-expiry-minutes: 3
   solapi:
-    api-key: ${SOLAPI_API_KEY:test-api-key}
-    api-secret: ${SOLAPI_API_SECRET:test-api-secret}
-    sender-phone: ${SOLAPI_SENDER_PHONE:01012345678}
+    api-key: ${NYANGVIL_DEV_SOLAPI_API_KEY:test-api-key}
+    api-secret: ${NYANGVIL_DEV_SOLAPI_API_SECRET:test-api-secret}
+    sender-phone: ${NYANGVIL_DEV_SOLAPI_SENDER_PHONE:01012345678}
     api-url: https://api.solapi.com/messages/v4/send-many/detail
   jwt:
-    secret: ${NYANGVIL_SPRING_SECURITY_JWT_SECRET}
-    expiration: ${NYANGVIL_SPRING_SECURITY_EXPIRATION:3600000}
+    secret: ${NYANGVIL_DEV_JWT_SECRET}
+    expiration: ${NYANGVIL_DEV_JWT_EXPIRATION:3600000}
     extended-expiration: 604800000
 
 file:
