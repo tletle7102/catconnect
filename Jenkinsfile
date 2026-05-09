@@ -7,22 +7,22 @@ pipeline {
     }
 
     environment {
-        CATCONNECT_SPRING_PROFILE_ACTIVE = credentials('catconnect-spring-profile-active')
-        CATCONNECT_TOMCAT_PORT = credentials('catconnect-tomcat-port')
-        CATCONNECT_SPRING_SECURITY_JWT_SECRET = credentials('catconnect-jwt-secret')
-        CATCONNECT_SPRING_SECURITY_EXPIRATION = credentials('catconnect-jwt-expiration')
-        CATCONNECT_DEV_DB_URL = credentials('catconnect-dev-db-url')
-        CATCONNECT_DEV_DB_USERNAME = credentials('catconnect-dev-db-username')
-        CATCONNECT_DEV_DB_PASSWORD = credentials('catconnect-dev-db-password')
-        CATCONNECT_DEV_DB_NAME = credentials('catconnect-dev-db-name')
-        MAIL_USERNAME = credentials('catconnect-mail-username')
-        MAIL_PASSWORD = credentials('catconnect-mail-password')
-        SOLAPI_API_KEY = credentials('catconnect-solapi-api-key')
-        SOLAPI_API_SECRET = credentials('catconnect-solapi-api-secret')
-        SOLAPI_SENDER_PHONE = credentials('catconnect-solapi-sender-phone')
+        NYANGVIL_SPRING_PROFILE_ACTIVE = credentials('nyangvil-spring-profile-active')
+        NYANGVIL_TOMCAT_PORT = credentials('nyangvil-tomcat-port')
+        NYANGVIL_SPRING_SECURITY_JWT_SECRET = credentials('nyangvil-jwt-secret')
+        NYANGVIL_SPRING_SECURITY_EXPIRATION = credentials('nyangvil-jwt-expiration')
+        NYANGVIL_DEV_DB_URL = credentials('nyangvil-dev-db-url')
+        NYANGVIL_DEV_DB_USERNAME = credentials('nyangvil-dev-db-username')
+        NYANGVIL_DEV_DB_PASSWORD = credentials('nyangvil-dev-db-password')
+        NYANGVIL_DEV_DB_NAME = credentials('nyangvil-dev-db-name')
+        MAIL_USERNAME = credentials('nyangvil-mail-username')
+        MAIL_PASSWORD = credentials('nyangvil-mail-password')
+        SOLAPI_API_KEY = credentials('nyangvil-solapi-api-key')
+        SOLAPI_API_SECRET = credentials('nyangvil-solapi-api-secret')
+        SOLAPI_SENDER_PHONE = credentials('nyangvil-solapi-sender-phone')
 
-        DOCKER_CONTAINER_NAME = 'catconnect-container'
-        SUBDOMAIN = 'catconnect.matchhub.co.kr'
+        DOCKER_CONTAINER_NAME = 'nyangvil-container'
+        SUBDOMAIN = 'nyang.matchhub.co.kr'
 
         DISCORD_WEBHOOK_BUILD_SUCCESS = credentials('discord-webhook-build-success')
         DISCORD_WEBHOOK_BUILD_FAILURE = credentials('discord-webhook-build-failure')
@@ -48,7 +48,7 @@ pipeline {
             steps {
                 sh 'docker compose down || true'
                 sh 'docker rm -f ${DOCKER_CONTAINER_NAME} || true'
-                sh 'docker rm -f catconnect-frontend || true'
+                sh 'docker rm -f nyangvil-frontend || true'
                 sh 'docker compose up -d --build'
             }
         }
@@ -72,12 +72,12 @@ pipeline {
 
                         echo "frontend healthy 대기 (최대 1분)..."
                         for i in $(seq 1 6); do
-                            status=$(docker inspect catconnect-frontend --format='{{.State.Health.Status}}' 2>/dev/null || echo "missing")
-                            echo "  [$i/6] catconnect-frontend: $status"
+                            status=$(docker inspect nyangvil-frontend --format='{{.State.Health.Status}}' 2>/dev/null || echo "missing")
+                            echo "  [$i/6] nyangvil-frontend: $status"
                             if [ "$status" = "healthy" ]; then break; fi
                             if [ "$i" -eq 6 ]; then
                                 echo "타임아웃: frontend healthy 미도달"
-                                docker logs catconnect-frontend --tail 50
+                                docker logs nyangvil-frontend --tail 50
                                 exit 1
                             fi
                             sleep 10
@@ -112,7 +112,7 @@ pipeline {
         success {
             sh '''
                 PAYLOAD=$(jq -nc \
-                  --arg title "catconnect 배포 성공" \
+                  --arg title "nyangvil 배포 성공" \
                   --arg desc "빌드 #${BUILD_NUMBER} 배포 완료\nhttps://${SUBDOMAIN}" \
                   '{embeds: [{title: $title, description: $desc, color: 3066993}]}')
                 curl -sS -H "Content-Type: application/json" -d "$PAYLOAD" "${DISCORD_WEBHOOK_BUILD_SUCCESS}" >/dev/null 2>&1 || true
@@ -123,7 +123,7 @@ pipeline {
         failure {
             sh '''
                 PAYLOAD=$(jq -nc \
-                  --arg title "catconnect 배포 실패" \
+                  --arg title "nyangvil 배포 실패" \
                   --arg desc "빌드 #${BUILD_NUMBER} 실패\n[로그 보기](${BUILD_URL}console)" \
                   '{embeds: [{title: $title, description: $desc, color: 15158332}]}')
                 curl -sS -H "Content-Type: application/json" -d "$PAYLOAD" "${DISCORD_WEBHOOK_BUILD_FAILURE}" >/dev/null 2>&1 || true
