@@ -12,9 +12,12 @@ export default function Footer() {
       }}
     >
       <Box sx={{ maxWidth: 'lg', width: '100%', mx: 'auto', display: 'flex', justifyContent: 'space-between' }}>
-        <Typography sx={{ fontSize: '0.85rem' }}>
-          CatConnect: 🐱고양이 입양을 원하는 사람들과 분양을 원하는 사람들을 연결하는 매칭 플랫폼
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box component="img" src="/logo-white-bg.png" alt="Nyangvil" sx={{ width: 24, height: 24, mr: 0.75, borderRadius: '4px' }} />
+          <Typography sx={{ fontSize: '0.85rem' }}>
+            Nyangvil: 고양이를 사랑하는 사람들의 커뮤니티
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );
