@@ -7,19 +7,19 @@ pipeline {
     }
 
     environment {
-        NYANGVIL_SPRING_PROFILE_ACTIVE = credentials('nyangvil-spring-profile-active')
-        NYANGVIL_TOMCAT_PORT = credentials('nyangvil-tomcat-port')
-        NYANGVIL_SPRING_SECURITY_JWT_SECRET = credentials('nyangvil-jwt-secret')
-        NYANGVIL_SPRING_SECURITY_EXPIRATION = credentials('nyangvil-jwt-expiration')
-        NYANGVIL_DEV_DB_URL = credentials('nyangvil-dev-db-url')
-        NYANGVIL_DEV_DB_USERNAME = credentials('nyangvil-dev-db-username')
-        NYANGVIL_DEV_DB_PASSWORD = credentials('nyangvil-dev-db-password')
-        NYANGVIL_DEV_DB_NAME = credentials('nyangvil-dev-db-name')
-        MAIL_USERNAME = credentials('nyangvil-mail-username')
-        MAIL_PASSWORD = credentials('nyangvil-mail-password')
-        SOLAPI_API_KEY = credentials('nyangvil-solapi-api-key')
-        SOLAPI_API_SECRET = credentials('nyangvil-solapi-api-secret')
-        SOLAPI_SENDER_PHONE = credentials('nyangvil-solapi-sender-phone')
+        NYANGVIL_SPRING_PROFILE_ACTIVE    = credentials('nyangvil-spring-profile-active')
+        NYANGVIL_DEV_TOMCAT_PORT          = credentials('nyangvil-dev-tomcat-port')
+        NYANGVIL_DEV_JWT_SECRET           = credentials('nyangvil-dev-jwt-secret')
+        NYANGVIL_DEV_JWT_EXPIRATION       = credentials('nyangvil-dev-jwt-expiration')
+        NYANGVIL_DEV_DB_URL               = credentials('nyangvil-dev-db-url')
+        NYANGVIL_DEV_DB_USERNAME          = credentials('nyangvil-dev-db-username')
+        NYANGVIL_DEV_DB_PASSWORD          = credentials('nyangvil-dev-db-password')
+        NYANGVIL_DEV_DB_NAME              = credentials('nyangvil-dev-db-name')
+        NYANGVIL_DEV_MAIL_USERNAME        = credentials('nyangvil-dev-mail-username')
+        NYANGVIL_DEV_MAIL_PASSWORD        = credentials('nyangvil-dev-mail-password')
+        NYANGVIL_DEV_SOLAPI_API_KEY       = credentials('nyangvil-dev-solapi-api-key')
+        NYANGVIL_DEV_SOLAPI_API_SECRET    = credentials('nyangvil-dev-solapi-api-secret')
+        NYANGVIL_DEV_SOLAPI_SENDER_PHONE  = credentials('nyangvil-dev-solapi-sender-phone')
 
         DOCKER_CONTAINER_NAME = 'nyangvil-container'
         SUBDOMAIN = 'nyang.matchhub.co.kr'
