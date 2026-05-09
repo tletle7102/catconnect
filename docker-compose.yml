@@ -21,6 +21,8 @@ services:
       - NYANGVIL_DEV_SOLAPI_API_SECRET=${NYANGVIL_DEV_SOLAPI_API_SECRET}
       - NYANGVIL_DEV_SOLAPI_SENDER_PHONE=${NYANGVIL_DEV_SOLAPI_SENDER_PHONE}
       - TZ=Asia/Seoul
+    volumes:
+      - /mydata/nyangvil-uploads:/root/nyangvil-uploads
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
