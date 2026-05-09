@@ -85,13 +85,15 @@ export default function Header() {
     <AppBar position="sticky" color="inherit" elevation={0} sx={{ bgcolor: 'background.paper' }}>
       <Toolbar sx={{ maxWidth: 'lg', width: '100%', mx: 'auto', px: { xs: 1, md: 2 } }}>
         {/* 로고 */}
-        <Typography
-          variant="h6"
-          onClick={() => navigate('/')}
-          sx={{ fontFamily: "'Jua', sans-serif", fontWeight: 700, color: 'primary.main', cursor: 'pointer', mr: 2 }}
-        >
-          CatConnect
-        </Typography>
+        <Box onClick={() => navigate('/')} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mr: 2 }}>
+          <Box component="img" src="/logo.png" alt="Nyangvil" sx={{ width: 32, height: 32, mr: 0.75 }} />
+          <Typography
+            variant="h6"
+            sx={{ fontFamily: "'Jua', sans-serif", fontWeight: 700, color: 'primary.main' }}
+          >
+            Nyangvil
+          </Typography>
+        </Box>
 
         {/* 모바일 햄버거 */}
         <IconButton sx={{ display: { md: 'none' }, ml: 'auto' }} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
