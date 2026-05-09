@@ -164,9 +164,9 @@ export default function HomePage() {
 
         {/* 텍스트 */}
         <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', p: { xs: 3, md: 4 } }}>
-          <Typography sx={{ fontSize: '3rem', mb: 0.5 }}>🐱</Typography>
+          <Box component="img" src="/logo.png" alt="Nyangvil" sx={{ width: { xs: 80, md: 100 }, height: { xs: 80, md: 100 }, mb: 1 }} />
           <Typography variant="h3" sx={{ fontFamily: "'Jua', sans-serif", fontWeight: 800, color: '#ffffff' }}>
-            CatConnect
+            Nyangvil
           </Typography>
           <Typography sx={{ fontSize: '1rem', color: 'rgba(255,255,255,0.85)', mt: 0.5 }}>
             고양이를 사랑하는 사람들을 위한 커뮤니티
