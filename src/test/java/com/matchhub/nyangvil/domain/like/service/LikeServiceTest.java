@@ -1,12 +1,12 @@
-package com.matchhub.catconnect.domain.like.service;
+package com.matchhub.nyangvil.domain.like.service;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.like.model.dto.LikeResponseDTO;
-import com.matchhub.catconnect.domain.like.repository.LikeRepository;
-import com.matchhub.catconnect.global.exception.AppException;
-import com.matchhub.catconnect.global.exception.ErrorCode;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.like.model.dto.LikeResponseDTO;
+import com.matchhub.nyangvil.domain.like.repository.LikeRepository;
+import com.matchhub.nyangvil.global.exception.AppException;
+import com.matchhub.nyangvil.global.exception.ErrorCode;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
