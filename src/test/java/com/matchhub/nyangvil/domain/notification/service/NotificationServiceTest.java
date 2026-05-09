@@ -1,6 +1,6 @@
-package com.matchhub.catconnect.domain.notification.service;
+package com.matchhub.nyangvil.domain.notification.service;
 
-import com.matchhub.catconnect.domain.notification.model.enums.NotificationChannel;
+import com.matchhub.nyangvil.domain.notification.model.enums.NotificationChannel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
