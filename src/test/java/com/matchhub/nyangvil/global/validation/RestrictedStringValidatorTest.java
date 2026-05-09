@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.validation;
+package com.matchhub.nyangvil.global.validation;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

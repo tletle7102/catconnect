@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.configuration;
+package com.matchhub.nyangvil.global.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;

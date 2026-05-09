@@ -1,4 +1,4 @@
-package com.matchhub.catconnect.global.util;
+package com.matchhub.nyangvil.global.util;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
