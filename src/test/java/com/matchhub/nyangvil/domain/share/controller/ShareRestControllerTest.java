@@ -1,9 +1,9 @@
-package com.matchhub.catconnect.domain.share.controller;
+package com.matchhub.nyangvil.domain.share.controller;
 
-import com.matchhub.catconnect.domain.board.model.dto.BoardRequestDTO;
-import com.matchhub.catconnect.domain.board.model.dto.BoardResponseDTO;
-import com.matchhub.catconnect.domain.board.service.BoardService;
-import com.matchhub.catconnect.domain.share.repository.ShareLinkRepository;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardRequestDTO;
+import com.matchhub.nyangvil.domain.board.model.dto.BoardResponseDTO;
+import com.matchhub.nyangvil.domain.board.service.BoardService;
+import com.matchhub.nyangvil.domain.share.repository.ShareLinkRepository;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
