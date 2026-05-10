@@ -29,7 +29,7 @@ services:
       - infra-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nyangvil-backend.rule=Host(`nyang.matchhub.co.kr`) && (PathPrefix(`/api`) || PathPrefix(`/ws`) || PathPrefix(`/uploads`) || PathPrefix(`/actuator`))"
+      - "traefik.http.routers.nyangvil-backend.rule=Host(`nyang.matchhub.co.kr`) && (PathPrefix(`/api`) || PathPrefix(`/ws`) || PathPrefix(`/uploads`) || PathPrefix(`/actuator`) || PathPrefix(`/swagger-ui`) || PathPrefix(`/api-docs`))"
       - "traefik.http.routers.nyangvil-backend.entrypoints=websecure"
       - "traefik.http.routers.nyangvil-backend.tls.certresolver=letsencrypt"
       - "traefik.http.routers.nyangvil-backend.priority=100"
