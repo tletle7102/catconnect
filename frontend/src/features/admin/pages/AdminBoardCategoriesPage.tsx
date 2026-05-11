@@ -135,7 +135,14 @@ export default function AdminBoardCategoriesPage() {
   const openPermDialog = async (item: CategoryItem) => {
     try {
       const res = await boardPermissionsApi.getPermissions(item.categoryCode);
-      const rows = (res.data?.data || []).filter((r: BoardPermissionRow) => r.role !== 'ADMIN');
+      let rows = (res.data?.data || []).filter((r: BoardPermissionRow) => r.role !== 'ADMIN');
+      // 새 게시판은 권한 데이터가 없으므로 기본값 제공
+      if (rows.length === 0) {
+        rows = [
+          { role: 'USER', canRead: true, canWrite: true },
+          { role: 'MANAGER', canRead: true, canWrite: true },
+        ] as BoardPermissionRow[];
+      }
       setPermDialog({ open: true, categoryCode: item.categoryCode, label: item.label, rows });
     } catch {
       toast.show('권한 조회 실패', 'error');
@@ -219,7 +226,11 @@ export default function AdminBoardCategoriesPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setItemDialog({ ...itemDialog, open: false })}>취소</Button>
-          <Button variant="contained" onClick={() => itemDialog.id ? updateItemMut.mutate() : createItemMut.mutate()}>
+          <Button variant="contained" onClick={() => {
+            if (!itemDialog.label.trim()) { toast.show('게시판 이름을 입력해주세요.', 'error'); return; }
+            if (!itemDialog.categoryCode.trim()) { toast.show('카테고리 코드를 입력해주세요.', 'error'); return; }
+            itemDialog.id ? updateItemMut.mutate() : createItemMut.mutate();
+          }}>
             {itemDialog.id ? '수정' : '추가'}
           </Button>
         </DialogActions>
