@@ -80,6 +80,8 @@ export default function BoardDetailPage() {
   const [imageModal, setImageModal] = useState<string | null>(null);
   const [reportDetail, setReportDetail] = useState('');
   const [emojiOpen, setEmojiOpen] = useState(false);
+  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const commentFileRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading, error } = useQuery({
@@ -142,7 +144,8 @@ export default function BoardDetailPage() {
   const handleShare = async () => {
     try {
       const res = await boardsApi.getShareLink(Number(id));
-      const url = window.location.origin + '/s/' + res.data.data.shortCode;
+      const shareUrl = res.data.data.shareUrl;
+      const url = shareUrl.replace(/^https?:\/\/[^/]+/, window.location.origin);
       await navigator.clipboard.writeText(url);
       toast.show('링크가 복사되었습니다.');
     } catch { toast.show('링크 복사 실패', 'error'); }
@@ -251,7 +254,7 @@ export default function BoardDetailPage() {
           <Divider sx={{ my: 2 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Button startIcon={isLiked ? <Favorite color="error" /> : <FavoriteBorder />} onClick={() => likeMutation.mutate()} disabled={!isAuthenticated}>
+            <Button startIcon={isLiked ? <Favorite color="error" /> : <FavoriteBorder />} onClick={() => isAuthenticated ? likeMutation.mutate() : setLoginDialogOpen(true)}>
               좋아요 {board.likeCount}
             </Button>
             <Button startIcon={<Share />} onClick={handleShare}>공유</Button>
@@ -261,7 +264,7 @@ export default function BoardDetailPage() {
             {isAuthor && (
               <>
                 <Button startIcon={<Edit />} onClick={() => navigate(`/boards/${id}/edit`)}>수정</Button>
-                <Button startIcon={<Delete />} color="error" onClick={() => deleteBoardMutation.mutate()}>삭제</Button>
+                <Button startIcon={<Delete />} color="error" onClick={() => setDeleteDialogOpen(true)}>삭제</Button>
               </>
             )}
           </Box>
@@ -274,7 +277,7 @@ export default function BoardDetailPage() {
           <Typography sx={{ fontWeight: 700, mb: 2 }}>댓글 {comments.length}</Typography>
 
           {isAuthenticated && (
-            <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 2, overflow: 'hidden' }}>
+            <Box sx={{ mb: 2, border: '1px solid #e0e0e0', borderRadius: 2 }}>
               <Box sx={{ position: 'relative' }}>
                 <Typography sx={{ position: 'absolute', top: 8, right: 12, fontSize: '0.7rem', color: '#ccc' }}>
                   {commentText.length} / 500
@@ -319,7 +322,7 @@ export default function BoardDetailPage() {
                   {emojiOpen && (
                     <>
                       <Box sx={{ position: 'fixed', inset: 0, zIndex: 1099 }} onClick={() => setEmojiOpen(false)} />
-                      <Box sx={{ position: 'absolute', bottom: '100%', left: 0, zIndex: 1100, mb: 1, display: 'flex', flexWrap: 'wrap', gap: 0.3, p: 1, bgcolor: 'white', border: '1px solid #e0e0e0', borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxWidth: 280, maxHeight: 200, overflowY: 'auto' }}>
+                      <Box sx={{ position: 'fixed', bottom: 120, left: '50%', transform: 'translateX(-50%)', zIndex: 1100, display: 'flex', flexWrap: 'wrap', gap: 0.5, p: 1.5, bgcolor: 'white', border: '1px solid #e0e0e0', borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.15)', width: 300 }}>
                         {['😀','😂','🥰','😍','🤣','😊','😎','🥺','😢','😭','😤','🤔','👍','👎','❤️','🔥','🎉','👏','🙏','💪','🐱','🐾','😺','😸','😻','😽','🙀','😿','😹','🐈'].map((emoji) => (
                           <Box key={emoji} onClick={() => { setCommentText((prev) => prev + emoji); setEmojiOpen(false); }}
                             sx={{ fontSize: '1.3rem', cursor: 'pointer', p: 0.3, borderRadius: 1, '&:hover': { bgcolor: '#f0f0f0' } }}>
@@ -369,6 +372,30 @@ export default function BoardDetailPage() {
         <DialogActions>
           <Button onClick={() => setReportOpen(false)}>취소</Button>
           <Button variant="contained" color="error" onClick={() => reportMutation.mutate()}>신고</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 로그인 유도 다이얼로그 */}
+      <Dialog open={loginDialogOpen} onClose={() => setLoginDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>로그인 필요</DialogTitle>
+        <DialogContent>
+          <Typography>이 기능을 사용하려면 로그인이 필요합니다.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLoginDialogOpen(false)}>취소</Button>
+          <Button variant="contained" onClick={() => navigate('/login')}>로그인</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 게시글 삭제 확인 다이얼로그 */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>게시글 삭제</DialogTitle>
+        <DialogContent>
+          <Typography>정말 이 게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>취소</Button>
+          <Button variant="contained" color="error" onClick={() => { setDeleteDialogOpen(false); deleteBoardMutation.mutate(); }}>삭제</Button>
         </DialogActions>
       </Dialog>
 
