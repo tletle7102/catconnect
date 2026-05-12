@@ -120,9 +120,12 @@ export default function ChatRoomPage() {
     },
   });
 
-  // 스크롤
+  // 스크롤: 새 메시지가 추가될 때 항상 맨 아래로 스크롤
   useEffect(() => {
-    if (!nextCursor) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   // 무한 스크롤 (위로 스크롤 시 이전 메시지 로드)
@@ -250,7 +253,7 @@ export default function ChatRoomPage() {
             </Box>
           );
         })}
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} style={{ minHeight: 24, flexShrink: 0 }} />
       </Box>
 
       {/* 입력 영역 */}
@@ -262,7 +265,7 @@ export default function ChatRoomPage() {
         <TextField
           fullWidth size="small" placeholder="메시지를 입력하세요..."
           value={input} onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); handleSend(); } }}
           sx={{ '& .MuiOutlinedInput-root': { borderRadius: 5 } }}
         />
         <IconButton color="primary" onClick={handleSend}><Send /></IconButton>
