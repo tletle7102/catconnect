@@ -26,8 +26,8 @@ export default function SearchResultsPage() {
   });
 
   const results = data?.data?.data;
-  const items = results?.content || results?.boards?.content || [];
-  const totalPages = results?.totalPages || results?.boards?.totalPages || 0;
+  const items = results?.boardPage?.content || [];
+  const totalPages = results?.boardPage?.totalPages || 0;
 
   return (
     <Box>
